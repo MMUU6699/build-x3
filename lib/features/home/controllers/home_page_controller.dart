@@ -56,7 +56,6 @@ import '../services/file_upload_service.dart';
 import '../utils/chat_layout_constants.dart';
 import '../widgets/chat_input_bar.dart';
 import '../widgets/share_destination_sheet.dart';
-import '../../model/widgets/model_select_sheet.dart';
 
 enum ChatSelectionMode { share, delete }
 
@@ -670,9 +669,6 @@ class HomePageController extends ChangeNotifier {
               _inputFocus.requestFocus();
             });
           }
-          break;
-        case ChatAction.switchModel:
-          unawaited(showModelSelectSheet(ctx, controller: this));
           break;
         case ChatAction.enterGlobalSearch:
           enterGlobalSearchMode(preserveQuery: true);

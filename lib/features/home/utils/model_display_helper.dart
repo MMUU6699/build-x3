@@ -1,6 +1,7 @@
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/models/assistant.dart';
 import '../../../core/models/conversation.dart';
+import '../../../core/build_x_config.dart';
 
 /// Helper class for extracting model display information.
 ///
@@ -36,28 +37,13 @@ class ModelDisplayInfo {
   }
 }
 
-/// Resolves the model a chat sends with, in priority order:
-/// conversation override, then assistant default, then global default.
-///
-/// The conversation layer is skipped entirely when
-/// [SettingsProvider.perChatModelEnabled] is off; pins stay in the database so
-/// turning the setting back on restores each conversation's own model.
-///
-/// This is the only place that chain should be written. Every caller that means
-/// "the model this chat uses" goes through here or [getActiveModelIds].
+/// All chats use the single Build X model, including older imported chats.
 ({String? providerKey, String? modelId}) resolveChatModel(
   SettingsProvider settings, {
   Conversation? conversation,
   Assistant? assistant,
 }) {
-  final pinned = settings.perChatModelEnabled ? conversation : null;
-  final providerKey =
-      pinned?.chatModelProvider ??
-      assistant?.chatModelProvider ??
-      settings.currentModelProvider;
-  final modelId =
-      pinned?.chatModelId ?? assistant?.chatModelId ?? settings.currentModelId;
-  return (providerKey: providerKey, modelId: modelId);
+  return (providerKey: BuildXConfig.providerKey, modelId: BuildXConfig.modelId);
 }
 
 /// Extracts model display information from settings, conversation and assistant.

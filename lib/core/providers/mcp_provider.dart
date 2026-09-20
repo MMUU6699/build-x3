@@ -1174,7 +1174,7 @@ class McpProvider extends ChangeNotifier {
           !_authorizationIsCurrent(server, state, generation)) {
         return false;
       }
-      return _connect(server.id, retryUnauthorized: false);
+      return await _connect(server.id, retryUnauthorized: false);
     } catch (error) {
       if (!_authorizationIsCurrent(server, state, generation)) return false;
       state.status =
@@ -1431,7 +1431,7 @@ class McpProvider extends ChangeNotifier {
         return false;
       }
       final clientConfig = mcp.McpClient.simpleConfig(
-        name: 'Kelivo MCP',
+        name: 'Build X MCP',
         version: '1.0.0',
         enableDebugLogging: false,
         requestTimeout: _requestTimeout,
@@ -1548,7 +1548,7 @@ class McpProvider extends ChangeNotifier {
           if (await _refreshOAuthAfterUnauthorized(server, state)) {
             final latest = getById(id);
             if (latest == null || state.generation != generation) return false;
-            return _performConnect(
+            return await _performConnect(
               id,
               latest,
               state,

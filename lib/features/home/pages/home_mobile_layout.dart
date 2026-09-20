@@ -42,7 +42,6 @@ class HomeMobileScaffold extends StatelessWidget {
     required this.onOpenMiniMap,
     required this.onCreateNewConversation,
     required this.onToggleTemporaryConversation,
-    required this.onSelectModel,
     required this.canToggleTemporaryConversation,
     required this.temporaryConversationEnabled,
     required this.globalSearchMode,
@@ -69,7 +68,6 @@ class HomeMobileScaffold extends StatelessWidget {
   final VoidCallback onOpenMiniMap;
   final Future<void> Function() onCreateNewConversation;
   final Future<void> Function() onToggleTemporaryConversation;
-  final VoidCallback onSelectModel;
   final bool canToggleTemporaryConversation;
   final bool temporaryConversationEnabled;
   final bool globalSearchMode;
@@ -202,21 +200,17 @@ class HomeMobileScaffold extends StatelessWidget {
                       if (providerName != null && modelDisplay != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(6),
-                            onTap: onSelectModel,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 0),
-                              child: AnimatedTextSwap(
-                                text: '$modelDisplay ($providerName)',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: cs.onSurface.withValues(alpha: 0.6),
-                                  fontWeight: AppFontWeights.medium,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 0),
+                            child: AnimatedTextSwap(
+                              text: '$modelDisplay ($providerName)',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: cs.onSurface.withValues(alpha: 0.6),
+                                fontWeight: AppFontWeights.medium,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
@@ -239,21 +233,17 @@ class HomeMobileScaffold extends StatelessWidget {
                 if (providerName != null && modelDisplay != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(6),
-                      onTap: onSelectModel,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 0),
-                        child: AnimatedTextSwap(
-                          text: '$modelDisplay ($providerName)',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: cs.onSurface.withValues(alpha: 0.6),
-                            fontWeight: AppFontWeights.medium,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 0),
+                      child: AnimatedTextSwap(
+                        text: '$modelDisplay ($providerName)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontWeight: AppFontWeights.medium,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),

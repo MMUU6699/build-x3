@@ -326,7 +326,7 @@ class ChatActions {
       id: _backgroundTaskId(ctx),
       scheduled: ctx.scheduled,
       conversationId: conversationId,
-      title: chatService.getConversation(conversationId)?.title ?? 'Kelivo',
+      title: chatService.getConversation(conversationId)?.title ?? 'Build X',
       cancel: () async {
         if (!_activeAssistantMessages.isActive(ctx.assistantMessage)) return;
         if (ctx.generationRunId != null &&

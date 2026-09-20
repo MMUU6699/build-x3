@@ -56,7 +56,6 @@ class HomeDesktopScaffold extends StatelessWidget {
     required this.onNewConversation,
     required this.onCreateNewConversation,
     required this.onToggleTemporaryConversation,
-    required this.onSelectModel,
     required this.canToggleTemporaryConversation,
     required this.temporaryConversationEnabled,
     required this.globalSearchMode,
@@ -94,7 +93,6 @@ class HomeDesktopScaffold extends StatelessWidget {
   final VoidCallback onNewConversation;
   final Future<void> Function() onCreateNewConversation;
   final Future<void> Function() onToggleTemporaryConversation;
-  final VoidCallback onSelectModel;
   final bool canToggleTemporaryConversation;
   final bool temporaryConversationEnabled;
   final bool globalSearchMode;
@@ -447,40 +445,31 @@ class HomeDesktopScaffold extends StatelessWidget {
               ),
       );
 
-      capsule = IosCardPress(
-        borderRadius: BorderRadius.circular(20),
-        baseColor: Colors.transparent,
-        pressedBlendStrength: isDark ? 0.18 : 0.12,
-        padding: EdgeInsets.zero,
-        onTap: onSelectModel,
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                brandIcon,
-                const SizedBox(width: 6),
-                Flexible(
-                  child: AnimatedTextSwap(
-                    text: capsuleLabel,
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1.1,
-                      color: cs.onSurface.withValues(
-                        alpha: isDark ? 0.92 : 0.9,
-                      ),
-                      fontWeight: AppFontWeights.medium,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+      capsule = AnimatedSize(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              brandIcon,
+              const SizedBox(width: 6),
+              Flexible(
+                child: AnimatedTextSwap(
+                  text: capsuleLabel,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.1,
+                    color: cs.onSurface.withValues(alpha: isDark ? 0.92 : 0.9),
+                    fontWeight: AppFontWeights.medium,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );

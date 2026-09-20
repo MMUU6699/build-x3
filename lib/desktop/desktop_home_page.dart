@@ -6,7 +6,6 @@ import 'desktop_nav_rail.dart';
 import 'desktop_chat_page.dart';
 import 'window_title_bar.dart';
 import 'desktop_settings_page.dart';
-import 'desktop_translate_page.dart';
 import '../features/settings/pages/storage_space_page.dart';
 import '../l10n/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
@@ -25,7 +24,7 @@ class DesktopHomePage extends StatefulWidget {
     this.initialProviderKey,
   });
 
-  final int? initialTabIndex; // 0=Chat,1=Translate,2=Storage,3=Settings
+  final int? initialTabIndex; // 0=Chat,1=Storage,2=Settings
   final String? initialProviderKey;
 
   @override
@@ -33,7 +32,7 @@ class DesktopHomePage extends StatefulWidget {
 }
 
 class _DesktopHomePageState extends State<DesktopHomePage> {
-  int _tabIndex = 0; // 0=Chat, 1=Translate, 2=Storage, 3=Settings
+  int _tabIndex = 0; // 0=Chat, 1=Storage, 2=Settings
   bool _storageVisited = false;
   bool _globalSearchActive = false;
   StreamSubscription<HotkeyAction>? _hotkeySub;
@@ -45,9 +44,9 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   void initState() {
     super.initState();
     if (widget.initialTabIndex != null) {
-      _tabIndex = widget.initialTabIndex!.clamp(0, 3);
+      _tabIndex = widget.initialTabIndex!.clamp(0, 2);
     }
-    _storageVisited = _tabIndex == 2;
+    _storageVisited = _tabIndex == 1;
     _conversationOpenSub = NotificationService.conversationTaps.listen((_) {
       if (!mounted) return;
       setState(() {
@@ -68,7 +67,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
         case HotkeyAction.openSettings:
           if (mounted) {
             setState(() {
-              _tabIndex = 3;
+              _tabIndex = 2;
               _globalSearchActive = false;
             });
             ChatActionBus.instance.fire(ChatAction.exitGlobalSearch);
@@ -112,11 +111,6 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
             ChatActionBus.instance.fire(ChatAction.newTopic);
           }
           break;
-        case HotkeyAction.switchModel:
-          if (_tabIndex == 0) {
-            ChatActionBus.instance.fire(ChatAction.switchModel);
-          }
-          break;
         case HotkeyAction.toggleLeftPanelAssistants:
           if (_tabIndex == 0) {
             ChatActionBus.instance.fire(ChatAction.toggleLeftPanelAssistants);
@@ -155,7 +149,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
       switch (target) {
         case DesktopSettingsNavigationTarget.backup:
           setState(() {
-            _tabIndex = 3;
+            _tabIndex = 2;
             _globalSearchActive = false;
           });
           ChatActionBus.instance.fire(ChatAction.exitGlobalSearch);
@@ -200,22 +194,15 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                 });
                 ChatActionBus.instance.fire(ChatAction.enterGlobalSearch);
               },
-              onTapTranslate: () {
-                setState(() {
-                  _tabIndex = 1;
-                  _globalSearchActive = false;
-                });
-                ChatActionBus.instance.fire(ChatAction.exitGlobalSearch);
-              },
               onTapStorage: () => setState(() {
-                _tabIndex = 2;
+                _tabIndex = 1;
                 _globalSearchActive = false;
                 _storageVisited = true;
                 ChatActionBus.instance.fire(ChatAction.exitGlobalSearch);
               }),
               onTapSettings: () {
                 setState(() {
-                  _tabIndex = 3;
+                  _tabIndex = 2;
                   _globalSearchActive = false;
                 });
                 ChatActionBus.instance.fire(ChatAction.exitGlobalSearch);
@@ -223,14 +210,12 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
             ),
             Expanded(
               // Keep all pages alive so ongoing chat streams are not canceled
-              // when switching tabs (Chat/Translate/Settings) on desktop.
+              // when switching tabs on desktop.
               child: IndexedStack(
                 index: _tabIndex,
                 children: [
                   // Chat page remains mounted
                   const DesktopChatPage(),
-                  // Translate page remains mounted
-                  const DesktopTranslatePage(key: ValueKey('translate_page')),
                   _storageVisited
                       ? const StorageSpacePage(
                           key: ValueKey('storage_space_page'),
@@ -263,7 +248,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                         body,
                         // Inject the lazily-built settings page into the IndexedStack when needed
                         // to pass initialProviderKey without dropping chat state.
-                        if (_tabIndex == 3) const SizedBox.shrink(),
+                        if (_tabIndex == 2) const SizedBox.shrink(),
                       ],
                     ),
                   ),

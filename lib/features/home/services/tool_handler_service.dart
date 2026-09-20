@@ -542,7 +542,7 @@ class ToolHandlerService {
                   FlutterErrorDetails(
                     exception: error,
                     stack: stack,
-                    library: 'Kelivo local tools',
+                    library: 'Build X local tools',
                     context: ErrorDescription('while playing text-to-speech'),
                   ),
                 );

@@ -6,8 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../core/providers/settings_provider.dart';
-import '../../model/pages/default_model_page.dart';
-import '../../provider/pages/providers_page.dart';
+import 'mistral_connection_page.dart';
 import 'display_settings_page.dart';
 import 'settings_search_page.dart';
 import '../widgets/settings_search_entry.dart';
@@ -210,22 +209,13 @@ class SettingsPage extends StatelessWidget {
             children: [
               _iosNavRow(
                 context,
-                icon: Lucide.Heart,
-                label: l10n.settingsPageDefaultModel,
+                icon: Lucide.KeyRound,
+                label: l10n.buildXConnectionTitle,
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const DefaultModelPage()),
-                  );
-                },
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.Boxes,
-                label: l10n.settingsPageProviders,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ProvidersPage()),
+                    MaterialPageRoute(
+                      builder: (_) => const MistralConnectionPage(),
+                    ),
                   );
                 },
               ),

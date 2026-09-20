@@ -1,12 +1,7 @@
-import '../features/provider/widgets/oauth_connection_info.dart';
-import '../features/provider/pages/oauth_provider_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'dart:convert';
-import 'dart:ui' as ui;
 
 import '../icons/lucide_adapter.dart' as lucide;
 import '../l10n/app_localizations.dart';
@@ -14,15 +9,8 @@ import '../features/settings/pages/google_fonts_picker_page.dart';
 import '../theme/app_font_weights.dart';
 import '../theme/palettes.dart';
 import '../core/providers/settings_provider.dart';
-import '../core/services/chat/chat_service.dart';
-import '../core/providers/model_provider.dart';
-import '../core/services/logging/flutter_logger.dart';
-import '../core/services/model_override_resolver.dart';
-import '../core/services/provider_balance_service.dart';
-import 'model_fetch_dialog.dart' show showModelFetchDialog;
 import 'widgets/desktop_select_dropdown.dart';
 import '../shared/widgets/ios_switch.dart';
-import '../shared/widgets/ios_checkbox.dart';
 // Desktop assistants panel dependencies
 import '../features/assistant/pages/assistant_settings_edit_page.dart'
     show showAssistantDesktopDialog; // dialog opener only
@@ -33,19 +21,8 @@ import '../utils/avatar_cache.dart';
 import '../utils/sandbox_path_resolver.dart';
 import 'dart:io' show Directory, File, Platform;
 import '../utils/app_directories.dart';
-import 'add_provider_dialog.dart' show showDesktopAddProviderDialog;
-import 'model_edit_dialog.dart'
-    show showDesktopCreateModelDialog, showDesktopModelEditDialog;
 // Use the unified model selector (desktop dialog on desktop platforms)
-import '../features/model/widgets/model_select_sheet.dart'
-    show showModelSelector;
-import '../utils/brand_assets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
-import '../shared/widgets/model_tag_wrap.dart';
-import '../core/models/api_keys.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:path/path.dart' as p;
 import 'desktop_context_menu.dart';
 import 'desktop_settings_navigation_bus.dart';
 import '../features/settings/pages/settings_search_page.dart';
@@ -53,7 +30,6 @@ import '../features/settings/search/settings_search_index.dart';
 import '../features/settings/widgets/settings_search_entry.dart';
 import '../features/settings/widgets/settings_search_target.dart';
 import '../shared/widgets/snackbar.dart';
-import 'setting/default_model_pane.dart';
 import 'setting/search_services_pane.dart';
 import 'setting/tool_schemas_pane.dart';
 import 'setting/mcp_pane.dart';
@@ -73,25 +49,16 @@ import 'setting/auto_retry_pane.dart';
 import 'setting/about_pane.dart';
 import 'setting/stats_pane.dart';
 import 'package:system_fonts/system_fonts.dart';
-import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
-import 'package:super_clipboard/super_clipboard.dart';
-import '../features/provider/widgets/provider_avatar.dart';
-import '../features/provider/widgets/provider_balance_badge.dart';
-import '../features/provider/widgets/provider_custom_request_editor.dart';
-import '../features/provider/widgets/share_provider_sheet.dart'
-    show encodeProviderConfig;
-import '../utils/clipboard_images.dart';
-import '../utils/provider_grouping_logic.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 import '../theme/custom_theme.dart';
 import '../features/settings/widgets/custom_theme_widgets.dart';
 import '../features/settings/pages/message_style_settings_page.dart';
+import '../features/settings/pages/mistral_connection_page.dart';
 import '../features/settings/widgets/memory_ui.dart';
 
 part 'setting/assistants_pane.dart';
-part 'setting/providers_pane.dart';
+part 'setting/common_controls.dart';
 part 'setting/display_pane.dart';
 
 /// Desktop settings layout: left menu + vertical divider + right content.
@@ -109,8 +76,7 @@ class DesktopSettingsPage extends StatefulWidget {
 enum _SettingsMenuItem {
   display,
   assistant,
-  providers,
-  defaultModel,
+  connection,
   search,
   toolSchemas,
   mcp,
@@ -150,8 +116,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
       SettingsSearchDestination.messageStyle ||
       SettingsSearchDestination.autoRetry => _SettingsMenuItem.display,
       SettingsSearchDestination.assistant => _SettingsMenuItem.assistant,
-      SettingsSearchDestination.providers => _SettingsMenuItem.providers,
-      SettingsSearchDestination.defaultModel => _SettingsMenuItem.defaultModel,
+      SettingsSearchDestination.connection => _SettingsMenuItem.connection,
       SettingsSearchDestination.search => _SettingsMenuItem.search,
       SettingsSearchDestination.tts => _SettingsMenuItem.tts,
       SettingsSearchDestination.mcp => _SettingsMenuItem.mcp,
@@ -190,8 +155,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   void initState() {
     super.initState();
     if (widget.initialProviderKey != null) {
-      // Deep link into Providers tab when a provider is specified
-      _selected = _SettingsMenuItem.providers;
+      _selected = _SettingsMenuItem.connection;
     }
     _settingsNavSub = DesktopSettingsNavigationBus.instance.stream.listen((
       target,
@@ -284,14 +248,10 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                           return const _DesktopAssistantsBody(
                             key: ValueKey('assistants'),
                           );
-                        case _SettingsMenuItem.providers:
-                          return _DesktopProvidersBody(
-                            key: const ValueKey('providers'),
-                            initialSelectedKey: widget.initialProviderKey,
-                          );
-                        case _SettingsMenuItem.defaultModel:
-                          return const DesktopDefaultModelPane(
-                            key: ValueKey('defaultModel'),
+                        case _SettingsMenuItem.connection:
+                          return const MistralConnectionPage(
+                            key: ValueKey('mistralConnection'),
+                            embedded: true,
                           );
                         case _SettingsMenuItem.search:
                           return const DesktopSearchServicesPane(
@@ -386,19 +346,14 @@ class _SettingsMenu extends StatelessWidget {
         l10n.settingsPageDisplay,
       ),
       (
-        _SettingsMenuItem.providers,
-        lucide.Lucide.Boxes,
-        l10n.settingsPageProviders,
+        _SettingsMenuItem.connection,
+        lucide.Lucide.KeyRound,
+        l10n.buildXConnectionTitle,
       ),
       (
         _SettingsMenuItem.assistant,
         lucide.Lucide.Bot,
         l10n.settingsPageAssistant,
-      ),
-      (
-        _SettingsMenuItem.defaultModel,
-        lucide.Lucide.Heart,
-        l10n.settingsPageDefaultModel,
       ),
       (_SettingsMenuItem.search, lucide.Lucide.Earth, l10n.settingsPageSearch),
       (_SettingsMenuItem.mcp, lucide.Lucide.Terminal, l10n.settingsPageMcp),

@@ -14,7 +14,6 @@ import '../../workspace/widgets/desktop_workspace_text_field.dart';
 import '../../../core/models/assistant.dart';
 import '../../../core/models/conversation.dart';
 import '../../../core/models/scheduled_task.dart';
-import '../../../core/providers/settings_provider.dart';
 import '../../../core/services/chat/chat_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/responsive/screen_type_helper.dart';
@@ -26,10 +25,7 @@ import '../../../shared/widgets/ios_time_picker.dart';
 import '../../../shared/widgets/option_sheet.dart';
 import '../../../shared/widgets/section_card.dart';
 import '../../assistant/widgets/assistant_select_sheet.dart';
-import '../../home/utils/model_display_helper.dart';
 import '../../home/widgets/assistant_avatar.dart';
-import '../../home/widgets/model_icon.dart';
-import '../../model/widgets/model_select_sheet.dart';
 import '../widgets/scheduled_target_picker.dart';
 import '../widgets/scheduled_tasks_scaffold.dart';
 import '../widgets/scheduled_weekday_selector.dart';
@@ -82,8 +78,8 @@ class _ScheduledTaskEditorPageState extends State<ScheduledTaskEditorPage> {
   late bool enabled = widget.task?.enabled ?? true;
   late String? conversationId = widget.task?.conversationId;
   late String? messageId = widget.task?.messageId;
-  late String? modelProvider = widget.task?.modelProvider;
-  late String? modelId = widget.task?.modelId;
+  String? modelProvider;
+  String? modelId;
   late DateTime? onceDate = widget.task?.onceDate;
   late DateTime? startDate = widget.task?.startDate;
   late DateTime? endDate = widget.task?.endDate;
@@ -288,27 +284,6 @@ class _ScheduledTaskEditorPageState extends State<ScheduledTaskEditorPage> {
     if (mounted && picked != null) setState(() => save(picked));
   }
 
-  Future<void> _pickModel() async {
-    final settings = context.read<SettingsProvider>();
-    final inherited = resolveChatModel(
-      settings,
-      assistant: assistant,
-      conversation: mode == ScheduledTaskMode.newChat ? null : conversation,
-    );
-    final value = await showModelSelector(
-      context,
-      initialProviderKey: modelProvider ?? inherited.providerKey,
-      initialModelId: modelId ?? inherited.modelId,
-      allowInherit: true,
-      inheritLabel: AppLocalizations.of(context)!.scheduledTasksModelDefault,
-    );
-    if (!mounted || value == null) return;
-    setState(() {
-      modelProvider = value.providerKey.isEmpty ? null : value.providerKey;
-      modelId = value.modelId.isEmpty ? null : value.modelId;
-    });
-  }
-
   Future<void> _save() async {
     final l = AppLocalizations.of(context)!;
     String? validation;
@@ -419,21 +394,7 @@ class _ScheduledTaskEditorPageState extends State<ScheduledTaskEditorPage> {
     );
   }
 
-  ModelDisplayInfo _modelDisplay(SettingsProvider settings) =>
-      getModelDisplayInfo(
-        settings,
-        assistant: modelId == null
-            ? assistant
-            : assistant?.copyWith(
-                chatModelProvider: modelProvider,
-                chatModelId: modelId,
-              ),
-        conversation: modelId != null || mode == ScheduledTaskMode.newChat
-            ? null
-            : conversation,
-      );
   List<Widget> _taskFields(AppLocalizations l) {
-    final display = _modelDisplay(context.watch<SettingsProvider>());
     return [
       SectionCard(
         children: [
@@ -496,22 +457,6 @@ class _ScheduledTaskEditorPageState extends State<ScheduledTaskEditorPage> {
                   : () => _perform(_pickMessage),
             ),
           ],
-          const IosRowDivider(),
-          IosNavRow(
-            leading: display.isConfigured
-                ? CurrentModelIcon(
-                    providerKey: display.providerKey,
-                    modelId: display.modelId,
-                    size: 30,
-                  )
-                : const Icon(LucideIcons.box, size: 20),
-            label: l.scheduledTasksModel,
-            subtitle: display.modelDisplay ?? l.scheduledTasksChooseModel,
-            caption: modelId == null
-                ? l.scheduledTasksModelDefault
-                : display.providerName,
-            onTap: () => _perform(_pickModel),
-          ),
         ],
       ),
       if (mode == ScheduledTaskMode.regenerate)
@@ -693,7 +638,6 @@ class _ScheduledTaskEditorPageState extends State<ScheduledTaskEditorPage> {
   );
 
   Widget _desktopLayout(AppLocalizations l) {
-    final display = _modelDisplay(context.watch<SettingsProvider>());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -763,38 +707,6 @@ class _ScheduledTaskEditorPageState extends State<ScheduledTaskEditorPage> {
                   onTap: () => _perform(_pickMessage),
                 ),
               ),
-            DesktopScheduledTaskRow(
-              label: l.scheduledTasksModel,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  DesktopScheduledTaskPicker(
-                    label: display.modelDisplay ?? l.scheduledTasksChooseModel,
-                    leading: display.isConfigured
-                        ? CurrentModelIcon(
-                            providerKey: display.providerKey,
-                            modelId: display.modelId,
-                            size: 20,
-                          )
-                        : const Icon(LucideIcons.box, size: 18),
-                    onTap: () => _perform(_pickModel),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    modelId == null
-                        ? l.scheduledTasksModelDefault
-                        : display.providerName ?? '',
-                    textAlign: TextAlign.end,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: .6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             if (mode != ScheduledTaskMode.regenerate)
               DesktopScheduledTaskRow(
                 label: l.scheduledTasksPrompt,

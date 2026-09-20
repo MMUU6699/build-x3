@@ -1,5 +1,5 @@
 name: Kelivo
-description: "An LLM chat client."
+description: "Build X, a Mistral chat client."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -50,6 +50,7 @@ dependencies:
   material_color_utilities: ^0.13.0
   lucide_icons_flutter: ^3.1.13
   shared_preferences: ^2.2.3
+  flutter_secure_storage: ^10.3.4
   image_picker: 1.1.2
   image_cropper: ^12.2.1
   flutter_svg: ^2.2.1

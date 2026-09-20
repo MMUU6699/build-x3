@@ -4,8 +4,6 @@ import '../../assistant/pages/assistant_settings_page.dart';
 import '../../backup/pages/backup_page.dart';
 import '../../instruction_injection/pages/instruction_injection_page.dart';
 import '../../mcp/pages/mcp_page.dart';
-import '../../model/pages/default_model_page.dart';
-import '../../provider/pages/providers_page.dart';
 import '../../quick_phrase/pages/quick_phrases_page.dart';
 import '../../scheduled_tasks/pages/scheduled_tasks_page.dart';
 import '../../search/pages/search_services_page.dart';
@@ -19,6 +17,7 @@ import '../pages/display_settings_page.dart';
 import '../pages/image_settings_page.dart';
 import '../pages/log_viewer_page.dart';
 import '../pages/memory_settings_page.dart';
+import '../pages/mistral_connection_page.dart';
 import '../pages/message_style_settings_page.dart';
 import '../pages/mobile_background_settings_page.dart';
 import '../pages/network_proxy_page.dart';
@@ -51,8 +50,7 @@ Future<void> openMobileSettingsSearchResult(
     SettingsSearchDestination.background =>
       const MobileBackgroundSettingsPage(),
     SettingsSearchDestination.assistant => const AssistantSettingsPage(),
-    SettingsSearchDestination.providers => const ProvidersPage(),
-    SettingsSearchDestination.defaultModel => const DefaultModelPage(),
+    SettingsSearchDestination.connection => const MistralConnectionPage(),
     SettingsSearchDestination.search => const SearchServicesPage(),
     SettingsSearchDestination.tts => const TtsServicesPage(),
     SettingsSearchDestination.mcp => const McpPage(),

@@ -45,9 +45,7 @@ import '../../chat/widgets/reasoning_budget_sheet.dart';
 import '../../search/widgets/search_settings_sheet.dart';
 import '../../chat/widgets/frosted/chat_frosted_backdrop.dart';
 import '../../chat/widgets/chat_assistant_background.dart';
-import '../../model/widgets/model_select_sheet.dart';
 import '../../mcp/pages/mcp_page.dart';
-import '../../provider/pages/providers_page.dart';
 import '../../quick_phrase/pages/quick_phrases_page.dart';
 import '../../quick_phrase/widgets/quick_phrase_menu.dart';
 import '../widgets/chat_input_bar.dart';
@@ -497,23 +495,11 @@ class _CompressModelPickerRow extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        IosCardPress(
-          baseColor: context.appColors.surfaceFill,
-          borderRadius: BorderRadius.circular(12),
-          pressedScale: 0.98,
-          haptics: false,
-          onTap: () async {
-            final sel = await showModelSelector(
-              context,
-              initialProviderKey: resolved.providerKey,
-              initialModelId: resolved.modelId,
-            );
-            if (sel == null || !context.mounted) return;
-            await context.read<SettingsProvider>().setCompressModel(
-              sel.providerKey,
-              sel.modelId,
-            );
-          },
+        Container(
+          decoration: BoxDecoration(
+            color: context.appColors.surfaceFill,
+            borderRadius: BorderRadius.circular(12),
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
@@ -528,11 +514,6 @@ class _CompressModelPickerRow extends StatelessWidget {
                     color: valueColor,
                   ),
                 ),
-              ),
-              Icon(
-                Lucide.ChevronRight,
-                size: 16,
-                color: cs.onSurface.withValues(alpha: 0.45),
               ),
             ],
           ),
@@ -1040,8 +1021,6 @@ class _HomePageState extends State<HomePage>
       canToggleTemporaryConversation:
           _controller.canToggleTemporaryConversation,
       temporaryConversationEnabled: _controller.isTemporaryConversation,
-      onSelectModel: () =>
-          showModelSelectSheet(context, controller: _controller),
       globalSearchMode: _controller.isGlobalSearchMode,
       globalSearchQuery: _controller.globalSearchQuery,
       onGlobalSearchQueryChanged: _controller.setGlobalSearchQuery,
@@ -1172,8 +1151,6 @@ class _HomePageState extends State<HomePage>
       onGlobalSearchQueryChanged: _controller.setGlobalSearchQuery,
       onOpenGlobalSearchResult: (convId, msgId) => _controller
           .openGlobalSearchResult(conversationId: convId, messageId: msgId),
-      onSelectModel: () =>
-          showModelSelectSheet(context, controller: _controller),
       onSidebarWidthChanged: _controller.updateSidebarWidth,
       onSidebarWidthChangeEnd: _controller.saveSidebarWidth,
       onRightSidebarWidthChanged: _controller.updateRightSidebarWidth,
@@ -1509,13 +1486,6 @@ class _HomePageState extends State<HomePage>
           ? AppLocalizations.of(context)!.messageEditPageSaveAndSend
           : null,
       onMore: _toggleTools,
-      onSelectModel: () =>
-          showModelSelectSheet(context, controller: _controller),
-      onLongPressSelectModel: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => const ProvidersPage()));
-      },
       onOpenWorkspace: () {
         final a = context.read<AssistantProvider>().currentAssistant;
         if (PlatformUtils.isDesktop) {

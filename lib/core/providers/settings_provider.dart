@@ -1,4 +1,5 @@
 import '../services/auth/provider_oauth_service.dart';
+import '../build_x_config.dart';
 import '../models/mobile_background_settings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -551,11 +552,18 @@ class SettingsProvider extends ChangeNotifier {
   Map<String, ProviderConfig> _providerConfigs = {};
   Map<String, ProviderConfig> get providerConfigs =>
       Map.unmodifiable(_providerConfigs);
-  bool get hasAnyActiveModel =>
-      _providerConfigs.values.any((c) => c.enabled && c.models.isNotEmpty);
+  bool get hasAnyActiveModel => true;
   // Returns a config for the given key without mutating internal state when missing.
   // This avoids implicitly creating providers during read paths (e.g., rendering old chats).
   ProviderConfig getProviderConfig(String key, {String? defaultName}) {
+    if (key == BuildXConfig.providerKey) {
+      return ProviderConfig.defaultsFor(key, displayName: 'Mistral').copyWith(
+        enabled: true,
+        name: 'Mistral',
+        baseUrl: 'https://api.mistral.ai/v1',
+        models: const [BuildXConfig.modelId],
+      );
+    }
     final existed = _providerConfigs[key];
     if (existed != null) return existed;
     // Return a non-persisted, default-constructed config for read-only scenarios.
@@ -3529,26 +3537,16 @@ class SettingsProvider extends ChangeNotifier {
   // Selected model for chat
   String? _currentModelProvider;
   String? _currentModelId;
-  String? get currentModelProvider => _currentModelProvider;
-  String? get currentModelId => _currentModelId;
+  String? get currentModelProvider => BuildXConfig.providerKey;
+  String? get currentModelId => BuildXConfig.modelId;
   String? get currentModelKey =>
-      (_currentModelProvider != null && _currentModelId != null)
-      ? '${_currentModelProvider!}::${_currentModelId!}'
-      : null;
+      '${BuildXConfig.providerKey}::${BuildXConfig.modelId}';
   Future<void> setCurrentModel(String providerKey, String modelId) async {
-    _currentModelProvider = providerKey;
-    _currentModelId = modelId;
-    notifyListeners();
-    final prefs = _preferences;
-    await prefs.setString(_selectedModelKey, '$providerKey::$modelId');
+    throw UnsupportedError('Build X uses one fixed model');
   }
 
   Future<void> resetCurrentModel() async {
-    _currentModelProvider = null;
-    _currentModelId = null;
-    notifyListeners();
-    final prefs = _preferences;
-    await prefs.remove(_selectedModelKey);
+    throw UnsupportedError('Build X uses one fixed model');
   }
 
   // When on, picking a model in the chat pins it to that conversation only.
@@ -4131,12 +4129,10 @@ Requirements:
   // Memory system v1 (§4.2)
   String? _memoryModelProvider;
   String? _memoryModelId;
-  String? get memoryModelProvider => _memoryModelProvider;
-  String? get memoryModelId => _memoryModelId;
+  String? get memoryModelProvider => BuildXConfig.providerKey;
+  String? get memoryModelId => BuildXConfig.modelId;
   String? get memoryModelKey =>
-      (_memoryModelProvider != null && _memoryModelId != null)
-      ? '${_memoryModelProvider!}::${_memoryModelId!}'
-      : null;
+      '${BuildXConfig.providerKey}::${BuildXConfig.modelId}';
 
   bool _memoryModelThinkingEnabled = false;
   bool get memoryModelThinkingEnabled => _memoryModelThinkingEnabled;
@@ -4224,19 +4220,11 @@ Requirements:
   }
 
   Future<void> setMemoryModel(String providerKey, String modelId) async {
-    _memoryModelProvider = providerKey;
-    _memoryModelId = modelId;
-    notifyListeners();
-    final prefs = _preferences;
-    await prefs.setString(_memoryModelKey, '$providerKey::$modelId');
+    throw UnsupportedError('Build X uses one fixed model');
   }
 
   Future<void> resetMemoryModel() async {
-    _memoryModelProvider = null;
-    _memoryModelId = null;
-    notifyListeners();
-    final prefs = _preferences;
-    await prefs.remove(_memoryModelKey);
+    throw UnsupportedError('Build X uses one fixed model');
   }
 
   Future<void> setMemoryModelThinkingEnabled(bool enabled) async {

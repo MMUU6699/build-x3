@@ -21,7 +21,6 @@ import '../../../features/workspace/widgets/environment/environment_status_chip.
 import '../../../features/workspace/workspace_navigation.dart';
 import '../../../theme/design_tokens.dart';
 import 'chat_input_bar.dart';
-import 'model_icon.dart';
 
 /// Callback for checking if a model supports tool calling.
 typedef IsToolModelCallback = bool Function(String providerKey, String modelId);
@@ -53,8 +52,6 @@ class ChatInputSection extends StatelessWidget {
     required this.isReasoningModel,
     required this.isReasoningEnabled,
     this.onMore,
-    this.onSelectModel,
-    this.onLongPressSelectModel,
     this.onOpenTools,
     this.onLongPressTools,
     this.onOpenWorkspace,
@@ -97,8 +94,6 @@ class ChatInputSection extends StatelessWidget {
 
   // Callbacks
   final VoidCallback? onMore;
-  final VoidCallback? onSelectModel;
-  final VoidCallback? onLongPressSelectModel;
   final VoidCallback? onOpenTools;
   final VoidCallback? onLongPressTools;
   final VoidCallback? onOpenWorkspace;
@@ -173,8 +168,6 @@ class ChatInputSection extends StatelessWidget {
       chatModelProviderKey: pk,
       chatModelId: mid,
       onMore: onMore,
-      onSelectModel: onSelectModel,
-      onLongPressSelectModel: onLongPressSelectModel,
       conversationId: conversationId,
       onOpenTools: onOpenTools,
       onLongPressTools: onLongPressTools,
@@ -185,15 +178,6 @@ class ChatInputSection extends StatelessWidget {
       skillsActive:
           isDesktop && onOpenSkills != null && _isSkillsActive(context, a),
       onStop: onStop,
-      modelIcon: (pk != null && mid != null)
-          ? CurrentModelIcon(
-              providerKey: pk,
-              modelId: mid,
-              size: 40,
-              withBackground: true,
-              backgroundColor: Colors.transparent,
-            )
-          : null,
       focusNode: inputFocus,
       controller: inputController,
       mediaController: mediaController,

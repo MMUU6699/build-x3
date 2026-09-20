@@ -8,7 +8,6 @@ import 'package:Kelivo/core/services/auth/provider_oauth_service.dart';
 import 'package:Kelivo/core/services/api/providers/openai/openai_provider.dart';
 import 'package:Kelivo/core/services/api/providers/claude_official.dart';
 import 'package:Kelivo/core/services/api/stream/stream_chunk.dart';
-import 'package:Kelivo/features/provider/widgets/share_provider_sheet.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -205,21 +204,6 @@ void main() {
       expect(
         restored.copyWith(oauthCredentials: null).oauthCredentials,
         isNull,
-      );
-      final shared =
-          jsonDecode(
-                utf8.decode(
-                  base64Decode(
-                    encodeProviderConfig(
-                      original,
-                    ).substring('ai-provider:v1:'.length),
-                  ),
-                ),
-              )
-              as Map;
-      expect(
-        (shared['config'] as Map)['oauthCredentials']['refreshToken'],
-        'refresh',
       );
     },
   );

@@ -19,8 +19,7 @@ enum SettingsSearchDestination {
   haptics,
   background,
   assistant,
-  providers,
-  defaultModel,
+  connection,
   search,
   tts,
   mcp,
@@ -61,8 +60,7 @@ extension SettingsSearchDestinationDetails on SettingsSearchDestination {
       l.displaySettingsPageHapticsSettingsTitle,
     SettingsSearchDestination.background => l.backgroundSettingsTitle,
     SettingsSearchDestination.assistant => l.settingsPageAssistant,
-    SettingsSearchDestination.providers => l.settingsPageProviders,
-    SettingsSearchDestination.defaultModel => l.settingsPageDefaultModel,
+    SettingsSearchDestination.connection => l.buildXConnectionTitle,
     SettingsSearchDestination.search => l.settingsPageSearch,
     SettingsSearchDestination.tts => l.settingsPageTts,
     SettingsSearchDestination.mcp => l.settingsPageMcp,
@@ -99,8 +97,7 @@ extension SettingsSearchDestinationDetails on SettingsSearchDestination {
     SettingsSearchDestination.haptics => LucideIcons.vibrate,
     SettingsSearchDestination.background => LucideIcons.activity,
     SettingsSearchDestination.assistant => LucideIcons.bot,
-    SettingsSearchDestination.providers => LucideIcons.boxes,
-    SettingsSearchDestination.defaultModel => LucideIcons.heart,
+    SettingsSearchDestination.connection => LucideIcons.keyRound,
     SettingsSearchDestination.search => LucideIcons.globe,
     SettingsSearchDestination.tts => LucideIcons.volume2,
     SettingsSearchDestination.mcp => LucideIcons.terminal,
@@ -342,20 +339,11 @@ class SettingsSearchIndex {
           'assistant system prompt temperature top p 人设 人設 系统提示词 系統提示詞 助手',
     );
     add(
-      'providers',
-      SettingsSearchDestination.providers,
-      (l) => l.settingsPageProviders,
+      'connection',
+      SettingsSearchDestination.connection,
+      (l) => l.buildXConnectionTitle,
       page: true,
-      keywords:
-          'provider api key url base endpoint oauth openai claude gemini deepseek 服务商 服務商 供应商 供應商 接口 密钥 密鑰 模型',
-    );
-    add(
-      'defaultModel',
-      SettingsSearchDestination.defaultModel,
-      (l) => l.settingsPageDefaultModel,
-      page: true,
-      keywords:
-          'default model title summary translate ocr compression suggestion 默认 預設 模型 标题 標題 总结 總結 翻译 翻譯 识图 識圖 压缩 壓縮 建议 建議',
+      keywords: 'Mistral API key connection 密钥 金鑰 模型',
     );
     add(
       'search',
@@ -898,7 +886,7 @@ class SettingsSearchIndex {
     entries = List.unmodifiable(items);
     suggestions = List.unmodifiable([
       for (final id in [
-        'providers',
+        'connection',
         'theme',
         'displaySettingsPageLanguageTitle',
         'displaySettingsPageChatFontSizeTitle',

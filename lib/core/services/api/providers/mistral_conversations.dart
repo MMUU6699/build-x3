@@ -65,7 +65,7 @@ abstract final class MistralConversations {
         'inputs': isAppend
             ? _lastUserInput(messages)
             : _initialInputs(messages),
-        if (!isAppend && _instructions(messages).isNotEmpty)
+        if (_instructions(messages).isNotEmpty)
           'instructions': _instructions(messages),
         'completion_args': const {
           'temperature': BuildXConfig.temperature,

@@ -62,6 +62,7 @@ void main() {
     final second = await MistralConversations.send(
       client: client,
       messages: [
+        {'role': 'system', 'content': 'Be helpful now.'},
         {'role': 'user', 'content': 'Hello'},
         {'role': 'assistant', 'content': 'reply 1'},
         {'role': 'user', 'content': 'Again'},
@@ -82,6 +83,7 @@ void main() {
       'top_p': 1.0,
     });
     expect(append['inputs'], 'Again');
+    expect(append['instructions'], 'Be helpful now.');
     expect(append.containsKey('model'), isFalse);
     expect(first.whereType<TextDelta>().single.text, 'reply 1');
     expect(second.whereType<TextDelta>().single.text, 'reply 2');

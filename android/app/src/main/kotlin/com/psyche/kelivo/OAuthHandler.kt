@@ -34,7 +34,7 @@ internal object OAuthHandler {
             when (call.method) {
                 "authenticate" -> {
                     val current = host.get()
-                    if (current == null) result.error("foreground_required", "Open Kelivo to authorize this connection.", null)
+                    if (current == null) result.error("foreground_required", "Open Build X to authorize this connection.", null)
                     else authenticate(current, call, result)
                 }
                 "cancel" -> cancel(call, result)
@@ -97,7 +97,7 @@ internal object OAuthHandler {
         ) {
             result.error(
                 "invalid_arguments",
-                "A valid HTTPS authorization URL, state, and Kelivo callback URI are required.",
+                "A valid HTTPS authorization URL, state, and app callback URI are required.",
                 null,
             )
             return

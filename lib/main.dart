@@ -21,6 +21,7 @@ import 'desktop/desktop_tray_controller.dart';
 import 'theme/theme_factory.dart';
 import 'theme/palettes.dart';
 import 'theme/custom_theme.dart';
+import 'theme/build_x_monochrome.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
@@ -493,7 +494,7 @@ Future<void> _initRestoreFailureWindow() async {
       return;
     }
     await windowManager.waitUntilReadyToShow(
-      const WindowOptions(title: 'Kelivo'),
+      const WindowOptions(title: 'Build X'),
       () async {
         await windowManager.show();
         await windowManager.focus();
@@ -518,11 +519,13 @@ class _RestoreProgressApp extends StatelessWidget {
     final palette = ThemePalettes.defaultPalette;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Kelivo',
+      title: 'Build X',
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: buildLightThemeForScheme(palette.light),
       darkTheme: buildDarkThemeForScheme(palette.dark),
+      builder: (context, child) =>
+          BuildXMonochrome(child: child ?? const SizedBox.shrink()),
       home: RestoreProgressScreen(stage: stage),
     );
   }
@@ -544,11 +547,13 @@ class _RestoreFailureApp extends StatelessWidget {
     final palette = ThemePalettes.defaultPalette;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Kelivo',
+      title: 'Build X',
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: buildLightThemeForScheme(palette.light),
       darkTheme: buildDarkThemeForScheme(palette.dark),
+      builder: (context, child) =>
+          BuildXMonochrome(child: child ?? const SizedBox.shrink()),
       home: report.diagnosticCode == 'database_schema_too_new'
           ? UpdateRequiredScreen(diagnosticCode: report.diagnosticCode)
           : RestoreFailureScreen(
@@ -569,7 +574,7 @@ Future<void> _initDesktopWindow() async {
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     }
     // Initialize and show desktop window with persisted size/position
-    await DesktopWindowController.instance.initializeAndShow(title: 'Kelivo');
+    await DesktopWindowController.instance.initializeAndShow(title: 'Build X');
   } catch (_) {
     // Ignore on unsupported platforms.
   }
@@ -629,13 +634,14 @@ class MigrationApp extends StatelessWidget {
     final palette = ThemePalettes.defaultPalette;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Kelivo',
+      title: 'Build X',
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: buildLightThemeForScheme(palette.light),
       darkTheme: buildDarkThemeForScheme(palette.dark),
-      builder: (context, child) =>
-          AppSnackBarOverlay(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => BuildXMonochrome(
+        child: AppSnackBarOverlay(child: child ?? const SizedBox.shrink()),
+      ),
       home: RestoreOutcomeNotice(
         outcome: restoreOutcome,
         child: HiveToSqliteMigrationPage(service: service),
@@ -1039,7 +1045,7 @@ class MyApp extends StatelessWidget {
               // debugPrint('[Theme/App] Dark scaffoldBg=${dark.colorScheme.surface.value.toRadixString(16)} card≈${dark.colorScheme.surface.value.toRadixString(16)} shadow=${dark.colorScheme.shadow.value.toRadixString(16)}');
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
-                title: 'Kelivo',
+                title: 'Build X',
                 navigatorKey: rootNavigatorKey,
                 // App UI language; null = follow system (respects iOS per-app language)
                 locale: settings.appLocaleForMaterialApp,
@@ -1169,12 +1175,14 @@ class MyApp extends StatelessWidget {
                   // Enforce app font as a default across the tree for Texts without explicit family
                   return AnnotatedRegion<SystemUiOverlayStyle>(
                     value: overlay,
-                    child: effectiveAppFont == null
-                        ? appWithOverlays
-                        : DefaultTextStyle.merge(
-                            style: TextStyle(fontFamily: effectiveAppFont),
-                            child: appWithOverlays,
-                          ),
+                    child: BuildXMonochrome(
+                      child: effectiveAppFont == null
+                          ? appWithOverlays
+                          : DefaultTextStyle.merge(
+                              style: TextStyle(fontFamily: effectiveAppFont),
+                              child: appWithOverlays,
+                            ),
+                    ),
                   );
                 },
               );

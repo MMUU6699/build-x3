@@ -403,7 +403,7 @@ abstract class AppLocalizations {
   /// No description provided for @storageSpaceClearDisplacedDatabasesConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'Delete these set-aside databases? Kelivo kept them when it rebuilt its database, and they may be the only surviving copy of those chats and settings. This cannot be undone.'**
+  /// **'Delete these set-aside databases? Build X kept them when it rebuilt its database, and they may be the only surviving copy of those chats and settings. This cannot be undone.'**
   String get storageSpaceClearDisplacedDatabasesConfirmMessage;
 
   /// No description provided for @storageSpaceRestoreTracesHint.
@@ -1051,7 +1051,7 @@ abstract class AppLocalizations {
   /// No description provided for @sponsorPageAfdianSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'afdian.com/a/kelivo'**
+  /// **'Original project sponsorship'**
   String get sponsorPageAfdianSubtitle;
 
   /// No description provided for @sponsorPageWeChatTitle.
@@ -1996,12 +1996,6 @@ abstract class AppLocalizations {
   /// **'Chat'**
   String get desktopNavChatTooltip;
 
-  /// No description provided for @desktopNavTranslateTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Translate'**
-  String get desktopNavTranslateTooltip;
-
   /// No description provided for @desktopNavStorageTooltip.
   ///
   /// In en, this message translates to:
@@ -2253,18 +2247,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Try entering an image URL.'**
   String get assistantEditGeneralErrorMessage;
-
-  /// No description provided for @providerDetailPageMultiKeyModeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Multi-Key Mode'**
-  String get providerDetailPageMultiKeyModeTitle;
-
-  /// No description provided for @providerDetailPageManageKeysButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage Keys'**
-  String get providerDetailPageManageKeysButton;
 
   /// No description provided for @multiKeyPageTitle.
   ///
@@ -3067,19 +3049,19 @@ abstract class AppLocalizations {
   /// No description provided for @backupPageRestartContent.
   ///
   /// In en, this message translates to:
-  /// **'Import successful. Restart Kelivo to apply it safely.'**
+  /// **'Import successful. Restart Build X to apply it safely.'**
   String get backupPageRestartContent;
 
   /// No description provided for @backupPageRestartContentWithSkipped.
   ///
   /// In en, this message translates to:
-  /// **'Import completed, but {count} conversations with invalid message ordering were skipped. Restart Kelivo to apply the imported data safely.'**
+  /// **'Import completed, but {count} conversations with invalid message ordering were skipped. Restart Build X to apply the imported data safely.'**
   String backupPageRestartContentWithSkipped(int count);
 
   /// No description provided for @restartAppFailedMessage.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo could not restart automatically. Fully close it, then open it again.'**
+  /// **'Build X could not restart automatically. Fully close it, then open it again.'**
   String get restartAppFailedMessage;
 
   /// No description provided for @backupRestoreRolledBackTitle.
@@ -3091,7 +3073,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupRestoreRolledBackContent.
   ///
   /// In en, this message translates to:
-  /// **'The restore could not be completed. Kelivo verified and kept your previous data.'**
+  /// **'The restore could not be completed. Build X verified and kept your previous data.'**
   String get backupRestoreRolledBackContent;
 
   /// No description provided for @backupRestoreFailureTitle.
@@ -3103,19 +3085,19 @@ abstract class AppLocalizations {
   /// No description provided for @backupRestoreFailureContent.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo could not verify a complete old or new data set, so chat data was not opened. Close Kelivo and try again. If this repeats, keep the diagnostic code for support.'**
+  /// **'Build X could not verify a complete old or new data set, so chat data was not opened. Close Build X and try again. If this repeats, keep the diagnostic code for support.'**
   String get backupRestoreFailureContent;
 
   /// No description provided for @backupRestoreBusinessLeaseUnavailableTitle.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo is already running'**
+  /// **'Build X is already running'**
   String get backupRestoreBusinessLeaseUnavailableTitle;
 
   /// No description provided for @backupRestoreBusinessLeaseUnavailableContent.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo\'s data is still in use by another app process. Close any other Kelivo window, then restart. Your chat data has not been opened by this process.'**
+  /// **'Build X\'s data is still in use by another app process. Close any other Build X window, then restart. Your chat data has not been opened by this process.'**
   String get backupRestoreBusinessLeaseUnavailableContent;
 
   /// No description provided for @restoreProgressTitle.
@@ -3127,7 +3109,7 @@ abstract class AppLocalizations {
   /// No description provided for @restoreProgressWarning.
   ///
   /// In en, this message translates to:
-  /// **'Keep Kelivo open until this finishes. If you close it now, the next launch starts this over.'**
+  /// **'Keep Build X open until this finishes. If you close it now, the next launch starts this over.'**
   String get restoreProgressWarning;
 
   /// No description provided for @restoreProgressStageCheckingBackup.
@@ -3169,7 +3151,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupRestoreFailureRestartButton.
   ///
   /// In en, this message translates to:
-  /// **'Restart Kelivo'**
+  /// **'Restart Build X'**
   String get backupRestoreFailureRestartButton;
 
   /// No description provided for @backupRestoreFailureCopyButton.
@@ -3241,7 +3223,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupRecoveryResetFailed.
   ///
   /// In en, this message translates to:
-  /// **'Reset failed. Fully close Kelivo, then open it again.'**
+  /// **'Reset failed. Fully close Build X, then open it again.'**
   String get startupRecoveryResetFailed;
 
   /// No description provided for @startupRecoveryResetDialogTitle.
@@ -3253,7 +3235,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupRecoveryResetDialogContent.
   ///
   /// In en, this message translates to:
-  /// **'This permanently deletes Kelivo\'s database on this device and starts fresh. If you might need this data, export a copy first. This cannot be undone.'**
+  /// **'This permanently deletes Build X\'s database on this device and starts fresh. If you might need this data, export a copy first. This cannot be undone.'**
   String get startupRecoveryResetDialogContent;
 
   /// No description provided for @startupRecoveryResetDialogConfirm.
@@ -3451,7 +3433,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupRecoveryDangerBody.
   ///
   /// In en, this message translates to:
-  /// **'Resetting permanently deletes Kelivo\'s database on this device. Export a copy of your data first — a reset also destroys the evidence needed to fix the underlying problem.'**
+  /// **'Resetting permanently deletes Build X\'s database on this device. Export a copy of your data first — a reset also destroys the evidence needed to fix the underlying problem.'**
   String get startupRecoveryDangerBody;
 
   /// No description provided for @startupRecoveryResetAcknowledge.
@@ -3463,13 +3445,13 @@ abstract class AppLocalizations {
   /// No description provided for @startupDatabaseUpdateRequiredTitle.
   ///
   /// In en, this message translates to:
-  /// **'Update Kelivo to continue'**
+  /// **'Update Build X to continue'**
   String get startupDatabaseUpdateRequiredTitle;
 
   /// No description provided for @startupDatabaseUpdateRequiredContent.
   ///
   /// In en, this message translates to:
-  /// **'The chat database on this device was created by a newer version of Kelivo and cannot be opened by this version. Your data has not been changed. Install the latest version of Kelivo, then open it again.'**
+  /// **'The chat database on this device was created by a newer version of Build X and cannot be opened by this version. Your data has not been changed. Install the latest version of Build X, then open it again.'**
   String get startupDatabaseUpdateRequiredContent;
 
   /// No description provided for @startupDatabaseUpdateRequiredDowngradeTitle.
@@ -3487,7 +3469,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupDatabaseUpdateRequiredDowngradeStep1.
   ///
   /// In en, this message translates to:
-  /// **'Install and open the latest Kelivo, then export a backup from Settings → Backup.'**
+  /// **'Install and open the latest Build X, then export a backup from Settings → Backup.'**
   String get startupDatabaseUpdateRequiredDowngradeStep1;
 
   /// No description provided for @startupDatabaseUpdateRequiredDowngradeStep2.
@@ -3583,7 +3565,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupPageForwardCompatBody.
   ///
   /// In en, this message translates to:
-  /// **'This backup was created by a newer version of Kelivo (data format {backupVersion}; this version supports {currentVersion}), and it does not say whether older versions can read it.\n\nYou can continue: anything this version does not recognise will be skipped, and the backup file itself is not modified. But if the newer version changed how existing data is stored, some content may be imported incorrectly.\n\nUpdating Kelivo first is the safer choice.'**
+  /// **'This backup was created by a newer version of Build X (data format {backupVersion}; this version supports {currentVersion}), and it does not say whether older versions can read it.\n\nYou can continue: anything this version does not recognise will be skipped, and the backup file itself is not modified. But if the newer version changed how existing data is stored, some content may be imported incorrectly.\n\nUpdating Build X first is the safer choice.'**
   String backupPageForwardCompatBody(int backupVersion, int currentVersion);
 
   /// No description provided for @backupPageForwardCompatContinue.
@@ -3601,7 +3583,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupPageSchemaTooNewMessage.
   ///
   /// In en, this message translates to:
-  /// **'This backup was created by a newer version of Kelivo and cannot be read by this version. Please update Kelivo and try again.'**
+  /// **'This backup was created by a newer version of Build X and cannot be read by this version. Please update Build X and try again.'**
   String get backupPageSchemaTooNewMessage;
 
   /// No description provided for @backupPageBackupUploaded.
@@ -3931,7 +3913,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupPageCherryStudioUnsupportedBackupVersion.
   ///
   /// In en, this message translates to:
-  /// **'This backup uses Cherry Studio format version {version}, which Kelivo cannot import yet. Export from Cherry Studio v1 instead, or wait for a Kelivo update that supports Cherry Studio v2 backups.'**
+  /// **'This backup uses Cherry Studio format version {version}, which Build X cannot import yet. Export from Cherry Studio v1 instead, or wait for a Build X update that supports Cherry Studio v2 backups.'**
   String backupPageCherryStudioUnsupportedBackupVersion(String version);
 
   /// No description provided for @backupPageImportFromChatbox.
@@ -6094,41 +6076,17 @@ abstract class AppLocalizations {
   /// **'Please enter server URL'**
   String get mcpServerEditSheetUrlRequired;
 
-  /// No description provided for @defaultModelPageBackTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Back'**
-  String get defaultModelPageBackTooltip;
-
   /// No description provided for @defaultModelPageTitle.
   ///
   /// In en, this message translates to:
   /// **'Default Model'**
   String get defaultModelPageTitle;
 
-  /// No description provided for @defaultModelPageChatModelTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Chat Model'**
-  String get defaultModelPageChatModelTitle;
-
-  /// No description provided for @defaultModelPageChatModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Global default chat model'**
-  String get defaultModelPageChatModelSubtitle;
-
   /// No description provided for @defaultModelPageTitleModelTitle.
   ///
   /// In en, this message translates to:
   /// **'Title Summary Model'**
   String get defaultModelPageTitleModelTitle;
-
-  /// No description provided for @defaultModelPageTitleModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Summarizes conversation titles using the current chat model by default, or a selected model.'**
-  String get defaultModelPageTitleModelSubtitle;
 
   /// No description provided for @titleModelThinkingTitle.
   ///
@@ -6142,23 +6100,11 @@ abstract class AppLocalizations {
   /// **'Summary Model'**
   String get defaultModelPageSummaryModelTitle;
 
-  /// No description provided for @defaultModelPageSummaryModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Used for generating conversation summaries; prefer fast and cheap models'**
-  String get defaultModelPageSummaryModelSubtitle;
-
   /// No description provided for @defaultModelPageSuggestionModelTitle.
   ///
   /// In en, this message translates to:
   /// **'Chat Suggestions Model'**
   String get defaultModelPageSuggestionModelTitle;
-
-  /// No description provided for @defaultModelPageSuggestionModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Generates follow-up suggestion bubbles using the current chat model or a selected model. Disabled by default.'**
-  String get defaultModelPageSuggestionModelSubtitle;
 
   /// No description provided for @assistantEditRecentChatsSummaryFrequencyTitle.
   ///
@@ -6214,18 +6160,6 @@ abstract class AppLocalizations {
   /// **'Please enter a whole number greater than 0'**
   String get assistantEditRecentChatsSummaryFrequencyCustomInvalid;
 
-  /// No description provided for @defaultModelPageTranslateModelTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Translation Model'**
-  String get defaultModelPageTranslateModelTitle;
-
-  /// No description provided for @defaultModelPageTranslateModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Used for translating message content; prefer fast & accurate models'**
-  String get defaultModelPageTranslateModelSubtitle;
-
   /// No description provided for @defaultModelPageOcrModelTitle.
   ///
   /// In en, this message translates to:
@@ -6238,47 +6172,11 @@ abstract class AppLocalizations {
   /// **'{task} failed: {error}'**
   String backgroundTaskFailed(String task, String error);
 
-  /// No description provided for @defaultModelPageOcrModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Used for extracting text and descriptions from images'**
-  String get defaultModelPageOcrModelSubtitle;
-
-  /// No description provided for @defaultModelPageOcrModelRequiresImageInput.
-  ///
-  /// In en, this message translates to:
-  /// **'Select a model tagged with image input for OCR'**
-  String get defaultModelPageOcrModelRequiresImageInput;
-
   /// No description provided for @defaultModelPagePromptLabel.
   ///
   /// In en, this message translates to:
   /// **'Prompt'**
   String get defaultModelPagePromptLabel;
-
-  /// No description provided for @defaultModelPageTitlePromptHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter prompt template for title summarization'**
-  String get defaultModelPageTitlePromptHint;
-
-  /// No description provided for @defaultModelPageSummaryPromptHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter prompt template for summary generation'**
-  String get defaultModelPageSummaryPromptHint;
-
-  /// No description provided for @defaultModelPageSuggestionPromptHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter prompt template for chat suggestions'**
-  String get defaultModelPageSuggestionPromptHint;
-
-  /// No description provided for @defaultModelPageTranslatePromptHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter prompt template for translation'**
-  String get defaultModelPageTranslatePromptHint;
 
   /// No description provided for @defaultModelPageOcrPromptHint.
   ///
@@ -6291,12 +6189,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset to default'**
   String get defaultModelPageResetDefault;
-
-  /// No description provided for @defaultModelPageDisable.
-  ///
-  /// In en, this message translates to:
-  /// **'Disable'**
-  String get defaultModelPageDisable;
 
   /// No description provided for @defaultModelPageSave.
   ///
@@ -6325,24 +6217,6 @@ abstract class AppLocalizations {
   /// **'Variables: conversation: {contentVar}, language: {localeVar}'**
   String defaultModelPageSuggestionVars(String contentVar, String localeVar);
 
-  /// No description provided for @defaultModelPageCompressModelTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Compress Model'**
-  String get defaultModelPageCompressModelTitle;
-
-  /// No description provided for @defaultModelPageCompressModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Used for compressing conversation context; prefer fast models'**
-  String get defaultModelPageCompressModelSubtitle;
-
-  /// No description provided for @defaultModelPageCompressPromptHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter prompt template for context compression'**
-  String get defaultModelPageCompressPromptHint;
-
   /// No description provided for @defaultModelPageCompressVars.
   ///
   /// In en, this message translates to:
@@ -6355,119 +6229,11 @@ abstract class AppLocalizations {
   /// **'Variables: source text: {sourceVar}, target language: {targetVar}'**
   String defaultModelPageTranslateVars(String sourceVar, String targetVar);
 
-  /// No description provided for @defaultModelPageUseCurrentModel.
-  ///
-  /// In en, this message translates to:
-  /// **'Use current chat model'**
-  String get defaultModelPageUseCurrentModel;
-
-  /// No description provided for @defaultModelPageNotEnabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Not enabled'**
-  String get defaultModelPageNotEnabled;
-
-  /// No description provided for @translatePagePasteButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste'**
-  String get translatePagePasteButton;
-
-  /// No description provided for @translatePageCopyResult.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy result'**
-  String get translatePageCopyResult;
-
-  /// No description provided for @translatePageClearAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Clear All'**
-  String get translatePageClearAll;
-
-  /// No description provided for @translatePageInputHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter text to translate…'**
-  String get translatePageInputHint;
-
-  /// No description provided for @translatePageOutputHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Translated result appears here…'**
-  String get translatePageOutputHint;
-
-  /// No description provided for @modelDetailSheetAddModel.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Model'**
-  String get modelDetailSheetAddModel;
-
-  /// No description provided for @modelDetailSheetEditModel.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Model'**
-  String get modelDetailSheetEditModel;
-
-  /// No description provided for @modelDetailSheetBasicTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Basic'**
-  String get modelDetailSheetBasicTab;
-
-  /// No description provided for @modelDetailSheetAdvancedTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Advanced'**
-  String get modelDetailSheetAdvancedTab;
-
-  /// No description provided for @modelDetailSheetBuiltinToolsTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Built-in Tools'**
-  String get modelDetailSheetBuiltinToolsTab;
-
-  /// No description provided for @modelDetailSheetModelIdLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Model ID'**
-  String get modelDetailSheetModelIdLabel;
-
-  /// No description provided for @modelDetailSheetModelIdHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Required, suggest lowercase/digits/hyphens'**
-  String get modelDetailSheetModelIdHint;
-
   /// No description provided for @modelDetailSheetModelIdDisabledHint.
   ///
   /// In en, this message translates to:
   /// **'{modelId}'**
   String modelDetailSheetModelIdDisabledHint(String modelId);
-
-  /// No description provided for @modelDetailSheetModelNameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Model Name'**
-  String get modelDetailSheetModelNameLabel;
-
-  /// No description provided for @modelDetailSheetModelTypeLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Model Type'**
-  String get modelDetailSheetModelTypeLabel;
-
-  /// No description provided for @modelDetailSheetChatType.
-  ///
-  /// In en, this message translates to:
-  /// **'Chat'**
-  String get modelDetailSheetChatType;
-
-  /// No description provided for @modelDetailSheetEmbeddingType.
-  ///
-  /// In en, this message translates to:
-  /// **'Embedding'**
-  String get modelDetailSheetEmbeddingType;
 
   /// No description provided for @modelDetailSheetInputModesLabel.
   ///
@@ -6480,12 +6246,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Output Modes'**
   String get modelDetailSheetOutputModesLabel;
-
-  /// No description provided for @modelDetailSheetAbilitiesLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Abilities'**
-  String get modelDetailSheetAbilitiesLabel;
 
   /// No description provided for @modelDetailSheetTextMode.
   ///
@@ -6511,239 +6271,17 @@ abstract class AppLocalizations {
   /// **'Reasoning'**
   String get modelDetailSheetReasoningAbility;
 
-  /// No description provided for @modelDetailSheetCustomHeadersTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Custom Headers'**
-  String get modelDetailSheetCustomHeadersTitle;
-
-  /// No description provided for @modelDetailSheetAddHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Header'**
-  String get modelDetailSheetAddHeader;
-
-  /// No description provided for @modelDetailSheetCustomBodyTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Custom Body'**
-  String get modelDetailSheetCustomBodyTitle;
-
   /// No description provided for @modelFetchInvertTooltip.
   ///
   /// In en, this message translates to:
   /// **'Invert'**
   String get modelFetchInvertTooltip;
 
-  /// No description provided for @modelDetailSheetSaveFailedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Save failed. Please try again.'**
-  String get modelDetailSheetSaveFailedMessage;
-
-  /// No description provided for @modelDetailSheetAddBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Body'**
-  String get modelDetailSheetAddBody;
-
-  /// No description provided for @modelDetailSheetBuiltinToolsDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Built-in tools depend on the provider and API mode.'**
-  String get modelDetailSheetBuiltinToolsDescription;
-
-  /// No description provided for @modelDetailSheetSearchTool.
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get modelDetailSheetSearchTool;
-
-  /// No description provided for @modelDetailSheetSearchToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable Google Search integration'**
-  String get modelDetailSheetSearchToolDescription;
-
-  /// No description provided for @modelDetailSheetUrlContextTool.
-  ///
-  /// In en, this message translates to:
-  /// **'URL Context'**
-  String get modelDetailSheetUrlContextTool;
-
-  /// No description provided for @modelDetailSheetUrlContextToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable URL content ingestion'**
-  String get modelDetailSheetUrlContextToolDescription;
-
-  /// No description provided for @modelDetailSheetCodeExecutionTool.
-  ///
-  /// In en, this message translates to:
-  /// **'Code Execution'**
-  String get modelDetailSheetCodeExecutionTool;
-
-  /// No description provided for @modelDetailSheetCodeExecutionToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable code execution tool'**
-  String get modelDetailSheetCodeExecutionToolDescription;
-
-  /// No description provided for @modelDetailSheetYoutubeTool.
-  ///
-  /// In en, this message translates to:
-  /// **'YouTube'**
-  String get modelDetailSheetYoutubeTool;
-
-  /// No description provided for @modelDetailSheetYoutubeToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable YouTube URL ingestion (auto-detect links in prompts)'**
-  String get modelDetailSheetYoutubeToolDescription;
-
-  /// No description provided for @modelDetailSheetOpenaiBuiltinToolsResponsesOnlyHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Requires OpenAI Responses API.'**
-  String get modelDetailSheetOpenaiBuiltinToolsResponsesOnlyHint;
-
-  /// No description provided for @modelDetailSheetWebFetchTool.
-  ///
-  /// In en, this message translates to:
-  /// **'Web Fetch'**
-  String get modelDetailSheetWebFetchTool;
-
-  /// No description provided for @modelDetailSheetOpenrouterWebFetchToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable OpenRouter web fetch server tool'**
-  String get modelDetailSheetOpenrouterWebFetchToolDescription;
-
-  /// No description provided for @modelDetailSheetClaudeWebFetchToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Let Claude fetch pages and PDFs from URLs in the conversation'**
-  String get modelDetailSheetClaudeWebFetchToolDescription;
-
-  /// No description provided for @modelDetailSheetClaudeCodeExecutionToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Let Claude run Python and Bash in Anthropic\'s sandbox'**
-  String get modelDetailSheetClaudeCodeExecutionToolDescription;
-
-  /// No description provided for @modelDetailSheetOpenrouterShellTool.
-  ///
-  /// In en, this message translates to:
-  /// **'Shell'**
-  String get modelDetailSheetOpenrouterShellTool;
-
-  /// No description provided for @modelDetailSheetOpenrouterShellToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Run Shell commands in a hosted, isolated sandbox'**
-  String get modelDetailSheetOpenrouterShellToolDescription;
-
-  /// No description provided for @modelDetailSheetOpenaiCodeInterpreterTool.
-  ///
-  /// In en, this message translates to:
-  /// **'Code Interpreter'**
-  String get modelDetailSheetOpenaiCodeInterpreterTool;
-
-  /// No description provided for @modelDetailSheetOpenaiCodeInterpreterToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable code interpreter tool (container auto, memory limit 4g)'**
-  String get modelDetailSheetOpenaiCodeInterpreterToolDescription;
-
-  /// No description provided for @modelDetailSheetOpenaiImageGenerationTool.
-  ///
-  /// In en, this message translates to:
-  /// **'Image Generation'**
-  String get modelDetailSheetOpenaiImageGenerationTool;
-
-  /// No description provided for @modelDetailSheetOpenaiImageGenerationToolDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable image generation tool'**
-  String get modelDetailSheetOpenaiImageGenerationToolDescription;
-
-  /// No description provided for @modelDetailSheetCancelButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get modelDetailSheetCancelButton;
-
-  /// No description provided for @modelDetailSheetAddButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Add'**
-  String get modelDetailSheetAddButton;
-
   /// No description provided for @modelDetailSheetConfirmButton.
   ///
   /// In en, this message translates to:
   /// **'Confirm'**
   String get modelDetailSheetConfirmButton;
-
-  /// No description provided for @modelDetailSheetInvalidIdError.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter a valid model ID (>=2 chars)'**
-  String get modelDetailSheetInvalidIdError;
-
-  /// No description provided for @modelDetailSheetModelIdExistsError.
-  ///
-  /// In en, this message translates to:
-  /// **'Model ID already exists'**
-  String get modelDetailSheetModelIdExistsError;
-
-  /// No description provided for @modelDetailSheetHeaderKeyHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Header Key'**
-  String get modelDetailSheetHeaderKeyHint;
-
-  /// No description provided for @modelDetailSheetHeaderValueHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Header Value'**
-  String get modelDetailSheetHeaderValueHint;
-
-  /// No description provided for @modelDetailSheetBodyKeyHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Body Key'**
-  String get modelDetailSheetBodyKeyHint;
-
-  /// No description provided for @modelDetailSheetBodyJsonHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Body JSON'**
-  String get modelDetailSheetBodyJsonHint;
-
-  /// No description provided for @modelSelectSheetSearchHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search models or providers'**
-  String get modelSelectSheetSearchHint;
-
-  /// No description provided for @modelSelectSheetFavoritesSection.
-  ///
-  /// In en, this message translates to:
-  /// **'Favorites'**
-  String get modelSelectSheetFavoritesSection;
-
-  /// No description provided for @modelSelectSheetFollowAssistant.
-  ///
-  /// In en, this message translates to:
-  /// **'Follow assistant'**
-  String get modelSelectSheetFollowAssistant;
-
-  /// No description provided for @modelSelectSheetFavoriteTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Favorite'**
-  String get modelSelectSheetFavoriteTooltip;
 
   /// No description provided for @modelSelectSheetChatType.
   ///
@@ -6757,101 +6295,11 @@ abstract class AppLocalizations {
   /// **'Embedding'**
   String get modelSelectSheetEmbeddingType;
 
-  /// No description provided for @providerDetailPageShareTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Share'**
-  String get providerDetailPageShareTooltip;
-
-  /// No description provided for @providerDetailPageDeleteProviderTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Provider'**
-  String get providerDetailPageDeleteProviderTooltip;
-
-  /// No description provided for @providerDetailPageDeleteProviderTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Provider'**
-  String get providerDetailPageDeleteProviderTitle;
-
-  /// No description provided for @providerDetailPageDeleteProviderContent.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete this provider? This cannot be undone.'**
-  String get providerDetailPageDeleteProviderContent;
-
-  /// No description provided for @providerDetailPageCancelButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get providerDetailPageCancelButton;
-
   /// No description provided for @providerDetailPageDeleteButton.
   ///
   /// In en, this message translates to:
   /// **'Delete'**
   String get providerDetailPageDeleteButton;
-
-  /// No description provided for @providerDetailPageProviderDeletedSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Provider deleted'**
-  String get providerDetailPageProviderDeletedSnackbar;
-
-  /// No description provided for @providerDetailPageConfigTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Config'**
-  String get providerDetailPageConfigTab;
-
-  /// No description provided for @providerDetailPageModelsTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Models'**
-  String get providerDetailPageModelsTab;
-
-  /// No description provided for @providerDetailPageCustomRequestTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Custom Request'**
-  String get providerDetailPageCustomRequestTitle;
-
-  /// No description provided for @providerDetailPageCustomRequestDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Applies to every model from this provider. Model settings override these values; these values override assistant settings.'**
-  String get providerDetailPageCustomRequestDescription;
-
-  /// No description provided for @providerDetailPageNetworkTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Network'**
-  String get providerDetailPageNetworkTab;
-
-  /// No description provided for @providerDetailPageEnabledTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enabled'**
-  String get providerDetailPageEnabledTitle;
-
-  /// No description provided for @providerDetailPageManageSectionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage'**
-  String get providerDetailPageManageSectionTitle;
-
-  /// No description provided for @providerDetailPageNameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Name'**
-  String get providerDetailPageNameLabel;
-
-  /// No description provided for @providerDetailPageApiKeyHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Leave empty to use default'**
-  String get providerDetailPageApiKeyHint;
 
   /// No description provided for @providerDetailPageHideTooltip.
   ///
@@ -6865,53 +6313,17 @@ abstract class AppLocalizations {
   /// **'Show'**
   String get providerDetailPageShowTooltip;
 
-  /// No description provided for @providerDetailPageApiPathLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'API Path'**
-  String get providerDetailPageApiPathLabel;
-
-  /// No description provided for @providerDetailPageResponseApiTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Response API (/responses)'**
-  String get providerDetailPageResponseApiTitle;
-
-  /// No description provided for @providerDetailPageAihubmixAppCodeLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'APP-Code (10% off)'**
-  String get providerDetailPageAihubmixAppCodeLabel;
-
-  /// No description provided for @providerDetailPageAihubmixAppCodeHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Adds header APP-Code requests to get a 10% discount. Only affects AIhubmix.'**
-  String get providerDetailPageAihubmixAppCodeHelp;
-
   /// No description provided for @providerDetailPageClaudePromptCachingTitle.
   ///
   /// In en, this message translates to:
   /// **'Claude Prompt Caching'**
   String get providerDetailPageClaudePromptCachingTitle;
 
-  /// No description provided for @providerDetailPageClaudePromptCachingHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Adds cache_control to Claude requests through Anthropic or OpenRouter.'**
-  String get providerDetailPageClaudePromptCachingHelp;
-
   /// No description provided for @providerDetailPageClaudePromptCachingTtlTitle.
   ///
   /// In en, this message translates to:
   /// **'Cache TTL'**
   String get providerDetailPageClaudePromptCachingTtlTitle;
-
-  /// No description provided for @providerDetailPageClaudePromptCachingTtlHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'5 minutes is the default. 1 hour costs more to write but can reduce rebuilds in long conversations.'**
-  String get providerDetailPageClaudePromptCachingTtlHelp;
 
   /// No description provided for @providerDetailPageClaudePromptCachingTtl5m.
   ///
@@ -6925,54 +6337,6 @@ abstract class AppLocalizations {
   /// **'1 hour'**
   String get providerDetailPageClaudePromptCachingTtl1h;
 
-  /// No description provided for @providerDetailPageBalanceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Account Balance'**
-  String get providerDetailPageBalanceTitle;
-
-  /// No description provided for @providerDetailPageBalanceInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'Get account balance'**
-  String get providerDetailPageBalanceInfo;
-
-  /// No description provided for @providerDetailPageBalanceApiPathLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance API Path'**
-  String get providerDetailPageBalanceApiPathLabel;
-
-  /// No description provided for @providerDetailPageBalanceResultPathLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Result JSON Path'**
-  String get providerDetailPageBalanceResultPathLabel;
-
-  /// No description provided for @providerDetailPageBalanceQueryButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Check Balance'**
-  String get providerDetailPageBalanceQueryButton;
-
-  /// No description provided for @providerDetailPageBalanceQuerying.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking...'**
-  String get providerDetailPageBalanceQuerying;
-
-  /// No description provided for @providerDetailPageBalanceResetDefaultsButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset'**
-  String get providerDetailPageBalanceResetDefaultsButton;
-
-  /// No description provided for @providerDetailPageBalanceResetDefaultsTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset balance settings'**
-  String get providerDetailPageBalanceResetDefaultsTooltip;
-
   /// No description provided for @providerDetailPageBalanceResult.
   ///
   /// In en, this message translates to:
@@ -6985,257 +6349,11 @@ abstract class AppLocalizations {
   /// **'Balance query failed: {message}'**
   String providerDetailPageBalanceError(String message);
 
-  /// No description provided for @providerDetailPageVertexAiTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Vertex AI'**
-  String get providerDetailPageVertexAiTitle;
-
-  /// No description provided for @providerDetailPageLocationLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Location'**
-  String get providerDetailPageLocationLabel;
-
-  /// No description provided for @providerDetailPageProjectIdLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Project ID'**
-  String get providerDetailPageProjectIdLabel;
-
-  /// No description provided for @providerDetailPageServiceAccountJsonLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Service Account JSON (paste or import)'**
-  String get providerDetailPageServiceAccountJsonLabel;
-
-  /// No description provided for @providerDetailPageImportJsonButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Import JSON'**
-  String get providerDetailPageImportJsonButton;
-
-  /// No description provided for @providerDetailPageImportJsonReadFailedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to read file'**
-  String get providerDetailPageImportJsonReadFailedMessage;
-
-  /// No description provided for @providerDetailPageTestButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Test'**
-  String get providerDetailPageTestButton;
-
-  /// No description provided for @providerDetailPageSaveButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get providerDetailPageSaveButton;
-
-  /// No description provided for @providerDetailPageProviderRemovedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Provider removed'**
-  String get providerDetailPageProviderRemovedMessage;
-
-  /// No description provided for @providerDetailPageNoModelsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'No Models'**
-  String get providerDetailPageNoModelsTitle;
-
-  /// No description provided for @providerDetailPageNoModelsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap the buttons below to add models'**
-  String get providerDetailPageNoModelsSubtitle;
-
-  /// No description provided for @providerDetailPageDeleteModelButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get providerDetailPageDeleteModelButton;
-
-  /// No description provided for @providerDetailPageConfirmDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm Delete'**
-  String get providerDetailPageConfirmDeleteTitle;
-
-  /// No description provided for @providerDetailPageConfirmDeleteContent.
-  ///
-  /// In en, this message translates to:
-  /// **'This can be undone via Undo. Delete?'**
-  String get providerDetailPageConfirmDeleteContent;
-
-  /// No description provided for @providerDetailPageModelDeletedSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Model deleted'**
-  String get providerDetailPageModelDeletedSnackbar;
-
-  /// No description provided for @providerDetailPageUndoButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo'**
-  String get providerDetailPageUndoButton;
-
-  /// No description provided for @providerDetailPageAddNewModelButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Model'**
-  String get providerDetailPageAddNewModelButton;
-
-  /// No description provided for @providerDetailPageFetchModelsButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Fetch'**
-  String get providerDetailPageFetchModelsButton;
-
-  /// No description provided for @providerDetailPageEnableProxyTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable Proxy'**
-  String get providerDetailPageEnableProxyTitle;
-
-  /// No description provided for @providerDetailPageHostLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Host'**
-  String get providerDetailPageHostLabel;
-
-  /// No description provided for @providerDetailPagePortLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Port'**
-  String get providerDetailPagePortLabel;
-
-  /// No description provided for @providerDetailPageUsernameOptionalLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Username (optional)'**
-  String get providerDetailPageUsernameOptionalLabel;
-
-  /// No description provided for @providerDetailPagePasswordOptionalLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Password (optional)'**
-  String get providerDetailPagePasswordOptionalLabel;
-
-  /// No description provided for @providerDetailPageSavedSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved'**
-  String get providerDetailPageSavedSnackbar;
-
-  /// No description provided for @providerDetailPageEmbeddingsGroupTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Embeddings'**
-  String get providerDetailPageEmbeddingsGroupTitle;
-
-  /// No description provided for @providerDetailPageOtherModelsGroupTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Other'**
-  String get providerDetailPageOtherModelsGroupTitle;
-
-  /// No description provided for @providerDetailPageRemoveGroupTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove group'**
-  String get providerDetailPageRemoveGroupTooltip;
-
-  /// No description provided for @providerDetailPageAddGroupTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Add group'**
-  String get providerDetailPageAddGroupTooltip;
-
-  /// No description provided for @providerDetailPageFilterHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Type model name to filter'**
-  String get providerDetailPageFilterHint;
-
-  /// No description provided for @providerDetailPageDeleteText.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get providerDetailPageDeleteText;
-
-  /// No description provided for @providerDetailPageEditTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get providerDetailPageEditTooltip;
-
-  /// No description provided for @providerDetailPageTestConnectionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Test Connection'**
-  String get providerDetailPageTestConnectionTitle;
-
-  /// No description provided for @providerDetailPageSelectModelButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Model'**
-  String get providerDetailPageSelectModelButton;
-
-  /// No description provided for @providerDetailPageChangeButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Change'**
-  String get providerDetailPageChangeButton;
-
-  /// No description provided for @providerDetailPageUseStreamingLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Use Streaming'**
-  String get providerDetailPageUseStreamingLabel;
-
-  /// No description provided for @providerDetailPageTestingMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Testing…'**
-  String get providerDetailPageTestingMessage;
-
-  /// No description provided for @providerDetailPageTestSuccessMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Success'**
-  String get providerDetailPageTestSuccessMessage;
-
-  /// No description provided for @providersPageTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Providers'**
-  String get providersPageTitle;
-
   /// No description provided for @providersPageImportTooltip.
   ///
   /// In en, this message translates to:
   /// **'Import'**
   String get providersPageImportTooltip;
-
-  /// No description provided for @providersPageAddTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Add'**
-  String get providersPageAddTooltip;
-
-  /// No description provided for @providersPageSearchHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search providers or groups'**
-  String get providersPageSearchHint;
-
-  /// No description provided for @providersPageProviderAddedSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Provider added'**
-  String get providersPageProviderAddedSnackbar;
 
   /// No description provided for @providerGroupsGroupLabel.
   ///
@@ -7351,114 +6469,6 @@ abstract class AppLocalizations {
   /// **'Please expand the group first.'**
   String get providerGroupsExpandToMoveToast;
 
-  /// No description provided for @providersPageSiliconFlowName.
-  ///
-  /// In en, this message translates to:
-  /// **'SiliconFlow'**
-  String get providersPageSiliconFlowName;
-
-  /// No description provided for @providersPageAliyunName.
-  ///
-  /// In en, this message translates to:
-  /// **'Aliyun'**
-  String get providersPageAliyunName;
-
-  /// No description provided for @providersPageZhipuName.
-  ///
-  /// In en, this message translates to:
-  /// **'Zhipu AI'**
-  String get providersPageZhipuName;
-
-  /// No description provided for @providersPageByteDanceName.
-  ///
-  /// In en, this message translates to:
-  /// **'ByteDance'**
-  String get providersPageByteDanceName;
-
-  /// No description provided for @providersPageEnabledStatus.
-  ///
-  /// In en, this message translates to:
-  /// **'ON'**
-  String get providersPageEnabledStatus;
-
-  /// No description provided for @providersPageDisabledStatus.
-  ///
-  /// In en, this message translates to:
-  /// **'OFF'**
-  String get providersPageDisabledStatus;
-
-  /// No description provided for @providersPageModelsCountSuffix.
-  ///
-  /// In en, this message translates to:
-  /// **' models'**
-  String get providersPageModelsCountSuffix;
-
-  /// No description provided for @providersPageModelsCountSingleSuffix.
-  ///
-  /// In en, this message translates to:
-  /// **' models'**
-  String get providersPageModelsCountSingleSuffix;
-
-  /// No description provided for @addProviderSheetTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Provider'**
-  String get addProviderSheetTitle;
-
-  /// No description provided for @addProviderSheetEnabledLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Enabled'**
-  String get addProviderSheetEnabledLabel;
-
-  /// No description provided for @addProviderSheetNameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Name'**
-  String get addProviderSheetNameLabel;
-
-  /// No description provided for @addProviderSheetApiPathLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'API Path'**
-  String get addProviderSheetApiPathLabel;
-
-  /// No description provided for @addProviderSheetVertexAiLocationLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Location'**
-  String get addProviderSheetVertexAiLocationLabel;
-
-  /// No description provided for @addProviderSheetVertexAiProjectIdLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Project ID'**
-  String get addProviderSheetVertexAiProjectIdLabel;
-
-  /// No description provided for @addProviderSheetVertexAiServiceAccountJsonLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Service Account JSON (paste or import)'**
-  String get addProviderSheetVertexAiServiceAccountJsonLabel;
-
-  /// No description provided for @addProviderSheetImportJsonButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Import JSON'**
-  String get addProviderSheetImportJsonButton;
-
-  /// No description provided for @addProviderSheetCancelButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get addProviderSheetCancelButton;
-
-  /// No description provided for @addProviderSheetAddButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Add'**
-  String get addProviderSheetAddButton;
-
   /// No description provided for @importProviderSheetTitle.
   ///
   /// In en, this message translates to:
@@ -7543,65 +6553,11 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get shareProviderSheetShareButton;
 
-  /// No description provided for @desktopProviderContextMenuShare.
-  ///
-  /// In en, this message translates to:
-  /// **'Share'**
-  String get desktopProviderContextMenuShare;
-
-  /// No description provided for @desktopProviderShareCopyText.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy code'**
-  String get desktopProviderShareCopyText;
-
-  /// No description provided for @desktopProviderShareCopyQr.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy QR'**
-  String get desktopProviderShareCopyQr;
-
-  /// No description provided for @providerDetailPageApiBaseUrlLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'API Base URL'**
-  String get providerDetailPageApiBaseUrlLabel;
-
-  /// No description provided for @providerDetailPageModelsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Models'**
-  String get providerDetailPageModelsTitle;
-
   /// No description provided for @providerModelsGetButton.
   ///
   /// In en, this message translates to:
   /// **'Get'**
   String get providerModelsGetButton;
-
-  /// No description provided for @providerDetailPageCapsVision.
-  ///
-  /// In en, this message translates to:
-  /// **'Vision'**
-  String get providerDetailPageCapsVision;
-
-  /// No description provided for @providerDetailPageCapsImage.
-  ///
-  /// In en, this message translates to:
-  /// **'Image'**
-  String get providerDetailPageCapsImage;
-
-  /// No description provided for @providerDetailPageCapsTool.
-  ///
-  /// In en, this message translates to:
-  /// **'Tool'**
-  String get providerDetailPageCapsTool;
-
-  /// No description provided for @providerDetailPageCapsReasoning.
-  ///
-  /// In en, this message translates to:
-  /// **'Reasoning'**
-  String get providerDetailPageCapsReasoning;
 
   /// No description provided for @qrScanPageTitle.
   ///
@@ -8236,7 +7192,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutPageAppName.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo'**
+  /// **'Build X'**
   String get aboutPageAppName;
 
   /// No description provided for @aboutPageAppDescription.
@@ -8344,19 +7300,19 @@ abstract class AppLocalizations {
   /// No description provided for @aboutPageQQGroupOne.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo Group 1'**
+  /// **'Build X Group 1'**
   String get aboutPageQQGroupOne;
 
   /// No description provided for @aboutPageQQGroupTwo.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo Group 2'**
+  /// **'Build X Group 2'**
   String get aboutPageQQGroupTwo;
 
   /// No description provided for @aboutPageQQGroupThree.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo Group 3'**
+  /// **'Build X Group 3'**
   String get aboutPageQQGroupThree;
 
   /// No description provided for @aboutPageJoinDiscord.
@@ -10228,7 +9184,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsShare.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo - Open Source AI Assistant'**
+  /// **'Build X - Open Source AI Assistant'**
   String get settingsShare;
 
   /// No description provided for @searchProviderBingLocalDescription.
@@ -10558,7 +9514,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchServiceNameKelivo.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo'**
+  /// **'Build X'**
   String get searchServiceNameKelivo;
 
   /// No description provided for @searchServicesDialogCountryOptional.
@@ -11080,7 +10036,7 @@ abstract class AppLocalizations {
   /// No description provided for @healthDataSettingsDescription.
   ///
   /// In en, this message translates to:
-  /// **'HealthKit signals available to the current assistant in daily conversation. Switches control what Kelivo may try to read; iOS still manages actual Health access.'**
+  /// **'HealthKit signals available to the current assistant in daily conversation. Switches control what Build X may try to read; iOS still manages actual Health access.'**
   String get healthDataSettingsDescription;
 
   /// No description provided for @healthDataSettingsBadge.
@@ -11473,12 +10429,6 @@ abstract class AppLocalizations {
   /// **'Deleted {n} error keys'**
   String multiKeyPageDeletedErrorsSnackbar(int n);
 
-  /// No description provided for @providerDetailPageProviderTypeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Provider Type'**
-  String get providerDetailPageProviderTypeTitle;
-
   /// No description provided for @displaySettingsPageChatItemDisplayTitle.
   ///
   /// In en, this message translates to:
@@ -11515,53 +10465,11 @@ abstract class AppLocalizations {
   /// **'Multi-select'**
   String get providersPageMultiSelectTooltip;
 
-  /// No description provided for @providersPageDeleteSelectedConfirmContent.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete selected providers? This cannot be undone.'**
-  String get providersPageDeleteSelectedConfirmContent;
-
-  /// No description provided for @providersPageDeleteSelectedSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Deleted selected providers'**
-  String get providersPageDeleteSelectedSnackbar;
-
   /// No description provided for @providersPageExportSelectedTitle.
   ///
   /// In en, this message translates to:
   /// **'Export {count} providers'**
   String providersPageExportSelectedTitle(int count);
-
-  /// No description provided for @providersPageExportCopyButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy'**
-  String get providersPageExportCopyButton;
-
-  /// No description provided for @providersPageExportShareButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Share'**
-  String get providersPageExportShareButton;
-
-  /// No description provided for @providersPageExportCopiedSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied export code'**
-  String get providersPageExportCopiedSnackbar;
-
-  /// No description provided for @providersPageDeleteAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get providersPageDeleteAction;
-
-  /// No description provided for @providersPageExportAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Export'**
-  String get providersPageExportAction;
 
   /// No description provided for @assistantEditPresetTitle.
   ///
@@ -11893,71 +10801,11 @@ abstract class AppLocalizations {
   /// **'Image OCR'**
   String get chatInputBarOcrTooltip;
 
-  /// No description provided for @providerDetailPageMultiSelectButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Multi-select'**
-  String get providerDetailPageMultiSelectButton;
-
-  /// No description provided for @providerDetailPageBatchDetectButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Detect'**
-  String get providerDetailPageBatchDetectButton;
-
-  /// No description provided for @providerDetailPageBatchDetecting.
-  ///
-  /// In en, this message translates to:
-  /// **'Detecting...'**
-  String get providerDetailPageBatchDetecting;
-
-  /// No description provided for @providerDetailPageBatchDetectStart.
-  ///
-  /// In en, this message translates to:
-  /// **'Start Detection'**
-  String get providerDetailPageBatchDetectStart;
-
-  /// No description provided for @providerDetailPageDetectSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Detection successful'**
-  String get providerDetailPageDetectSuccess;
-
-  /// No description provided for @providerDetailPageDetectFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Detection failed'**
-  String get providerDetailPageDetectFailed;
-
-  /// No description provided for @providerDetailPageDeleteSelectedModelsButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get providerDetailPageDeleteSelectedModelsButton;
-
-  /// No description provided for @providerDetailPageDeleteSelectedModelsTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete selected models'**
-  String get providerDetailPageDeleteSelectedModelsTooltip;
-
   /// No description provided for @providerDetailPageDeleteSelectedModelsConfirm.
   ///
   /// In en, this message translates to:
   /// **'Delete {count} selected model(s)? This cannot be undone.'**
   String providerDetailPageDeleteSelectedModelsConfirm(int count);
-
-  /// No description provided for @providerDetailPageDeleteFailedDetectedModelsButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete unavailable'**
-  String get providerDetailPageDeleteFailedDetectedModelsButton;
-
-  /// No description provided for @providerDetailPageDeleteFailedDetectedModelsTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete models that failed detection'**
-  String get providerDetailPageDeleteFailedDetectedModelsTooltip;
 
   /// No description provided for @providerDetailPageDeleteFailedDetectedModelsConfirm.
   ///
@@ -11970,18 +10818,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deleted {count} model(s)'**
   String providerDetailPageSelectedModelsDeletedSnackbar(int count);
-
-  /// No description provided for @providerDetailPageDeleteAllModelsTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete all models'**
-  String get providerDetailPageDeleteAllModelsTooltip;
-
-  /// No description provided for @providerDetailPageDeleteAllModelsWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'This action cannot be undone.'**
-  String get providerDetailPageDeleteAllModelsWarning;
 
   /// No description provided for @requestLogSettingTitle.
   ///
@@ -13510,7 +12346,7 @@ abstract class AppLocalizations {
   /// No description provided for @legacyMemoryExportTitle.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo legacy memory export'**
+  /// **'Build X legacy memory export'**
   String get legacyMemoryExportTitle;
 
   /// No description provided for @legacyMemoryAssistantHeader.
@@ -14536,13 +13372,13 @@ abstract class AppLocalizations {
   /// No description provided for @migrationIntroSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo is moving chat history to a faster SQLite database. The upgrade runs before the app opens so your data stays consistent.'**
+  /// **'Build X is moving chat history to a faster SQLite database. The upgrade runs before the app opens so your data stays consistent.'**
   String get migrationIntroSubtitle;
 
   /// No description provided for @migrationBackupNote.
   ///
   /// In en, this message translates to:
-  /// **'Before migration starts, Kelivo exports a ZIP backup with settings, chat history, and local files.'**
+  /// **'Before migration starts, Build X exports a ZIP backup with settings, chat history, and local files.'**
   String get migrationBackupNote;
 
   /// No description provided for @migrationPerformanceNote.
@@ -14614,7 +13450,7 @@ abstract class AppLocalizations {
   /// No description provided for @migrationBackingUpSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Exporting settings, chat history, uploaded files, images, and fonts. Keep Kelivo open until this finishes.'**
+  /// **'Exporting settings, chat history, uploaded files, images, and fonts. Keep Build X open until this finishes.'**
   String get migrationBackingUpSubtitle;
 
   /// No description provided for @migrationMigratingTitle.
@@ -14626,7 +13462,7 @@ abstract class AppLocalizations {
   /// No description provided for @migrationMigratingSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Writing conversations and messages in batches so large histories do not overload memory. Keep Kelivo in the foreground until migration finishes.'**
+  /// **'Writing conversations and messages in batches so large histories do not overload memory. Keep Build X in the foreground until migration finishes.'**
   String get migrationMigratingSubtitle;
 
   /// No description provided for @migrationBackingUpDetail.
@@ -14734,7 +13570,7 @@ abstract class AppLocalizations {
   /// No description provided for @migrationCompleteSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Your chat history is now stored in SQLite. Restart Kelivo to enter the upgraded app.'**
+  /// **'Your chat history is now stored in SQLite. Restart Build X to enter the upgraded app.'**
   String get migrationCompleteSubtitle;
 
   /// No description provided for @migrationConversationCount.
@@ -14770,7 +13606,7 @@ abstract class AppLocalizations {
   /// No description provided for @migrationRestartButton.
   ///
   /// In en, this message translates to:
-  /// **'Restart Kelivo'**
+  /// **'Restart Build X'**
   String get migrationRestartButton;
 
   /// No description provided for @migrationFailedTitle.
@@ -14818,7 +13654,7 @@ abstract class AppLocalizations {
   /// No description provided for @migrationSkipDialogMessage.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo will start with an empty chat database. Your old chat history stays on disk (renamed with a .retired suffix) but will NOT be migrated and will not appear in the app. Use your backup ZIP if you need to recover it later.'**
+  /// **'Build X will start with an empty chat database. Your old chat history stays on disk (renamed with a .retired suffix) but will NOT be migrated and will not appear in the app. Use your backup ZIP if you need to recover it later.'**
   String get migrationSkipDialogMessage;
 
   /// No description provided for @migrationSkipDialogCancel.
@@ -15598,7 +14434,7 @@ abstract class AppLocalizations {
   /// No description provided for @localSnapshotEnabledSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo periodically saves a copy of its database on this device, so it is never the only one.'**
+  /// **'Build X periodically saves a copy of its database on this device, so it is never the only one.'**
   String get localSnapshotEnabledSubtitle;
 
   /// No description provided for @localSnapshotIntervalTitle.
@@ -15754,7 +14590,7 @@ abstract class AppLocalizations {
   /// No description provided for @localSnapshotCopiesScopeNote.
   ///
   /// In en, this message translates to:
-  /// **'Local copies live on this device only. They protect against damage to your data inside the app, not against losing the device or uninstalling Kelivo — use WebDAV or S3 backup for that.'**
+  /// **'Local copies live on this device only. They protect against damage to your data inside the app, not against losing the device or uninstalling Build X — use WebDAV or S3 backup for that.'**
   String get localSnapshotCopiesScopeNote;
 
   /// No description provided for @localSnapshotOriginAutomatic.
@@ -16990,7 +15826,7 @@ abstract class AppLocalizations {
   /// No description provided for @workspaceEnvRestartBanner.
   ///
   /// In en, this message translates to:
-  /// **'Restart Kelivo to finish'**
+  /// **'Restart Build X to finish'**
   String get workspaceEnvRestartBanner;
 
   /// No description provided for @workspaceEnvDetectingMirrors.
@@ -17158,7 +15994,7 @@ abstract class AppLocalizations {
   /// No description provided for @workspaceEnvNativeExplanation.
   ///
   /// In en, this message translates to:
-  /// **'On desktop, Kelivo uses your system shell instead of a Linux sandbox.'**
+  /// **'On desktop, Build X uses your system shell instead of a Linux sandbox.'**
   String get workspaceEnvNativeExplanation;
 
   /// No description provided for @workspaceEnvNativeShellPath.
@@ -18798,7 +17634,7 @@ abstract class AppLocalizations {
   /// No description provided for @workspaceDesktopManagedHint.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo creates and manages a folder for this project.'**
+  /// **'Build X creates and manages a folder for this project.'**
   String get workspaceDesktopManagedHint;
 
   /// No description provided for @workspaceDesktopHostHint.
@@ -19236,7 +18072,7 @@ abstract class AppLocalizations {
   /// No description provided for @workspaceExternalStorageMessage.
   ///
   /// In en, this message translates to:
-  /// **'To read and write external folders in the workspace and Shell, allow Kelivo to manage files in Android settings. On Android 11 or later, enable All files access. Then select an on-device folder to mount.'**
+  /// **'To read and write external folders in the workspace and Shell, allow Build X to manage files in Android settings. On Android 11 or later, enable All files access. Then select an on-device folder to mount.'**
   String get workspaceExternalStorageMessage;
 
   /// No description provided for @workspaceExternalGrantAccess.
@@ -19527,18 +18363,6 @@ abstract class AppLocalizations {
   /// **'Max'**
   String get reasoningBudgetSliderMax;
 
-  /// No description provided for @defaultModelPagePerChatModelTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Per-Chat Model'**
-  String get defaultModelPagePerChatModelTitle;
-
-  /// No description provided for @defaultModelPagePerChatModelSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'On: picking a model in a chat applies to that chat only. Off: it becomes the current assistant\'s model, so every chat using that assistant follows it.'**
-  String get defaultModelPagePerChatModelSubtitle;
-
   /// No description provided for @googleFontsTitle.
   ///
   /// In en, this message translates to:
@@ -19668,7 +18492,7 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundTaskTitle.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo task'**
+  /// **'Build X task'**
   String get backgroundTaskTitle;
 
   /// No description provided for @backgroundCompleted.
@@ -19914,7 +18738,7 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundIconDefault.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo icon'**
+  /// **'Build X icon'**
   String get backgroundIconDefault;
 
   /// No description provided for @backgroundIconImage.
@@ -20322,7 +19146,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupRecoverySnapshotBody.
   ///
   /// In en, this message translates to:
-  /// **'Choose a snapshot on this device to recover your chats and settings, even when the database cannot open. Do not uninstall Kelivo: uninstalling also removes these snapshots.'**
+  /// **'Choose a snapshot on this device to recover your chats and settings, even when the database cannot open. Do not uninstall Build X: uninstalling also removes these snapshots.'**
   String get startupRecoverySnapshotBody;
 
   /// No description provided for @startupRecoverySnapshotEmpty.
@@ -20340,7 +19164,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupRecoverySnapshotConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Restore chats and settings from {when}? Changes made after this snapshot will not be included. Existing attachment files and the snapshot will be kept. Kelivo will restart to complete the restore.'**
+  /// **'Restore chats and settings from {when}? Changes made after this snapshot will not be included. Existing attachment files and the snapshot will be kept. Build X will restart to complete the restore.'**
   String startupRecoverySnapshotConfirm(String when);
 
   /// No description provided for @startupRecoverySnapshotFailed.
@@ -20352,7 +19176,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupRecoverySnapshotReady.
   ///
   /// In en, this message translates to:
-  /// **'The snapshot is ready. Restart Kelivo to complete the restore.'**
+  /// **'The snapshot is ready. Restart Build X to complete the restore.'**
   String get startupRecoverySnapshotReady;
 
   /// No description provided for @scheduledTasksTitle.
@@ -20490,7 +19314,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduledTasksReliability.
   ///
   /// In en, this message translates to:
-  /// **'Keep Kelivo unrestricted in battery settings for more reliable execution. Force stopping the app cancels alarms until you reopen it. Missed runs are skipped; tasks follow the device time zone.'**
+  /// **'Keep Build X unrestricted in battery settings for more reliable execution. Force stopping the app cancels alarms until you reopen it. Missed runs are skipped; tasks follow the device time zone.'**
   String get scheduledTasksReliability;
 
   /// No description provided for @scheduledTasksExecutionDetail.
@@ -20832,7 +19656,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduledTasksDesktopReliability.
   ///
   /// In en, this message translates to:
-  /// **'Tasks run only while Kelivo is running, including when minimized or in the system tray. Missed times are skipped after quitting or computer sleep. Kelivo will not start automatically.'**
+  /// **'Tasks run only while Build X is running, including when minimized or in the system tray. Missed times are skipped after quitting or computer sleep. Build X will not start automatically.'**
   String get scheduledTasksDesktopReliability;
 
   /// No description provided for @scheduledTasksDesktopExecutionDetail.
@@ -21344,6 +20168,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reuse context across messages and choose how long the cache is retained.'**
   String get oauthPromptCachingHelp;
+
+  /// No description provided for @buildXConnectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mistral connection'**
+  String get buildXConnectionTitle;
+
+  /// No description provided for @buildXApiKeyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mistral API key'**
+  String get buildXApiKeyLabel;
+
+  /// No description provided for @buildXApiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste your Mistral API key'**
+  String get buildXApiKeyHint;
+
+  /// No description provided for @buildXApiKeyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Build X uses mistral-medium-latest for every chat. Your key is stored in the device secure store.'**
+  String get buildXApiKeyHelp;
+
+  /// No description provided for @buildXSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save key'**
+  String get buildXSave;
+
+  /// No description provided for @buildXSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'API key saved'**
+  String get buildXSaved;
+
+  /// No description provided for @buildXSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the API key'**
+  String get buildXSaveFailed;
+
+  /// No description provided for @buildXSkillSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a skill'**
+  String get buildXSkillSection;
+
+  /// No description provided for @buildXSkillName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get buildXSkillName;
+
+  /// No description provided for @buildXSkillDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get buildXSkillDescription;
+
+  /// No description provided for @buildXSkillInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get buildXSkillInstructions;
+
+  /// No description provided for @buildXAddSkill.
+  ///
+  /// In en, this message translates to:
+  /// **'Save skill'**
+  String get buildXAddSkill;
+
+  /// No description provided for @buildXSkillSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill saved'**
+  String get buildXSkillSaved;
+
+  /// No description provided for @buildXSkillError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name, description, and instructions.'**
+  String get buildXSkillError;
+
+  /// No description provided for @buildXBrowserSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser account'**
+  String get buildXBrowserSection;
+
+  /// No description provided for @buildXBrowserHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Store account details for a future signed-in browser feature. Build X does not open a browser with this account yet.'**
+  String get buildXBrowserHelp;
+
+  /// No description provided for @buildXBrowserSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get buildXBrowserSite;
+
+  /// No description provided for @buildXBrowserUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Username or email'**
+  String get buildXBrowserUser;
+
+  /// No description provided for @buildXBrowserSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Password or session token'**
+  String get buildXBrowserSecret;
+
+  /// No description provided for @buildXSaveBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Save account'**
+  String get buildXSaveBrowser;
+
+  /// No description provided for @buildXBrowserSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser account saved'**
+  String get buildXBrowserSaved;
+
+  /// No description provided for @buildXBrowserError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a website and an account secret.'**
+  String get buildXBrowserError;
+
+  /// No description provided for @buildXMemoryWhatIsStored.
+  ///
+  /// In en, this message translates to:
+  /// **'Active memory items below can be included in prompts. Archived items are kept for review but are not injected.'**
+  String get buildXMemoryWhatIsStored;
+
+  /// No description provided for @buildXMemoryWhatIsNotStored.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat history and Mistral-hosted conversation history are separate from this memory list.'**
+  String get buildXMemoryWhatIsNotStored;
+
+  /// No description provided for @buildXAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get buildXAdvanced;
+
+  /// No description provided for @buildXShowKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Show key'**
+  String get buildXShowKey;
+
+  /// No description provided for @buildXHideKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide key'**
+  String get buildXHideKey;
 }
 
 class _AppLocalizationsDelegate

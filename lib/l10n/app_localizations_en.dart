@@ -177,7 +177,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageSpaceClearDisplacedDatabasesConfirmMessage =>
-      'Delete these set-aside databases? Kelivo kept them when it rebuilt its database, and they may be the only surviving copy of those chats and settings. This cannot be undone.';
+      'Delete these set-aside databases? Build X kept them when it rebuilt its database, and they may be the only surviving copy of those chats and settings. This cannot be undone.';
 
   @override
   String get storageSpaceRestoreTracesHint =>
@@ -527,7 +527,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sponsorPageAfdianTitle => 'Afdian';
 
   @override
-  String get sponsorPageAfdianSubtitle => 'afdian.com/a/kelivo';
+  String get sponsorPageAfdianSubtitle => 'Original project sponsorship';
 
   @override
   String get sponsorPageWeChatTitle => 'WeChat Sponsor';
@@ -1034,9 +1034,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get desktopNavChatTooltip => 'Chat';
 
   @override
-  String get desktopNavTranslateTooltip => 'Translate';
-
-  @override
   String get desktopNavStorageTooltip => 'Storage';
 
   @override
@@ -1171,12 +1168,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get assistantEditGeneralErrorMessage =>
       'Something went wrong. Try entering an image URL.';
-
-  @override
-  String get providerDetailPageMultiKeyModeTitle => 'Multi-Key Mode';
-
-  @override
-  String get providerDetailPageManageKeysButton => 'Manage Keys';
 
   @override
   String get multiKeyPageTitle => 'Multi-Key Manager';
@@ -1599,45 +1590,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupPageRestartContent =>
-      'Import successful. Restart Kelivo to apply it safely.';
+      'Import successful. Restart Build X to apply it safely.';
 
   @override
   String backupPageRestartContentWithSkipped(int count) {
-    return 'Import completed, but $count conversations with invalid message ordering were skipped. Restart Kelivo to apply the imported data safely.';
+    return 'Import completed, but $count conversations with invalid message ordering were skipped. Restart Build X to apply the imported data safely.';
   }
 
   @override
   String get restartAppFailedMessage =>
-      'Kelivo could not restart automatically. Fully close it, then open it again.';
+      'Build X could not restart automatically. Fully close it, then open it again.';
 
   @override
   String get backupRestoreRolledBackTitle => 'Restore was rolled back';
 
   @override
   String get backupRestoreRolledBackContent =>
-      'The restore could not be completed. Kelivo verified and kept your previous data.';
+      'The restore could not be completed. Build X verified and kept your previous data.';
 
   @override
   String get backupRestoreFailureTitle => 'Restore requires attention';
 
   @override
   String get backupRestoreFailureContent =>
-      'Kelivo could not verify a complete old or new data set, so chat data was not opened. Close Kelivo and try again. If this repeats, keep the diagnostic code for support.';
+      'Build X could not verify a complete old or new data set, so chat data was not opened. Close Build X and try again. If this repeats, keep the diagnostic code for support.';
 
   @override
   String get backupRestoreBusinessLeaseUnavailableTitle =>
-      'Kelivo is already running';
+      'Build X is already running';
 
   @override
   String get backupRestoreBusinessLeaseUnavailableContent =>
-      'Kelivo\'s data is still in use by another app process. Close any other Kelivo window, then restart. Your chat data has not been opened by this process.';
+      'Build X\'s data is still in use by another app process. Close any other Build X window, then restart. Your chat data has not been opened by this process.';
 
   @override
   String get restoreProgressTitle => 'Restoring your backup';
 
   @override
   String get restoreProgressWarning =>
-      'Keep Kelivo open until this finishes. If you close it now, the next launch starts this over.';
+      'Keep Build X open until this finishes. If you close it now, the next launch starts this over.';
 
   @override
   String get restoreProgressStageCheckingBackup => 'Checking the backup';
@@ -1659,7 +1650,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreProgressStageFinishing => 'Finishing up';
 
   @override
-  String get backupRestoreFailureRestartButton => 'Restart Kelivo';
+  String get backupRestoreFailureRestartButton => 'Restart Build X';
 
   @override
   String get backupRestoreFailureCopyButton => 'Copy diagnostic code';
@@ -1700,14 +1691,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupRecoveryResetFailed =>
-      'Reset failed. Fully close Kelivo, then open it again.';
+      'Reset failed. Fully close Build X, then open it again.';
 
   @override
   String get startupRecoveryResetDialogTitle => 'Reset all data?';
 
   @override
   String get startupRecoveryResetDialogContent =>
-      'This permanently deletes Kelivo\'s database on this device and starts fresh. If you might need this data, export a copy first. This cannot be undone.';
+      'This permanently deletes Build X\'s database on this device and starts fresh. If you might need this data, export a copy first. This cannot be undone.';
 
   @override
   String get startupRecoveryResetDialogConfirm => 'Reset and restart';
@@ -1822,18 +1813,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupRecoveryDangerBody =>
-      'Resetting permanently deletes Kelivo\'s database on this device. Export a copy of your data first — a reset also destroys the evidence needed to fix the underlying problem.';
+      'Resetting permanently deletes Build X\'s database on this device. Export a copy of your data first — a reset also destroys the evidence needed to fix the underlying problem.';
 
   @override
   String get startupRecoveryResetAcknowledge =>
       'I exported a copy, or I do not need this data.';
 
   @override
-  String get startupDatabaseUpdateRequiredTitle => 'Update Kelivo to continue';
+  String get startupDatabaseUpdateRequiredTitle => 'Update Build X to continue';
 
   @override
   String get startupDatabaseUpdateRequiredContent =>
-      'The chat database on this device was created by a newer version of Kelivo and cannot be opened by this version. Your data has not been changed. Install the latest version of Kelivo, then open it again.';
+      'The chat database on this device was created by a newer version of Build X and cannot be opened by this version. Your data has not been changed. Install the latest version of Build X, then open it again.';
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeTitle =>
@@ -1845,7 +1836,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeStep1 =>
-      'Install and open the latest Kelivo, then export a backup from Settings → Backup.';
+      'Install and open the latest Build X, then export a backup from Settings → Backup.';
 
   @override
   String startupDatabaseUpdateRequiredDowngradeStep2(String url) {
@@ -1904,7 +1895,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String backupPageForwardCompatBody(int backupVersion, int currentVersion) {
-    return 'This backup was created by a newer version of Kelivo (data format $backupVersion; this version supports $currentVersion), and it does not say whether older versions can read it.\n\nYou can continue: anything this version does not recognise will be skipped, and the backup file itself is not modified. But if the newer version changed how existing data is stored, some content may be imported incorrectly.\n\nUpdating Kelivo first is the safer choice.';
+    return 'This backup was created by a newer version of Build X (data format $backupVersion; this version supports $currentVersion), and it does not say whether older versions can read it.\n\nYou can continue: anything this version does not recognise will be skipped, and the backup file itself is not modified. But if the newer version changed how existing data is stored, some content may be imported incorrectly.\n\nUpdating Build X first is the safer choice.';
   }
 
   @override
@@ -1915,7 +1906,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupPageSchemaTooNewMessage =>
-      'This backup was created by a newer version of Kelivo and cannot be read by this version. Please update Kelivo and try again.';
+      'This backup was created by a newer version of Build X and cannot be read by this version. Please update Build X and try again.';
 
   @override
   String get backupPageBackupUploaded => 'Backup uploaded';
@@ -2087,7 +2078,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String backupPageCherryStudioUnsupportedBackupVersion(String version) {
-    return 'This backup uses Cherry Studio format version $version, which Kelivo cannot import yet. Export from Cherry Studio v1 instead, or wait for a Kelivo update that supports Cherry Studio v2 backups.';
+    return 'This backup uses Cherry Studio format version $version, which Build X cannot import yet. Export from Cherry Studio v1 instead, or wait for a Build X update that supports Cherry Studio v2 backups.';
   }
 
   @override
@@ -3284,23 +3275,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mcpServerEditSheetUrlRequired => 'Please enter server URL';
 
   @override
-  String get defaultModelPageBackTooltip => 'Back';
-
-  @override
   String get defaultModelPageTitle => 'Default Model';
 
   @override
-  String get defaultModelPageChatModelTitle => 'Chat Model';
-
-  @override
-  String get defaultModelPageChatModelSubtitle => 'Global default chat model';
-
-  @override
   String get defaultModelPageTitleModelTitle => 'Title Summary Model';
-
-  @override
-  String get defaultModelPageTitleModelSubtitle =>
-      'Summarizes conversation titles using the current chat model by default, or a selected model.';
 
   @override
   String get titleModelThinkingTitle => 'Enable Thinking';
@@ -3309,15 +3287,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultModelPageSummaryModelTitle => 'Summary Model';
 
   @override
-  String get defaultModelPageSummaryModelSubtitle =>
-      'Used for generating conversation summaries; prefer fast and cheap models';
-
-  @override
   String get defaultModelPageSuggestionModelTitle => 'Chat Suggestions Model';
-
-  @override
-  String get defaultModelPageSuggestionModelSubtitle =>
-      'Generates follow-up suggestion bubbles using the current chat model or a selected model. Disabled by default.';
 
   @override
   String get assistantEditRecentChatsSummaryFrequencyTitle =>
@@ -3356,13 +3326,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter a whole number greater than 0';
 
   @override
-  String get defaultModelPageTranslateModelTitle => 'Translation Model';
-
-  @override
-  String get defaultModelPageTranslateModelSubtitle =>
-      'Used for translating message content; prefer fast & accurate models';
-
-  @override
   String get defaultModelPageOcrModelTitle => 'OCR Model';
 
   @override
@@ -3371,31 +3334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get defaultModelPageOcrModelSubtitle =>
-      'Used for extracting text and descriptions from images';
-
-  @override
-  String get defaultModelPageOcrModelRequiresImageInput =>
-      'Select a model tagged with image input for OCR';
-
-  @override
   String get defaultModelPagePromptLabel => 'Prompt';
-
-  @override
-  String get defaultModelPageTitlePromptHint =>
-      'Enter prompt template for title summarization';
-
-  @override
-  String get defaultModelPageSummaryPromptHint =>
-      'Enter prompt template for summary generation';
-
-  @override
-  String get defaultModelPageSuggestionPromptHint =>
-      'Enter prompt template for chat suggestions';
-
-  @override
-  String get defaultModelPageTranslatePromptHint =>
-      'Enter prompt template for translation';
 
   @override
   String get defaultModelPageOcrPromptHint =>
@@ -3403,9 +3342,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defaultModelPageResetDefault => 'Reset to default';
-
-  @override
-  String get defaultModelPageDisable => 'Disable';
 
   @override
   String get defaultModelPageSave => 'Save';
@@ -3429,17 +3365,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get defaultModelPageCompressModelTitle => 'Compress Model';
-
-  @override
-  String get defaultModelPageCompressModelSubtitle =>
-      'Used for compressing conversation context; prefer fast models';
-
-  @override
-  String get defaultModelPageCompressPromptHint =>
-      'Enter prompt template for context compression';
-
-  @override
   String defaultModelPageCompressVars(String contentVar, String localeVar) {
     return 'Variables: conversation: $contentVar, language: $localeVar';
   }
@@ -3450,73 +3375,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get defaultModelPageUseCurrentModel => 'Use current chat model';
-
-  @override
-  String get defaultModelPageNotEnabled => 'Not enabled';
-
-  @override
-  String get translatePagePasteButton => 'Paste';
-
-  @override
-  String get translatePageCopyResult => 'Copy result';
-
-  @override
-  String get translatePageClearAll => 'Clear All';
-
-  @override
-  String get translatePageInputHint => 'Enter text to translate…';
-
-  @override
-  String get translatePageOutputHint => 'Translated result appears here…';
-
-  @override
-  String get modelDetailSheetAddModel => 'Add Model';
-
-  @override
-  String get modelDetailSheetEditModel => 'Edit Model';
-
-  @override
-  String get modelDetailSheetBasicTab => 'Basic';
-
-  @override
-  String get modelDetailSheetAdvancedTab => 'Advanced';
-
-  @override
-  String get modelDetailSheetBuiltinToolsTab => 'Built-in Tools';
-
-  @override
-  String get modelDetailSheetModelIdLabel => 'Model ID';
-
-  @override
-  String get modelDetailSheetModelIdHint =>
-      'Required, suggest lowercase/digits/hyphens';
-
-  @override
   String modelDetailSheetModelIdDisabledHint(String modelId) {
     return '$modelId';
   }
-
-  @override
-  String get modelDetailSheetModelNameLabel => 'Model Name';
-
-  @override
-  String get modelDetailSheetModelTypeLabel => 'Model Type';
-
-  @override
-  String get modelDetailSheetChatType => 'Chat';
-
-  @override
-  String get modelDetailSheetEmbeddingType => 'Embedding';
 
   @override
   String get modelDetailSheetInputModesLabel => 'Input Modes';
 
   @override
   String get modelDetailSheetOutputModesLabel => 'Output Modes';
-
-  @override
-  String get modelDetailSheetAbilitiesLabel => 'Abilities';
 
   @override
   String get modelDetailSheetTextMode => 'Text';
@@ -3531,135 +3398,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modelDetailSheetReasoningAbility => 'Reasoning';
 
   @override
-  String get modelDetailSheetCustomHeadersTitle => 'Custom Headers';
-
-  @override
-  String get modelDetailSheetAddHeader => 'Add Header';
-
-  @override
-  String get modelDetailSheetCustomBodyTitle => 'Custom Body';
-
-  @override
   String get modelFetchInvertTooltip => 'Invert';
 
   @override
-  String get modelDetailSheetSaveFailedMessage =>
-      'Save failed. Please try again.';
-
-  @override
-  String get modelDetailSheetAddBody => 'Add Body';
-
-  @override
-  String get modelDetailSheetBuiltinToolsDescription =>
-      'Built-in tools depend on the provider and API mode.';
-
-  @override
-  String get modelDetailSheetSearchTool => 'Search';
-
-  @override
-  String get modelDetailSheetSearchToolDescription =>
-      'Enable Google Search integration';
-
-  @override
-  String get modelDetailSheetUrlContextTool => 'URL Context';
-
-  @override
-  String get modelDetailSheetUrlContextToolDescription =>
-      'Enable URL content ingestion';
-
-  @override
-  String get modelDetailSheetCodeExecutionTool => 'Code Execution';
-
-  @override
-  String get modelDetailSheetCodeExecutionToolDescription =>
-      'Enable code execution tool';
-
-  @override
-  String get modelDetailSheetYoutubeTool => 'YouTube';
-
-  @override
-  String get modelDetailSheetYoutubeToolDescription =>
-      'Enable YouTube URL ingestion (auto-detect links in prompts)';
-
-  @override
-  String get modelDetailSheetOpenaiBuiltinToolsResponsesOnlyHint =>
-      'Requires OpenAI Responses API.';
-
-  @override
-  String get modelDetailSheetWebFetchTool => 'Web Fetch';
-
-  @override
-  String get modelDetailSheetOpenrouterWebFetchToolDescription =>
-      'Enable OpenRouter web fetch server tool';
-
-  @override
-  String get modelDetailSheetClaudeWebFetchToolDescription =>
-      'Let Claude fetch pages and PDFs from URLs in the conversation';
-
-  @override
-  String get modelDetailSheetClaudeCodeExecutionToolDescription =>
-      'Let Claude run Python and Bash in Anthropic\'s sandbox';
-
-  @override
-  String get modelDetailSheetOpenrouterShellTool => 'Shell';
-
-  @override
-  String get modelDetailSheetOpenrouterShellToolDescription =>
-      'Run Shell commands in a hosted, isolated sandbox';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterTool => 'Code Interpreter';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterToolDescription =>
-      'Enable code interpreter tool (container auto, memory limit 4g)';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationTool => 'Image Generation';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationToolDescription =>
-      'Enable image generation tool';
-
-  @override
-  String get modelDetailSheetCancelButton => 'Cancel';
-
-  @override
-  String get modelDetailSheetAddButton => 'Add';
-
-  @override
   String get modelDetailSheetConfirmButton => 'Confirm';
-
-  @override
-  String get modelDetailSheetInvalidIdError =>
-      'Please enter a valid model ID (>=2 chars)';
-
-  @override
-  String get modelDetailSheetModelIdExistsError => 'Model ID already exists';
-
-  @override
-  String get modelDetailSheetHeaderKeyHint => 'Header Key';
-
-  @override
-  String get modelDetailSheetHeaderValueHint => 'Header Value';
-
-  @override
-  String get modelDetailSheetBodyKeyHint => 'Body Key';
-
-  @override
-  String get modelDetailSheetBodyJsonHint => 'Body JSON';
-
-  @override
-  String get modelSelectSheetSearchHint => 'Search models or providers';
-
-  @override
-  String get modelSelectSheetFavoritesSection => 'Favorites';
-
-  @override
-  String get modelSelectSheetFollowAssistant => 'Follow assistant';
-
-  @override
-  String get modelSelectSheetFavoriteTooltip => 'Favorite';
 
   @override
   String get modelSelectSheetChatType => 'Chat';
@@ -3668,54 +3410,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modelSelectSheetEmbeddingType => 'Embedding';
 
   @override
-  String get providerDetailPageShareTooltip => 'Share';
-
-  @override
-  String get providerDetailPageDeleteProviderTooltip => 'Delete Provider';
-
-  @override
-  String get providerDetailPageDeleteProviderTitle => 'Delete Provider';
-
-  @override
-  String get providerDetailPageDeleteProviderContent =>
-      'Are you sure you want to delete this provider? This cannot be undone.';
-
-  @override
-  String get providerDetailPageCancelButton => 'Cancel';
-
-  @override
   String get providerDetailPageDeleteButton => 'Delete';
-
-  @override
-  String get providerDetailPageProviderDeletedSnackbar => 'Provider deleted';
-
-  @override
-  String get providerDetailPageConfigTab => 'Config';
-
-  @override
-  String get providerDetailPageModelsTab => 'Models';
-
-  @override
-  String get providerDetailPageCustomRequestTitle => 'Custom Request';
-
-  @override
-  String get providerDetailPageCustomRequestDescription =>
-      'Applies to every model from this provider. Model settings override these values; these values override assistant settings.';
-
-  @override
-  String get providerDetailPageNetworkTab => 'Network';
-
-  @override
-  String get providerDetailPageEnabledTitle => 'Enabled';
-
-  @override
-  String get providerDetailPageManageSectionTitle => 'Manage';
-
-  @override
-  String get providerDetailPageNameLabel => 'Name';
-
-  @override
-  String get providerDetailPageApiKeyHint => 'Leave empty to use default';
 
   @override
   String get providerDetailPageHideTooltip => 'Hide';
@@ -3724,63 +3419,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get providerDetailPageShowTooltip => 'Show';
 
   @override
-  String get providerDetailPageApiPathLabel => 'API Path';
-
-  @override
-  String get providerDetailPageResponseApiTitle => 'Response API (/responses)';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeLabel => 'APP-Code (10% off)';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeHelp =>
-      'Adds header APP-Code requests to get a 10% discount. Only affects AIhubmix.';
-
-  @override
   String get providerDetailPageClaudePromptCachingTitle =>
       'Claude Prompt Caching';
 
   @override
-  String get providerDetailPageClaudePromptCachingHelp =>
-      'Adds cache_control to Claude requests through Anthropic or OpenRouter.';
-
-  @override
   String get providerDetailPageClaudePromptCachingTtlTitle => 'Cache TTL';
-
-  @override
-  String get providerDetailPageClaudePromptCachingTtlHelp =>
-      '5 minutes is the default. 1 hour costs more to write but can reduce rebuilds in long conversations.';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl5m => '5 min';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl1h => '1 hour';
-
-  @override
-  String get providerDetailPageBalanceTitle => 'Account Balance';
-
-  @override
-  String get providerDetailPageBalanceInfo => 'Get account balance';
-
-  @override
-  String get providerDetailPageBalanceApiPathLabel => 'Balance API Path';
-
-  @override
-  String get providerDetailPageBalanceResultPathLabel => 'Result JSON Path';
-
-  @override
-  String get providerDetailPageBalanceQueryButton => 'Check Balance';
-
-  @override
-  String get providerDetailPageBalanceQuerying => 'Checking...';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsButton => 'Reset';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsTooltip =>
-      'Reset balance settings';
 
   @override
   String providerDetailPageBalanceResult(String value) {
@@ -3793,134 +3442,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get providerDetailPageVertexAiTitle => 'Vertex AI';
-
-  @override
-  String get providerDetailPageLocationLabel => 'Location';
-
-  @override
-  String get providerDetailPageProjectIdLabel => 'Project ID';
-
-  @override
-  String get providerDetailPageServiceAccountJsonLabel =>
-      'Service Account JSON (paste or import)';
-
-  @override
-  String get providerDetailPageImportJsonButton => 'Import JSON';
-
-  @override
-  String get providerDetailPageImportJsonReadFailedMessage =>
-      'Failed to read file';
-
-  @override
-  String get providerDetailPageTestButton => 'Test';
-
-  @override
-  String get providerDetailPageSaveButton => 'Save';
-
-  @override
-  String get providerDetailPageProviderRemovedMessage => 'Provider removed';
-
-  @override
-  String get providerDetailPageNoModelsTitle => 'No Models';
-
-  @override
-  String get providerDetailPageNoModelsSubtitle =>
-      'Tap the buttons below to add models';
-
-  @override
-  String get providerDetailPageDeleteModelButton => 'Delete';
-
-  @override
-  String get providerDetailPageConfirmDeleteTitle => 'Confirm Delete';
-
-  @override
-  String get providerDetailPageConfirmDeleteContent =>
-      'This can be undone via Undo. Delete?';
-
-  @override
-  String get providerDetailPageModelDeletedSnackbar => 'Model deleted';
-
-  @override
-  String get providerDetailPageUndoButton => 'Undo';
-
-  @override
-  String get providerDetailPageAddNewModelButton => 'Add Model';
-
-  @override
-  String get providerDetailPageFetchModelsButton => 'Fetch';
-
-  @override
-  String get providerDetailPageEnableProxyTitle => 'Enable Proxy';
-
-  @override
-  String get providerDetailPageHostLabel => 'Host';
-
-  @override
-  String get providerDetailPagePortLabel => 'Port';
-
-  @override
-  String get providerDetailPageUsernameOptionalLabel => 'Username (optional)';
-
-  @override
-  String get providerDetailPagePasswordOptionalLabel => 'Password (optional)';
-
-  @override
-  String get providerDetailPageSavedSnackbar => 'Saved';
-
-  @override
-  String get providerDetailPageEmbeddingsGroupTitle => 'Embeddings';
-
-  @override
-  String get providerDetailPageOtherModelsGroupTitle => 'Other';
-
-  @override
-  String get providerDetailPageRemoveGroupTooltip => 'Remove group';
-
-  @override
-  String get providerDetailPageAddGroupTooltip => 'Add group';
-
-  @override
-  String get providerDetailPageFilterHint => 'Type model name to filter';
-
-  @override
-  String get providerDetailPageDeleteText => 'Delete';
-
-  @override
-  String get providerDetailPageEditTooltip => 'Edit';
-
-  @override
-  String get providerDetailPageTestConnectionTitle => 'Test Connection';
-
-  @override
-  String get providerDetailPageSelectModelButton => 'Select Model';
-
-  @override
-  String get providerDetailPageChangeButton => 'Change';
-
-  @override
-  String get providerDetailPageUseStreamingLabel => 'Use Streaming';
-
-  @override
-  String get providerDetailPageTestingMessage => 'Testing…';
-
-  @override
-  String get providerDetailPageTestSuccessMessage => 'Success';
-
-  @override
-  String get providersPageTitle => 'Providers';
-
-  @override
   String get providersPageImportTooltip => 'Import';
-
-  @override
-  String get providersPageAddTooltip => 'Add';
-
-  @override
-  String get providersPageSearchHint => 'Search providers or groups';
-
-  @override
-  String get providersPageProviderAddedSnackbar => 'Provider added';
 
   @override
   String get providerGroupsGroupLabel => 'Group';
@@ -3982,61 +3504,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please expand the group first.';
 
   @override
-  String get providersPageSiliconFlowName => 'SiliconFlow';
-
-  @override
-  String get providersPageAliyunName => 'Aliyun';
-
-  @override
-  String get providersPageZhipuName => 'Zhipu AI';
-
-  @override
-  String get providersPageByteDanceName => 'ByteDance';
-
-  @override
-  String get providersPageEnabledStatus => 'ON';
-
-  @override
-  String get providersPageDisabledStatus => 'OFF';
-
-  @override
-  String get providersPageModelsCountSuffix => ' models';
-
-  @override
-  String get providersPageModelsCountSingleSuffix => ' models';
-
-  @override
-  String get addProviderSheetTitle => 'Add Provider';
-
-  @override
-  String get addProviderSheetEnabledLabel => 'Enabled';
-
-  @override
-  String get addProviderSheetNameLabel => 'Name';
-
-  @override
-  String get addProviderSheetApiPathLabel => 'API Path';
-
-  @override
-  String get addProviderSheetVertexAiLocationLabel => 'Location';
-
-  @override
-  String get addProviderSheetVertexAiProjectIdLabel => 'Project ID';
-
-  @override
-  String get addProviderSheetVertexAiServiceAccountJsonLabel =>
-      'Service Account JSON (paste or import)';
-
-  @override
-  String get addProviderSheetImportJsonButton => 'Import JSON';
-
-  @override
-  String get addProviderSheetCancelButton => 'Cancel';
-
-  @override
-  String get addProviderSheetAddButton => 'Add';
-
-  @override
   String get importProviderSheetTitle => 'Import Provider';
 
   @override
@@ -4084,34 +3551,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareProviderSheetShareButton => 'Share';
 
   @override
-  String get desktopProviderContextMenuShare => 'Share';
-
-  @override
-  String get desktopProviderShareCopyText => 'Copy code';
-
-  @override
-  String get desktopProviderShareCopyQr => 'Copy QR';
-
-  @override
-  String get providerDetailPageApiBaseUrlLabel => 'API Base URL';
-
-  @override
-  String get providerDetailPageModelsTitle => 'Models';
-
-  @override
   String get providerModelsGetButton => 'Get';
-
-  @override
-  String get providerDetailPageCapsVision => 'Vision';
-
-  @override
-  String get providerDetailPageCapsImage => 'Image';
-
-  @override
-  String get providerDetailPageCapsTool => 'Tool';
-
-  @override
-  String get providerDetailPageCapsReasoning => 'Reasoning';
 
   @override
   String get qrScanPageTitle => 'Scan QR';
@@ -4466,7 +3906,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ve already been through this door.';
 
   @override
-  String get aboutPageAppName => 'Kelivo';
+  String get aboutPageAppName => 'Build X';
 
   @override
   String get aboutPageAppDescription => 'Open-source AI Assistant';
@@ -4524,13 +3964,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutPageJoinQQGroup => 'Join our QQ Group';
 
   @override
-  String get aboutPageQQGroupOne => 'Kelivo Group 1';
+  String get aboutPageQQGroupOne => 'Build X Group 1';
 
   @override
-  String get aboutPageQQGroupTwo => 'Kelivo Group 2';
+  String get aboutPageQQGroupTwo => 'Build X Group 2';
 
   @override
-  String get aboutPageQQGroupThree => 'Kelivo Group 3';
+  String get aboutPageQQGroupThree => 'Build X Group 3';
 
   @override
   String get aboutPageJoinDiscord => 'Join us on Discord';
@@ -5577,7 +5017,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsShare => 'Kelivo - Open Source AI Assistant';
+  String get settingsShare => 'Build X - Open Source AI Assistant';
 
   @override
   String get searchProviderBingLocalDescription =>
@@ -5766,7 +5206,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Maximum tokens must be between 1024 and 32768.';
 
   @override
-  String get searchServiceNameKelivo => 'Kelivo';
+  String get searchServiceNameKelivo => 'Build X';
 
   @override
   String get searchServicesDialogCountryOptional => 'Country/region (optional)';
@@ -6051,7 +5491,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get healthDataSettingsDescription =>
-      'HealthKit signals available to the current assistant in daily conversation. Switches control what Kelivo may try to read; iOS still manages actual Health access.';
+      'HealthKit signals available to the current assistant in daily conversation. Switches control what Build X may try to read; iOS still manages actual Health access.';
 
   @override
   String healthDataSettingsBadge(int selected, int total) {
@@ -6273,9 +5713,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get providerDetailPageProviderTypeTitle => 'Provider Type';
-
-  @override
   String get displaySettingsPageChatItemDisplayTitle => 'Chat item display';
 
   @override
@@ -6294,32 +5731,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get providersPageMultiSelectTooltip => 'Multi-select';
 
   @override
-  String get providersPageDeleteSelectedConfirmContent =>
-      'Delete selected providers? This cannot be undone.';
-
-  @override
-  String get providersPageDeleteSelectedSnackbar =>
-      'Deleted selected providers';
-
-  @override
   String providersPageExportSelectedTitle(int count) {
     return 'Export $count providers';
   }
-
-  @override
-  String get providersPageExportCopyButton => 'Copy';
-
-  @override
-  String get providersPageExportShareButton => 'Share';
-
-  @override
-  String get providersPageExportCopiedSnackbar => 'Copied export code';
-
-  @override
-  String get providersPageDeleteAction => 'Delete';
-
-  @override
-  String get providersPageExportAction => 'Export';
 
   @override
   String get assistantEditPresetTitle => 'Preset conversation';
@@ -6496,42 +5910,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatInputBarOcrTooltip => 'Image OCR';
 
   @override
-  String get providerDetailPageMultiSelectButton => 'Multi-select';
-
-  @override
-  String get providerDetailPageBatchDetectButton => 'Detect';
-
-  @override
-  String get providerDetailPageBatchDetecting => 'Detecting...';
-
-  @override
-  String get providerDetailPageBatchDetectStart => 'Start Detection';
-
-  @override
-  String get providerDetailPageDetectSuccess => 'Detection successful';
-
-  @override
-  String get providerDetailPageDetectFailed => 'Detection failed';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsButton => 'Delete';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsTooltip =>
-      'Delete selected models';
-
-  @override
   String providerDetailPageDeleteSelectedModelsConfirm(int count) {
     return 'Delete $count selected model(s)? This cannot be undone.';
   }
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsButton =>
-      'Delete unavailable';
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsTooltip =>
-      'Delete models that failed detection';
 
   @override
   String providerDetailPageDeleteFailedDetectedModelsConfirm(int count) {
@@ -6542,13 +5923,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String providerDetailPageSelectedModelsDeletedSnackbar(int count) {
     return 'Deleted $count model(s)';
   }
-
-  @override
-  String get providerDetailPageDeleteAllModelsTooltip => 'Delete all models';
-
-  @override
-  String get providerDetailPageDeleteAllModelsWarning =>
-      'This action cannot be undone.';
 
   @override
   String get requestLogSettingTitle => 'Request Logging';
@@ -7406,7 +6780,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legacyMemoryExport => 'Export';
 
   @override
-  String get legacyMemoryExportTitle => 'Kelivo legacy memory export';
+  String get legacyMemoryExportTitle => 'Build X legacy memory export';
 
   @override
   String legacyMemoryAssistantHeader(String name) {
@@ -8022,11 +7396,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get migrationIntroSubtitle =>
-      'Kelivo is moving chat history to a faster SQLite database. The upgrade runs before the app opens so your data stays consistent.';
+      'Build X is moving chat history to a faster SQLite database. The upgrade runs before the app opens so your data stays consistent.';
 
   @override
   String get migrationBackupNote =>
-      'Before migration starts, Kelivo exports a ZIP backup with settings, chat history, and local files.';
+      'Before migration starts, Build X exports a ZIP backup with settings, chat history, and local files.';
 
   @override
   String get migrationPerformanceNote =>
@@ -8066,14 +7440,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get migrationBackingUpSubtitle =>
-      'Exporting settings, chat history, uploaded files, images, and fonts. Keep Kelivo open until this finishes.';
+      'Exporting settings, chat history, uploaded files, images, and fonts. Keep Build X open until this finishes.';
 
   @override
   String get migrationMigratingTitle => 'Migrating to SQLite';
 
   @override
   String get migrationMigratingSubtitle =>
-      'Writing conversations and messages in batches so large histories do not overload memory. Keep Kelivo in the foreground until migration finishes.';
+      'Writing conversations and messages in batches so large histories do not overload memory. Keep Build X in the foreground until migration finishes.';
 
   @override
   String migrationBackingUpDetail(String fileName) {
@@ -8133,7 +7507,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get migrationCompleteSubtitle =>
-      'Your chat history is now stored in SQLite. Restart Kelivo to enter the upgraded app.';
+      'Your chat history is now stored in SQLite. Restart Build X to enter the upgraded app.';
 
   @override
   String get migrationConversationCount => 'Conversations';
@@ -8151,7 +7525,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get migrationMissingFilesCount => 'Missing files';
 
   @override
-  String get migrationRestartButton => 'Restart Kelivo';
+  String get migrationRestartButton => 'Restart Build X';
 
   @override
   String get migrationFailedTitle => 'Migration Failed';
@@ -8177,7 +7551,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get migrationSkipDialogMessage =>
-      'Kelivo will start with an empty chat database. Your old chat history stays on disk (renamed with a .retired suffix) but will NOT be migrated and will not appear in the app. Use your backup ZIP if you need to recover it later.';
+      'Build X will start with an empty chat database. Your old chat history stays on disk (renamed with a .retired suffix) but will NOT be migrated and will not appear in the app. Use your backup ZIP if you need to recover it later.';
 
   @override
   String get migrationSkipDialogCancel => 'Cancel';
@@ -8605,7 +7979,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get localSnapshotEnabledSubtitle =>
-      'Kelivo periodically saves a copy of its database on this device, so it is never the only one.';
+      'Build X periodically saves a copy of its database on this device, so it is never the only one.';
 
   @override
   String get localSnapshotIntervalTitle => 'How often';
@@ -8720,7 +8094,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get localSnapshotCopiesScopeNote =>
-      'Local copies live on this device only. They protect against damage to your data inside the app, not against losing the device or uninstalling Kelivo — use WebDAV or S3 backup for that.';
+      'Local copies live on this device only. They protect against damage to your data inside the app, not against losing the device or uninstalling Build X — use WebDAV or S3 backup for that.';
 
   @override
   String get localSnapshotOriginAutomatic => 'Automatic';
@@ -9442,7 +8816,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workspaceEnvUpToDate => 'You\'re up to date';
 
   @override
-  String get workspaceEnvRestartBanner => 'Restart Kelivo to finish';
+  String get workspaceEnvRestartBanner => 'Restart Build X to finish';
 
   @override
   String get workspaceEnvDetectingMirrors => 'Detecting fastest mirrors…';
@@ -9547,7 +8921,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspaceEnvNativeExplanation =>
-      'On desktop, Kelivo uses your system shell instead of a Linux sandbox.';
+      'On desktop, Build X uses your system shell instead of a Linux sandbox.';
 
   @override
   String workspaceEnvNativeShellPath(String path) {
@@ -10465,7 +9839,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspaceDesktopManagedHint =>
-      'Kelivo creates and manages a folder for this project.';
+      'Build X creates and manages a folder for this project.';
 
   @override
   String get workspaceDesktopHostHint =>
@@ -10718,7 +10092,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspaceExternalStorageMessage =>
-      'To read and write external folders in the workspace and Shell, allow Kelivo to manage files in Android settings. On Android 11 or later, enable All files access. Then select an on-device folder to mount.';
+      'To read and write external folders in the workspace and Shell, allow Build X to manage files in Android settings. On Android 11 or later, enable All files access. Then select an on-device folder to mount.';
 
   @override
   String get workspaceExternalGrantAccess => 'Grant access';
@@ -10882,13 +10256,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reasoningBudgetSliderMax => 'Max';
 
   @override
-  String get defaultModelPagePerChatModelTitle => 'Per-Chat Model';
-
-  @override
-  String get defaultModelPagePerChatModelSubtitle =>
-      'On: picking a model in a chat applies to that chat only. Off: it becomes the current assistant\'s model, so every chat using that assistant follows it.';
-
-  @override
   String get googleFontsTitle => 'Google Fonts';
 
   @override
@@ -10957,7 +10324,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backgroundSettingsTitle => 'Background tasks';
 
   @override
-  String get backgroundTaskTitle => 'Kelivo task';
+  String get backgroundTaskTitle => 'Build X task';
 
   @override
   String get backgroundCompleted => 'Generation complete';
@@ -11093,7 +10460,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backgroundOverlayIcon => 'Floating icon';
 
   @override
-  String get backgroundIconDefault => 'Kelivo icon';
+  String get backgroundIconDefault => 'Build X icon';
 
   @override
   String get backgroundIconImage => 'Choose image';
@@ -11314,7 +10681,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupRecoverySnapshotBody =>
-      'Choose a snapshot on this device to recover your chats and settings, even when the database cannot open. Do not uninstall Kelivo: uninstalling also removes these snapshots.';
+      'Choose a snapshot on this device to recover your chats and settings, even when the database cannot open. Do not uninstall Build X: uninstalling also removes these snapshots.';
 
   @override
   String get startupRecoverySnapshotEmpty =>
@@ -11325,7 +10692,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String startupRecoverySnapshotConfirm(String when) {
-    return 'Restore chats and settings from $when? Changes made after this snapshot will not be included. Existing attachment files and the snapshot will be kept. Kelivo will restart to complete the restore.';
+    return 'Restore chats and settings from $when? Changes made after this snapshot will not be included. Existing attachment files and the snapshot will be kept. Build X will restart to complete the restore.';
   }
 
   @override
@@ -11335,7 +10702,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupRecoverySnapshotReady =>
-      'The snapshot is ready. Restart Kelivo to complete the restore.';
+      'The snapshot is ready. Restart Build X to complete the restore.';
 
   @override
   String get scheduledTasksTitle => 'Scheduled tasks';
@@ -11409,7 +10776,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduledTasksReliability =>
-      'Keep Kelivo unrestricted in battery settings for more reliable execution. Force stopping the app cancels alarms until you reopen it. Missed runs are skipped; tasks follow the device time zone.';
+      'Keep Build X unrestricted in battery settings for more reliable execution. Force stopping the app cancels alarms until you reopen it. Missed runs are skipped; tasks follow the device time zone.';
 
   @override
   String get scheduledTasksExecutionDetail =>
@@ -11597,7 +10964,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduledTasksDesktopReliability =>
-      'Tasks run only while Kelivo is running, including when minimized or in the system tray. Missed times are skipped after quitting or computer sleep. Kelivo will not start automatically.';
+      'Tasks run only while Build X is running, including when minimized or in the system tray. Missed times are skipped after quitting or computer sleep. Build X will not start automatically.';
 
   @override
   String get scheduledTasksDesktopExecutionDetail =>
@@ -11894,4 +11261,89 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get oauthPromptCachingHelp =>
       'Reuse context across messages and choose how long the cache is retained.';
+
+  @override
+  String get buildXConnectionTitle => 'Mistral connection';
+
+  @override
+  String get buildXApiKeyLabel => 'Mistral API key';
+
+  @override
+  String get buildXApiKeyHint => 'Paste your Mistral API key';
+
+  @override
+  String get buildXApiKeyHelp =>
+      'Build X uses mistral-medium-latest for every chat. Your key is stored in the device secure store.';
+
+  @override
+  String get buildXSave => 'Save key';
+
+  @override
+  String get buildXSaved => 'API key saved';
+
+  @override
+  String get buildXSaveFailed => 'Could not save the API key';
+
+  @override
+  String get buildXSkillSection => 'Add a skill';
+
+  @override
+  String get buildXSkillName => 'Name';
+
+  @override
+  String get buildXSkillDescription => 'Description';
+
+  @override
+  String get buildXSkillInstructions => 'Instructions';
+
+  @override
+  String get buildXAddSkill => 'Save skill';
+
+  @override
+  String get buildXSkillSaved => 'Skill saved';
+
+  @override
+  String get buildXSkillError => 'Enter a name, description, and instructions.';
+
+  @override
+  String get buildXBrowserSection => 'Browser account';
+
+  @override
+  String get buildXBrowserHelp =>
+      'Store account details for a future signed-in browser feature. Build X does not open a browser with this account yet.';
+
+  @override
+  String get buildXBrowserSite => 'Website';
+
+  @override
+  String get buildXBrowserUser => 'Username or email';
+
+  @override
+  String get buildXBrowserSecret => 'Password or session token';
+
+  @override
+  String get buildXSaveBrowser => 'Save account';
+
+  @override
+  String get buildXBrowserSaved => 'Browser account saved';
+
+  @override
+  String get buildXBrowserError => 'Enter a website and an account secret.';
+
+  @override
+  String get buildXMemoryWhatIsStored =>
+      'Active memory items below can be included in prompts. Archived items are kept for review but are not injected.';
+
+  @override
+  String get buildXMemoryWhatIsNotStored =>
+      'Chat history and Mistral-hosted conversation history are separate from this memory list.';
+
+  @override
+  String get buildXAdvanced => 'Advanced';
+
+  @override
+  String get buildXShowKey => 'Show key';
+
+  @override
+  String get buildXHideKey => 'Hide key';
 }

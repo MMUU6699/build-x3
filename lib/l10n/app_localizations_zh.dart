@@ -166,7 +166,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get storageSpaceClearDisplacedDatabasesConfirmMessage =>
-      '确定删除这些保留的旧数据库吗？它们是 Kelivo 重建数据库时留下的，可能是那些聊天记录和设置仅存的一份。删除后无法恢复。';
+      '确定删除这些保留的旧数据库吗？它们是 Build X 重建数据库时留下的，可能是那些聊天记录和设置仅存的一份。删除后无法恢复。';
 
   @override
   String get storageSpaceRestoreTracesHint => '恢复完成后保留的旧数据快照。清理不会影响当前应用数据。';
@@ -511,7 +511,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sponsorPageAfdianTitle => '爱发电';
 
   @override
-  String get sponsorPageAfdianSubtitle => 'afdian.com/a/kelivo';
+  String get sponsorPageAfdianSubtitle => '支持原项目';
 
   @override
   String get sponsorPageWeChatTitle => '微信赞助';
@@ -999,9 +999,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get desktopNavChatTooltip => '聊天';
 
   @override
-  String get desktopNavTranslateTooltip => '翻译';
-
-  @override
   String get desktopNavStorageTooltip => '存储';
 
   @override
@@ -1127,12 +1124,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get assistantEditGeneralErrorMessage => '发生错误，试试输入图片链接';
-
-  @override
-  String get providerDetailPageMultiKeyModeTitle => '多Key模式';
-
-  @override
-  String get providerDetailPageManageKeysButton => '多Key管理';
 
   @override
   String get multiKeyPageTitle => '多Key管理';
@@ -1547,41 +1538,41 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backupPageRestartRequired => '需要重启应用';
 
   @override
-  String get backupPageRestartContent => '导入成功。重启 Kelivo 后将安全应用。';
+  String get backupPageRestartContent => '导入成功。重启 Build X 后将安全应用。';
 
   @override
   String backupPageRestartContentWithSkipped(int count) {
-    return '导入已完成，但已跳过 $count 个消息顺序非法的会话。重启 Kelivo 后将安全应用已导入的数据。';
+    return '导入已完成，但已跳过 $count 个消息顺序非法的会话。重启 Build X 后将安全应用已导入的数据。';
   }
 
   @override
-  String get restartAppFailedMessage => 'Kelivo 无法自动重启，请完全关闭后重新打开。';
+  String get restartAppFailedMessage => 'Build X 无法自动重启，请完全关闭后重新打开。';
 
   @override
   String get backupRestoreRolledBackTitle => '恢复已回滚';
 
   @override
-  String get backupRestoreRolledBackContent => '恢复未能完成。Kelivo 已验证并保留原有数据。';
+  String get backupRestoreRolledBackContent => '恢复未能完成。Build X 已验证并保留原有数据。';
 
   @override
   String get backupRestoreFailureTitle => '恢复需要处理';
 
   @override
   String get backupRestoreFailureContent =>
-      'Kelivo 无法验证完整的原有或新数据，因此未打开聊天数据。请关闭 Kelivo 后重试；若问题反复出现，请保留诊断码以便支持人员排查。';
+      'Build X 无法验证完整的原有或新数据，因此未打开聊天数据。请关闭 Build X 后重试；若问题反复出现，请保留诊断码以便支持人员排查。';
 
   @override
-  String get backupRestoreBusinessLeaseUnavailableTitle => 'Kelivo 已在运行';
+  String get backupRestoreBusinessLeaseUnavailableTitle => 'Build X 已在运行';
 
   @override
   String get backupRestoreBusinessLeaseUnavailableContent =>
-      'Kelivo 的数据仍被另一个应用进程占用。请关闭其他 Kelivo 窗口后重新启动；当前进程尚未打开聊天数据。';
+      'Build X 的数据仍被另一个应用进程占用。请关闭其他 Build X 窗口后重新启动；当前进程尚未打开聊天数据。';
 
   @override
   String get restoreProgressTitle => '正在恢复备份';
 
   @override
-  String get restoreProgressWarning => '请保持 Kelivo 开启直到完成。此时关闭应用，下次启动会从头再来一次。';
+  String get restoreProgressWarning => '请保持 Build X 开启直到完成。此时关闭应用，下次启动会从头再来一次。';
 
   @override
   String get restoreProgressStageCheckingBackup => '正在校验备份';
@@ -1602,7 +1593,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreProgressStageFinishing => '即将完成';
 
   @override
-  String get backupRestoreFailureRestartButton => '重启 Kelivo';
+  String get backupRestoreFailureRestartButton => '重启 Build X';
 
   @override
   String get backupRestoreFailureCopyButton => '复制诊断码';
@@ -1640,14 +1631,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get startupRecoveryRepairFailed => '修复未能解决问题。请先导出数据副本，然后重置。';
 
   @override
-  String get startupRecoveryResetFailed => '重置失败。请彻底关闭 Kelivo 后重新打开。';
+  String get startupRecoveryResetFailed => '重置失败。请彻底关闭 Build X 后重新打开。';
 
   @override
   String get startupRecoveryResetDialogTitle => '重置全部数据？';
 
   @override
   String get startupRecoveryResetDialogContent =>
-      '这将永久删除本设备上 Kelivo 的数据库并重新开始。如果之后可能还需要这些数据，请先导出一份副本。此操作无法撤销。';
+      '这将永久删除本设备上 Build X 的数据库并重新开始。如果之后可能还需要这些数据，请先导出一份副本。此操作无法撤销。';
 
   @override
   String get startupRecoveryResetDialogConfirm => '重置并重启';
@@ -1759,17 +1750,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get startupRecoveryDangerBody =>
-      '重置会永久删除本设备上 Kelivo 的数据库。请先导出数据副本——重置同时会销毁排查根本问题所需的证据。';
+      '重置会永久删除本设备上 Build X 的数据库。请先导出数据副本——重置同时会销毁排查根本问题所需的证据。';
 
   @override
   String get startupRecoveryResetAcknowledge => '我已导出副本，或不需要这些数据。';
 
   @override
-  String get startupDatabaseUpdateRequiredTitle => '请更新 Kelivo 以继续';
+  String get startupDatabaseUpdateRequiredTitle => '请更新 Build X 以继续';
 
   @override
   String get startupDatabaseUpdateRequiredContent =>
-      '本设备上的聊天数据库由更新版本的 Kelivo 创建，当前版本无法打开。数据未被改动。请安装最新版 Kelivo 后重新打开。';
+      '本设备上的聊天数据库由更新版本的 Build X 创建，当前版本无法打开。数据未被改动。请安装最新版 Build X 后重新打开。';
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeTitle => '若要改用旧版';
@@ -1780,7 +1771,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeStep1 =>
-      '先安装并打开最新版 Kelivo，在「设置 → 数据备份」导出一份备份文件。';
+      '先安装并打开最新版 Build X，在「设置 → 数据备份」导出一份备份文件。';
 
   @override
   String startupDatabaseUpdateRequiredDowngradeStep2(String url) {
@@ -1838,7 +1829,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String backupPageForwardCompatBody(int backupVersion, int currentVersion) {
-    return '这份备份由更新版本的 Kelivo 创建（数据格式 $backupVersion，当前版本支持 $currentVersion），且未声明旧版本能否读取。\n\n你可以继续导入：当前版本不认识的内容会被跳过，备份文件本身不会被修改。但如果新版本改变了已有数据的存储方式，部分内容可能会被错误导入。\n\n更稳妥的做法是先升级 Kelivo。';
+    return '这份备份由更新版本的 Build X 创建（数据格式 $backupVersion，当前版本支持 $currentVersion），且未声明旧版本能否读取。\n\n你可以继续导入：当前版本不认识的内容会被跳过，备份文件本身不会被修改。但如果新版本改变了已有数据的存储方式，部分内容可能会被错误导入。\n\n更稳妥的做法是先升级 Build X。';
   }
 
   @override
@@ -1849,7 +1840,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get backupPageSchemaTooNewMessage =>
-      '这份备份由更新版本的 Kelivo 创建，当前版本无法读取。请先升级 Kelivo 后重试。';
+      '这份备份由更新版本的 Build X 创建，当前版本无法读取。请先升级 Build X 后重试。';
 
   @override
   String get backupPageBackupUploaded => '已上传备份';
@@ -2021,7 +2012,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String backupPageCherryStudioUnsupportedBackupVersion(String version) {
-    return '此备份使用 Cherry Studio 格式版本 $version，Kelivo 目前尚无法导入。请改用 Cherry Studio v1 导出备份，或等待后续版本支持 Cherry Studio v2。';
+    return '此备份使用 Cherry Studio 格式版本 $version，Build X 目前尚无法导入。请改用 Cherry Studio v1 导出备份，或等待后续版本支持 Cherry Studio v2。';
   }
 
   @override
@@ -3176,23 +3167,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mcpServerEditSheetUrlRequired => '请输入服务器地址';
 
   @override
-  String get defaultModelPageBackTooltip => '返回';
-
-  @override
   String get defaultModelPageTitle => '默认模型';
 
   @override
-  String get defaultModelPageChatModelTitle => '聊天模型';
-
-  @override
-  String get defaultModelPageChatModelSubtitle => '全局默认的聊天模型';
-
-  @override
   String get defaultModelPageTitleModelTitle => '标题总结模型';
-
-  @override
-  String get defaultModelPageTitleModelSubtitle =>
-      '用于总结对话标题，默认跟随当前对话模型，也可指定其他模型。';
 
   @override
   String get titleModelThinkingTitle => '是否开启思考';
@@ -3201,14 +3179,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get defaultModelPageSummaryModelTitle => '摘要模型';
 
   @override
-  String get defaultModelPageSummaryModelSubtitle => '用于生成对话摘要的模型，推荐使用快速且便宜的模型';
-
-  @override
   String get defaultModelPageSuggestionModelTitle => '聊天建议模型';
-
-  @override
-  String get defaultModelPageSuggestionModelSubtitle =>
-      '用于在助手回复后生成聊天建议，可跟随当前对话模型或指定其他模型。默认未启用。';
 
   @override
   String get assistantEditRecentChatsSummaryFrequencyTitle => '摘要更新频率';
@@ -3244,13 +3215,6 @@ class AppLocalizationsZh extends AppLocalizations {
       '请输入大于 0 的整数';
 
   @override
-  String get defaultModelPageTranslateModelTitle => '翻译模型';
-
-  @override
-  String get defaultModelPageTranslateModelSubtitle =>
-      '用于翻译消息内容的模型，推荐使用快速且准确的模型';
-
-  @override
   String get defaultModelPageOcrModelTitle => 'OCR 模型';
 
   @override
@@ -3259,35 +3223,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get defaultModelPageOcrModelSubtitle => '用于对图片执行文字识别的模型';
-
-  @override
-  String get defaultModelPageOcrModelRequiresImageInput =>
-      '请选择标记为支持图片输入的模型用于 OCR';
-
-  @override
   String get defaultModelPagePromptLabel => '提示词';
-
-  @override
-  String get defaultModelPageTitlePromptHint => '输入用于标题总结的提示词模板';
-
-  @override
-  String get defaultModelPageSummaryPromptHint => '输入用于生成摘要的提示词模板';
-
-  @override
-  String get defaultModelPageSuggestionPromptHint => '输入用于生成聊天建议的提示词模板';
-
-  @override
-  String get defaultModelPageTranslatePromptHint => '输入用于翻译的提示词模板';
 
   @override
   String get defaultModelPageOcrPromptHint => '输入用于 OCR 识别的提示词模板';
 
   @override
   String get defaultModelPageResetDefault => '重置为默认';
-
-  @override
-  String get defaultModelPageDisable => '禁用';
 
   @override
   String get defaultModelPageSave => '保存';
@@ -3311,15 +3253,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get defaultModelPageCompressModelTitle => '压缩模型';
-
-  @override
-  String get defaultModelPageCompressModelSubtitle => '用于压缩对话上下文的模型，推荐使用快速模型';
-
-  @override
-  String get defaultModelPageCompressPromptHint => '输入用于上下文压缩的提示词模板';
-
-  @override
   String defaultModelPageCompressVars(String contentVar, String localeVar) {
     return '变量：对话内容：$contentVar，语言：$localeVar';
   }
@@ -3330,72 +3263,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get defaultModelPageUseCurrentModel => '使用当前对话模型';
-
-  @override
-  String get defaultModelPageNotEnabled => '未启用';
-
-  @override
-  String get translatePagePasteButton => '粘贴';
-
-  @override
-  String get translatePageCopyResult => '复制结果';
-
-  @override
-  String get translatePageClearAll => '清空全部';
-
-  @override
-  String get translatePageInputHint => '输入要翻译的内容…';
-
-  @override
-  String get translatePageOutputHint => '翻译结果会显示在这里…';
-
-  @override
-  String get modelDetailSheetAddModel => '添加模型';
-
-  @override
-  String get modelDetailSheetEditModel => '编辑模型';
-
-  @override
-  String get modelDetailSheetBasicTab => '基本设置';
-
-  @override
-  String get modelDetailSheetAdvancedTab => '高级设置';
-
-  @override
-  String get modelDetailSheetBuiltinToolsTab => '内置工具';
-
-  @override
-  String get modelDetailSheetModelIdLabel => '模型 ID';
-
-  @override
-  String get modelDetailSheetModelIdHint => '必填，建议小写字母、数字、连字符';
-
-  @override
   String modelDetailSheetModelIdDisabledHint(String modelId) {
     return '$modelId';
   }
-
-  @override
-  String get modelDetailSheetModelNameLabel => '模型名称';
-
-  @override
-  String get modelDetailSheetModelTypeLabel => '模型类型';
-
-  @override
-  String get modelDetailSheetChatType => '聊天';
-
-  @override
-  String get modelDetailSheetEmbeddingType => '嵌入';
 
   @override
   String get modelDetailSheetInputModesLabel => '输入模式';
 
   @override
   String get modelDetailSheetOutputModesLabel => '输出模式';
-
-  @override
-  String get modelDetailSheetAbilitiesLabel => '能力';
 
   @override
   String get modelDetailSheetTextMode => '文本';
@@ -3410,128 +3286,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get modelDetailSheetReasoningAbility => '推理';
 
   @override
-  String get modelDetailSheetCustomHeadersTitle => '自定义 Headers';
-
-  @override
-  String get modelDetailSheetAddHeader => '添加 Header';
-
-  @override
-  String get modelDetailSheetCustomBodyTitle => '自定义 Body';
-
-  @override
   String get modelFetchInvertTooltip => '反选';
 
   @override
-  String get modelDetailSheetSaveFailedMessage => '保存失败，请重试';
-
-  @override
-  String get modelDetailSheetAddBody => '添加 Body';
-
-  @override
-  String get modelDetailSheetBuiltinToolsDescription => '内置工具取决于供应商和 API 模式。';
-
-  @override
-  String get modelDetailSheetSearchTool => '搜索';
-
-  @override
-  String get modelDetailSheetSearchToolDescription => '启用 Google 搜索集成';
-
-  @override
-  String get modelDetailSheetUrlContextTool => 'URL 上下文';
-
-  @override
-  String get modelDetailSheetUrlContextToolDescription => '启用 URL 内容处理';
-
-  @override
-  String get modelDetailSheetCodeExecutionTool => '代码执行';
-
-  @override
-  String get modelDetailSheetCodeExecutionToolDescription => '启用代码执行工具';
-
-  @override
-  String get modelDetailSheetYoutubeTool => 'YouTube';
-
-  @override
-  String get modelDetailSheetYoutubeToolDescription =>
-      '启用 YouTube 链接读取（自动识别提示词中的链接）';
-
-  @override
-  String get modelDetailSheetOpenaiBuiltinToolsResponsesOnlyHint =>
-      '需要启用 OpenAI Responses API。';
-
-  @override
-  String get modelDetailSheetWebFetchTool => '网页抓取';
-
-  @override
-  String get modelDetailSheetOpenrouterWebFetchToolDescription =>
-      '启用 OpenRouter 网页抓取服务端工具';
-
-  @override
-  String get modelDetailSheetClaudeWebFetchToolDescription =>
-      '允许 Claude 抓取对话中出现的网页与 PDF';
-
-  @override
-  String get modelDetailSheetClaudeCodeExecutionToolDescription =>
-      '允许 Claude 在 Anthropic 沙箱中运行 Python 与 Bash';
-
-  @override
-  String get modelDetailSheetOpenrouterShellTool => 'Shell';
-
-  @override
-  String get modelDetailSheetOpenrouterShellToolDescription =>
-      '在托管的隔离沙箱中运行 Shell 命令';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterTool => '代码解释器';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterToolDescription =>
-      '启用代码解释器工具（容器自动，内存上限 4g）';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationTool => '图像生成';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationToolDescription => '启用图像生成工具';
-
-  @override
-  String get modelDetailSheetCancelButton => '取消';
-
-  @override
-  String get modelDetailSheetAddButton => '添加';
-
-  @override
   String get modelDetailSheetConfirmButton => '确认';
-
-  @override
-  String get modelDetailSheetInvalidIdError => '请输入有效的模型 ID（不少于2个字符）';
-
-  @override
-  String get modelDetailSheetModelIdExistsError => '模型 ID 已存在';
-
-  @override
-  String get modelDetailSheetHeaderKeyHint => 'Header Key';
-
-  @override
-  String get modelDetailSheetHeaderValueHint => 'Header Value';
-
-  @override
-  String get modelDetailSheetBodyKeyHint => 'Body Key';
-
-  @override
-  String get modelDetailSheetBodyJsonHint => 'Body JSON';
-
-  @override
-  String get modelSelectSheetSearchHint => '搜索模型或服务商';
-
-  @override
-  String get modelSelectSheetFavoritesSection => '收藏';
-
-  @override
-  String get modelSelectSheetFollowAssistant => '跟随助手';
-
-  @override
-  String get modelSelectSheetFavoriteTooltip => '收藏';
 
   @override
   String get modelSelectSheetChatType => '聊天';
@@ -3540,53 +3298,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get modelSelectSheetEmbeddingType => '嵌入';
 
   @override
-  String get providerDetailPageShareTooltip => '分享';
-
-  @override
-  String get providerDetailPageDeleteProviderTooltip => '删除供应商';
-
-  @override
-  String get providerDetailPageDeleteProviderTitle => '删除供应商';
-
-  @override
-  String get providerDetailPageDeleteProviderContent => '确定要删除该供应商吗？此操作不可撤销。';
-
-  @override
-  String get providerDetailPageCancelButton => '取消';
-
-  @override
   String get providerDetailPageDeleteButton => '删除';
-
-  @override
-  String get providerDetailPageProviderDeletedSnackbar => '已删除供应商';
-
-  @override
-  String get providerDetailPageConfigTab => '配置';
-
-  @override
-  String get providerDetailPageModelsTab => '模型';
-
-  @override
-  String get providerDetailPageCustomRequestTitle => '自定义请求';
-
-  @override
-  String get providerDetailPageCustomRequestDescription =>
-      '应用于此供应商的所有模型。模型配置优先于此处，此处配置优先于助手配置。';
-
-  @override
-  String get providerDetailPageNetworkTab => '网络代理';
-
-  @override
-  String get providerDetailPageEnabledTitle => '是否启用';
-
-  @override
-  String get providerDetailPageManageSectionTitle => '管理';
-
-  @override
-  String get providerDetailPageNameLabel => '名称';
-
-  @override
-  String get providerDetailPageApiKeyHint => '留空则使用上层默认';
 
   @override
   String get providerDetailPageHideTooltip => '隐藏';
@@ -3595,62 +3307,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get providerDetailPageShowTooltip => '显示';
 
   @override
-  String get providerDetailPageApiPathLabel => 'API 路径';
-
-  @override
-  String get providerDetailPageResponseApiTitle => 'Response API (/responses)';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeLabel => '应用 Code（享 10% 优惠）';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeHelp =>
-      '为请求附加 APP-Code，可享 10% 优惠，仅对 AIhubmix 生效。';
-
-  @override
   String get providerDetailPageClaudePromptCachingTitle =>
       'Claude Prompt Caching';
 
   @override
-  String get providerDetailPageClaudePromptCachingHelp =>
-      '通过 Claude 官方或 OpenRouter 调用 Claude 时附加 cache_control。';
-
-  @override
   String get providerDetailPageClaudePromptCachingTtlTitle => '缓存 TTL';
-
-  @override
-  String get providerDetailPageClaudePromptCachingTtlHelp =>
-      '5 分钟为默认值。1 小时写入成本更高，但长对话中可减少重复重建缓存。';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl5m => '5 分钟';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl1h => '1 小时';
-
-  @override
-  String get providerDetailPageBalanceTitle => '账户余额';
-
-  @override
-  String get providerDetailPageBalanceInfo => '获取账户余额';
-
-  @override
-  String get providerDetailPageBalanceApiPathLabel => '余额 API 路径';
-
-  @override
-  String get providerDetailPageBalanceResultPathLabel => '结果 JSON 路径';
-
-  @override
-  String get providerDetailPageBalanceQueryButton => '查询余额';
-
-  @override
-  String get providerDetailPageBalanceQuerying => '查询中...';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsButton => '重置';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsTooltip => '重置余额设置';
 
   @override
   String providerDetailPageBalanceResult(String value) {
@@ -3663,130 +3330,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get providerDetailPageVertexAiTitle => 'Vertex AI';
-
-  @override
-  String get providerDetailPageLocationLabel => '区域 Location';
-
-  @override
-  String get providerDetailPageProjectIdLabel => '项目 ID';
-
-  @override
-  String get providerDetailPageServiceAccountJsonLabel => '服务账号 JSON（粘贴或导入）';
-
-  @override
-  String get providerDetailPageImportJsonButton => '导入 JSON';
-
-  @override
-  String get providerDetailPageImportJsonReadFailedMessage => '读取文件失败';
-
-  @override
-  String get providerDetailPageTestButton => '测试';
-
-  @override
-  String get providerDetailPageSaveButton => '保存';
-
-  @override
-  String get providerDetailPageProviderRemovedMessage => '供应商已删除';
-
-  @override
-  String get providerDetailPageNoModelsTitle => '暂无模型';
-
-  @override
-  String get providerDetailPageNoModelsSubtitle => '点击下方按钮添加模型';
-
-  @override
-  String get providerDetailPageDeleteModelButton => '删除';
-
-  @override
-  String get providerDetailPageConfirmDeleteTitle => '确认删除';
-
-  @override
-  String get providerDetailPageConfirmDeleteContent => '删除后可通过撤销恢复。是否删除？';
-
-  @override
-  String get providerDetailPageModelDeletedSnackbar => '已删除模型';
-
-  @override
-  String get providerDetailPageUndoButton => '撤销';
-
-  @override
-  String get providerDetailPageAddNewModelButton => '添加新模型';
-
-  @override
-  String get providerDetailPageFetchModelsButton => '获取';
-
-  @override
-  String get providerDetailPageEnableProxyTitle => '是否启用代理';
-
-  @override
-  String get providerDetailPageHostLabel => '主机地址';
-
-  @override
-  String get providerDetailPagePortLabel => '端口';
-
-  @override
-  String get providerDetailPageUsernameOptionalLabel => '用户名（可选）';
-
-  @override
-  String get providerDetailPagePasswordOptionalLabel => '密码（可选）';
-
-  @override
-  String get providerDetailPageSavedSnackbar => '已保存';
-
-  @override
-  String get providerDetailPageEmbeddingsGroupTitle => '嵌入';
-
-  @override
-  String get providerDetailPageOtherModelsGroupTitle => '其他模型';
-
-  @override
-  String get providerDetailPageRemoveGroupTooltip => '移除本组';
-
-  @override
-  String get providerDetailPageAddGroupTooltip => '添加本组';
-
-  @override
-  String get providerDetailPageFilterHint => '输入模型名称筛选';
-
-  @override
-  String get providerDetailPageDeleteText => '删除';
-
-  @override
-  String get providerDetailPageEditTooltip => '编辑';
-
-  @override
-  String get providerDetailPageTestConnectionTitle => '测试连接';
-
-  @override
-  String get providerDetailPageSelectModelButton => '选择模型';
-
-  @override
-  String get providerDetailPageChangeButton => '更换';
-
-  @override
-  String get providerDetailPageUseStreamingLabel => '使用流式';
-
-  @override
-  String get providerDetailPageTestingMessage => '正在测试…';
-
-  @override
-  String get providerDetailPageTestSuccessMessage => '测试成功';
-
-  @override
-  String get providersPageTitle => '供应商';
-
-  @override
   String get providersPageImportTooltip => '导入';
-
-  @override
-  String get providersPageAddTooltip => '新增';
-
-  @override
-  String get providersPageSearchHint => '搜索供应商或分组';
-
-  @override
-  String get providersPageProviderAddedSnackbar => '已添加供应商';
 
   @override
   String get providerGroupsGroupLabel => '分组';
@@ -3846,61 +3390,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get providerGroupsExpandToMoveToast => '请先展开分组';
 
   @override
-  String get providersPageSiliconFlowName => '硅基流动';
-
-  @override
-  String get providersPageAliyunName => '阿里云千问';
-
-  @override
-  String get providersPageZhipuName => '智谱';
-
-  @override
-  String get providersPageByteDanceName => '火山引擎';
-
-  @override
-  String get providersPageEnabledStatus => '启用';
-
-  @override
-  String get providersPageDisabledStatus => '禁用';
-
-  @override
-  String get providersPageModelsCountSuffix => ' models';
-
-  @override
-  String get providersPageModelsCountSingleSuffix => '个模型';
-
-  @override
-  String get addProviderSheetTitle => '添加供应商';
-
-  @override
-  String get addProviderSheetEnabledLabel => '是否启用';
-
-  @override
-  String get addProviderSheetNameLabel => '名称';
-
-  @override
-  String get addProviderSheetApiPathLabel => 'API 路径';
-
-  @override
-  String get addProviderSheetVertexAiLocationLabel => '位置';
-
-  @override
-  String get addProviderSheetVertexAiProjectIdLabel => '项目ID';
-
-  @override
-  String get addProviderSheetVertexAiServiceAccountJsonLabel =>
-      '服务账号 JSON（粘贴或导入）';
-
-  @override
-  String get addProviderSheetImportJsonButton => '导入 JSON';
-
-  @override
-  String get addProviderSheetCancelButton => '取消';
-
-  @override
-  String get addProviderSheetAddButton => '添加';
-
-  @override
   String get importProviderSheetTitle => '导入供应商';
 
   @override
@@ -3948,34 +3437,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shareProviderSheetShareButton => '分享';
 
   @override
-  String get desktopProviderContextMenuShare => '分享';
-
-  @override
-  String get desktopProviderShareCopyText => '复制文字';
-
-  @override
-  String get desktopProviderShareCopyQr => '复制二维码';
-
-  @override
-  String get providerDetailPageApiBaseUrlLabel => 'API Base URL';
-
-  @override
-  String get providerDetailPageModelsTitle => '模型';
-
-  @override
   String get providerModelsGetButton => '获取';
-
-  @override
-  String get providerDetailPageCapsVision => '视觉';
-
-  @override
-  String get providerDetailPageCapsImage => '生图';
-
-  @override
-  String get providerDetailPageCapsTool => '工具';
-
-  @override
-  String get providerDetailPageCapsReasoning => '推理';
 
   @override
   String get qrScanPageTitle => '扫码导入';
@@ -4313,7 +3775,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutPageKelivoSearchAlreadyUnlocked => '这扇门你已经推开过了。';
 
   @override
-  String get aboutPageAppName => 'Kelivo';
+  String get aboutPageAppName => 'Build X';
 
   @override
   String get aboutPageAppDescription => '开源AI 助手';
@@ -4371,13 +3833,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutPageJoinQQGroup => '加入QQ群';
 
   @override
-  String get aboutPageQQGroupOne => 'Kelivo 一群';
+  String get aboutPageQQGroupOne => 'Build X 一群';
 
   @override
-  String get aboutPageQQGroupTwo => 'Kelivo 二群';
+  String get aboutPageQQGroupTwo => 'Build X 二群';
 
   @override
-  String get aboutPageQQGroupThree => 'Kelivo 三群';
+  String get aboutPageQQGroupThree => 'Build X 三群';
 
   @override
   String get aboutPageJoinDiscord => '在 Discord 中加入我们';
@@ -5359,7 +4821,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get settingsShare => 'Kelivo - 开源AI助手';
+  String get settingsShare => 'Build X - 开源AI助手';
 
   @override
   String get searchProviderBingLocalDescription =>
@@ -5542,7 +5004,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '最大 token 数必须介于 1024 和 32768 之间。';
 
   @override
-  String get searchServiceNameKelivo => 'Kelivo';
+  String get searchServiceNameKelivo => 'Build X';
 
   @override
   String get searchServicesDialogCountryOptional => '国家/地区（可选）';
@@ -5818,7 +5280,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get healthDataSettingsDescription =>
-      '当前助手在日常对话中可使用的 HealthKit 信号。开关表示 Kelivo 可以尝试读取该范围，实际授权仍由 iOS 管理。';
+      '当前助手在日常对话中可使用的 HealthKit 信号。开关表示 Build X 可以尝试读取该范围，实际授权仍由 iOS 管理。';
 
   @override
   String healthDataSettingsBadge(int selected, int total) {
@@ -6024,9 +5486,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get providerDetailPageProviderTypeTitle => '供应商类型';
-
-  @override
   String get displaySettingsPageChatItemDisplayTitle => '聊天项显示';
 
   @override
@@ -6045,31 +5504,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get providersPageMultiSelectTooltip => '多选';
 
   @override
-  String get providersPageDeleteSelectedConfirmContent =>
-      '确定要删除选中的供应商吗？该操作不可撤销。';
-
-  @override
-  String get providersPageDeleteSelectedSnackbar => '已删除选中的供应商';
-
-  @override
   String providersPageExportSelectedTitle(int count) {
     return '导出 $count 个供应商';
   }
-
-  @override
-  String get providersPageExportCopyButton => '复制';
-
-  @override
-  String get providersPageExportShareButton => '分享';
-
-  @override
-  String get providersPageExportCopiedSnackbar => '已复制导出代码';
-
-  @override
-  String get providersPageDeleteAction => '删除';
-
-  @override
-  String get providersPageExportAction => '导出';
 
   @override
   String get assistantEditPresetTitle => '预设对话信息';
@@ -6242,39 +5679,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatInputBarOcrTooltip => 'OCR 文字识别';
 
   @override
-  String get providerDetailPageMultiSelectButton => '多选';
-
-  @override
-  String get providerDetailPageBatchDetectButton => '检测';
-
-  @override
-  String get providerDetailPageBatchDetecting => '检测中...';
-
-  @override
-  String get providerDetailPageBatchDetectStart => '开始检测';
-
-  @override
-  String get providerDetailPageDetectSuccess => '检测成功';
-
-  @override
-  String get providerDetailPageDetectFailed => '检测失败';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsButton => '删除';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsTooltip => '删除所选模型';
-
-  @override
   String providerDetailPageDeleteSelectedModelsConfirm(int count) {
     return '确定删除选中的 $count 个模型吗？此操作不可撤回。';
   }
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsButton => '删除不可用';
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsTooltip => '删除检测失败的模型';
 
   @override
   String providerDetailPageDeleteFailedDetectedModelsConfirm(int count) {
@@ -6285,12 +5692,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String providerDetailPageSelectedModelsDeletedSnackbar(int count) {
     return '已删除 $count 个模型';
   }
-
-  @override
-  String get providerDetailPageDeleteAllModelsTooltip => '删除全部模型';
-
-  @override
-  String get providerDetailPageDeleteAllModelsWarning => '此操作不可撤回';
 
   @override
   String get requestLogSettingTitle => '请求日志打印';
@@ -7108,7 +6509,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get legacyMemoryExport => '导出';
 
   @override
-  String get legacyMemoryExportTitle => 'Kelivo 旧版记忆导出';
+  String get legacyMemoryExportTitle => 'Build X 旧版记忆导出';
 
   @override
   String legacyMemoryAssistantHeader(String name) {
@@ -7690,7 +7091,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get migrationIntroSubtitle =>
-      'Kelivo 将聊天记录迁移到更快的 SQLite 数据库。升级会在应用打开前完成，避免新旧数据同时写入。';
+      'Build X 将聊天记录迁移到更快的 SQLite 数据库。升级会在应用打开前完成，避免新旧数据同时写入。';
 
   @override
   String get migrationBackupNote => '迁移开始前，会先导出包含设置、聊天记录和本地文件的 ZIP 备份。';
@@ -7732,14 +7133,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get migrationBackingUpSubtitle =>
-      '正在导出设置、聊天记录、上传文件、图片和字体。请保持 Kelivo 开启，等待备份完成。';
+      '正在导出设置、聊天记录、上传文件、图片和字体。请保持 Build X 开启，等待备份完成。';
 
   @override
   String get migrationMigratingTitle => '正在迁移到 SQLite';
 
   @override
   String get migrationMigratingSubtitle =>
-      '正在分批写入会话和消息，避免超大聊天记录占满内存。请保持 Kelivo 在前台，等待迁移完成。';
+      '正在分批写入会话和消息，避免超大聊天记录占满内存。请保持 Build X 在前台，等待迁移完成。';
 
   @override
   String migrationBackingUpDetail(String fileName) {
@@ -7798,7 +7199,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get migrationCompleteSubtitle =>
-      '你的聊天记录已迁移到 SQLite。请重启 Kelivo 进入升级后的应用。';
+      '你的聊天记录已迁移到 SQLite。请重启 Build X 进入升级后的应用。';
 
   @override
   String get migrationConversationCount => '对话';
@@ -7816,7 +7217,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get migrationMissingFilesCount => '缺失文件';
 
   @override
-  String get migrationRestartButton => '重启 Kelivo';
+  String get migrationRestartButton => '重启 Build X';
 
   @override
   String get migrationFailedTitle => '迁移失败';
@@ -7842,7 +7243,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get migrationSkipDialogMessage =>
-      'Kelivo 将以空的聊天数据库启动。旧的聊天记录会保留在磁盘上（重命名为 .retired 后缀），但不会被迁移，也不会在应用中显示。之后如需找回，请使用已保存的备份 ZIP。';
+      'Build X 将以空的聊天数据库启动。旧的聊天记录会保留在磁盘上（重命名为 .retired 后缀），但不会被迁移，也不会在应用中显示。之后如需找回，请使用已保存的备份 ZIP。';
 
   @override
   String get migrationSkipDialogCancel => '取消';
@@ -8250,7 +7651,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get localSnapshotEnabledTitle => '保留本地副本';
 
   @override
-  String get localSnapshotEnabledSubtitle => 'Kelivo 会定期在本机存一份数据库副本，让数据不只有一份。';
+  String get localSnapshotEnabledSubtitle => 'Build X 会定期在本机存一份数据库副本，让数据不只有一份。';
 
   @override
   String get localSnapshotIntervalTitle => '备份频率';
@@ -9044,7 +8445,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workspaceEnvUpToDate => '已是最新';
 
   @override
-  String get workspaceEnvRestartBanner => '请重启 Kelivo 以完成安装';
+  String get workspaceEnvRestartBanner => '请重启 Build X 以完成安装';
 
   @override
   String get workspaceEnvDetectingMirrors => '正在检测最快镜像…';
@@ -9140,7 +8541,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get workspaceEnvNativeExplanation =>
-      '在桌面端，Kelivo 使用系统终端，而不是 Linux 沙箱。';
+      '在桌面端，Build X 使用系统终端，而不是 Linux 沙箱。';
 
   @override
   String workspaceEnvNativeShellPath(String path) {
@@ -10026,7 +9427,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workspaceDesktopFolderMissing => '请选择已存在的文件夹，或输入它的绝对路径。';
 
   @override
-  String get workspaceDesktopManagedHint => '由 Kelivo 为此项目创建并管理文件夹。';
+  String get workspaceDesktopManagedHint => '由 Build X 为此项目创建并管理文件夹。';
 
   @override
   String get workspaceDesktopHostHint => '在本机访问文件和执行命令。';
@@ -10256,7 +9657,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get workspaceExternalStorageMessage =>
-      '工作区和 Shell 需要直接读写外部文件夹，请在 Android 系统设置中允许 Kelivo 访问文件。Android 11 及以上需开启“所有文件访问权限”，然后选择要挂载的本地文件夹。';
+      '工作区和 Shell 需要直接读写外部文件夹，请在 Android 系统设置中允许 Build X 访问文件。Android 11 及以上需开启“所有文件访问权限”，然后选择要挂载的本地文件夹。';
 
   @override
   String get workspaceExternalGrantAccess => '前往授权';
@@ -10414,13 +9815,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reasoningBudgetSliderMax => 'Max';
 
   @override
-  String get defaultModelPagePerChatModelTitle => '每个对话独立模型';
-
-  @override
-  String get defaultModelPagePerChatModelSubtitle =>
-      '开启后，在对话中切换模型只影响当前对话；关闭后会直接修改当前助手的模型，使用该助手的所有对话都会跟随。';
-
-  @override
   String get googleFontsTitle => 'Google Fonts';
 
   @override
@@ -10487,7 +9881,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backgroundSettingsTitle => '后台任务';
 
   @override
-  String get backgroundTaskTitle => 'Kelivo 任务';
+  String get backgroundTaskTitle => 'Build X 任务';
 
   @override
   String get backgroundCompleted => '生成完成';
@@ -10616,7 +10010,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backgroundOverlayIcon => '悬浮窗图标';
 
   @override
-  String get backgroundIconDefault => 'Kelivo 图标';
+  String get backgroundIconDefault => 'Build X 图标';
 
   @override
   String get backgroundIconImage => '选择图片';
@@ -10825,7 +10219,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get startupRecoverySnapshotBody =>
-      '即使数据库无法打开，也可以选择本机快照恢复聊天和设置。请勿卸载 Kelivo，卸载会一并删除这些快照。';
+      '即使数据库无法打开，也可以选择本机快照恢复聊天和设置。请勿卸载 Build X，卸载会一并删除这些快照。';
 
   @override
   String get startupRecoverySnapshotEmpty => '未在本机找到数据库快照。请先导出数据，再尝试其他恢复操作。';
@@ -10835,7 +10229,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String startupRecoverySnapshotConfirm(String when) {
-    return '将聊天和设置恢复到 $when 的快照？快照之后的更改不会包含在内。现有附件文件和快照会保留，Kelivo 将重启以完成恢复。';
+    return '将聊天和设置恢复到 $when 的快照？快照之后的更改不会包含在内。现有附件文件和快照会保留，Build X 将重启以完成恢复。';
   }
 
   @override
@@ -10844,7 +10238,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get startupRecoverySnapshotReady => '快照已准备好，请重启 Kelivo 完成恢复。';
+  String get startupRecoverySnapshotReady => '快照已准备好，请重启 Build X 完成恢复。';
 
   @override
   String get scheduledTasksTitle => '定时任务';
@@ -10915,7 +10309,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get scheduledTasksReliability =>
-      '建议在电池设置中允许 Kelivo 后台运行。强行停止后需重新打开应用。错过的任务不会补跑，执行时间跟随设备时区。';
+      '建议在电池设置中允许 Build X 后台运行。强行停止后需重新打开应用。错过的任务不会补跑，执行时间跟随设备时区。';
 
   @override
   String get scheduledTasksExecutionDetail =>
@@ -11092,7 +10486,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get scheduledTasksDesktopReliability =>
-      '仅在 Kelivo 运行时执行，最小化或驻留托盘时也会继续。退出或电脑休眠期间错过的任务不会补运行，也不会自动启动应用。';
+      '仅在 Build X 运行时执行，最小化或驻留托盘时也会继续。退出或电脑休眠期间错过的任务不会补运行，也不会自动启动应用。';
 
   @override
   String get scheduledTasksDesktopExecutionDetail =>
@@ -11369,6 +10763,89 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get oauthPromptCachingHelp => '复用多轮对话中的上下文，可设置缓存保留时长。';
+
+  @override
+  String get buildXConnectionTitle => 'Mistral 连接';
+
+  @override
+  String get buildXApiKeyLabel => 'Mistral API 密钥';
+
+  @override
+  String get buildXApiKeyHint => '粘贴 Mistral API 密钥';
+
+  @override
+  String get buildXApiKeyHelp =>
+      'Build X 的所有聊天均使用 mistral-medium-latest。密钥保存在设备安全存储中。';
+
+  @override
+  String get buildXSave => '保存密钥';
+
+  @override
+  String get buildXSaved => 'API 密钥已保存';
+
+  @override
+  String get buildXSaveFailed => '无法保存 API 密钥';
+
+  @override
+  String get buildXSkillSection => '添加技能';
+
+  @override
+  String get buildXSkillName => '名称';
+
+  @override
+  String get buildXSkillDescription => '描述';
+
+  @override
+  String get buildXSkillInstructions => '指令';
+
+  @override
+  String get buildXAddSkill => '保存技能';
+
+  @override
+  String get buildXSkillSaved => '技能已保存';
+
+  @override
+  String get buildXSkillError => '请输入名称、描述和指令。';
+
+  @override
+  String get buildXBrowserSection => '浏览器账号';
+
+  @override
+  String get buildXBrowserHelp =>
+      '保存账号信息，以供未来的已登录浏览器功能使用。Build X 目前不会用此账号打开浏览器。';
+
+  @override
+  String get buildXBrowserSite => '网站';
+
+  @override
+  String get buildXBrowserUser => '用户名或邮箱';
+
+  @override
+  String get buildXBrowserSecret => '密码或会话令牌';
+
+  @override
+  String get buildXSaveBrowser => '保存账号';
+
+  @override
+  String get buildXBrowserSaved => '浏览器账号已保存';
+
+  @override
+  String get buildXBrowserError => '请输入网站和账号凭据。';
+
+  @override
+  String get buildXMemoryWhatIsStored => '下方启用的记忆可加入提示词。已归档的记忆保留供查看，但不会注入。';
+
+  @override
+  String get buildXMemoryWhatIsNotStored => '聊天记录和 Mistral 托管的会话历史与此记忆列表分开。';
+
+  @override
+  String get buildXAdvanced => '高级';
+
+  @override
+  String get buildXShowKey => '显示密钥';
+
+  @override
+  String get buildXHideKey => '隐藏密钥';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -11533,7 +11010,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get storageSpaceClearDisplacedDatabasesConfirmMessage =>
-      '确定删除这些保留的旧数据库吗？它们是 Kelivo 重建数据库时留下的，可能是那些聊天记录和设置仅存的一份。删除后无法恢复。';
+      '确定删除这些保留的旧数据库吗？它们是 Build X 重建数据库时留下的，可能是那些聊天记录和设置仅存的一份。删除后无法恢复。';
 
   @override
   String get storageSpaceRestoreTracesHint => '恢复完成后保留的旧数据快照。清理不会影响当前应用数据。';
@@ -11878,7 +11355,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get sponsorPageAfdianTitle => '爱发电';
 
   @override
-  String get sponsorPageAfdianSubtitle => 'afdian.com/a/kelivo';
+  String get sponsorPageAfdianSubtitle => '支持原项目';
 
   @override
   String get sponsorPageWeChatTitle => '微信赞助';
@@ -12366,9 +11843,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get desktopNavChatTooltip => '聊天';
 
   @override
-  String get desktopNavTranslateTooltip => '翻译';
-
-  @override
   String get desktopNavStorageTooltip => '存储';
 
   @override
@@ -12494,12 +11968,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get assistantEditGeneralErrorMessage => '发生错误，试试输入图片链接';
-
-  @override
-  String get providerDetailPageMultiKeyModeTitle => '多Key模式';
-
-  @override
-  String get providerDetailPageManageKeysButton => '多Key管理';
 
   @override
   String get multiKeyPageTitle => '多Key管理';
@@ -12914,41 +12382,41 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get backupPageRestartRequired => '需要重启应用';
 
   @override
-  String get backupPageRestartContent => '导入成功。重启 Kelivo 后将安全应用。';
+  String get backupPageRestartContent => '导入成功。重启 Build X 后将安全应用。';
 
   @override
   String backupPageRestartContentWithSkipped(int count) {
-    return '导入已完成，但已跳过 $count 个消息顺序非法的会话。重启 Kelivo 后将安全应用已导入的数据。';
+    return '导入已完成，但已跳过 $count 个消息顺序非法的会话。重启 Build X 后将安全应用已导入的数据。';
   }
 
   @override
-  String get restartAppFailedMessage => 'Kelivo 无法自动重启，请完全关闭后重新打开。';
+  String get restartAppFailedMessage => 'Build X 无法自动重启，请完全关闭后重新打开。';
 
   @override
   String get backupRestoreRolledBackTitle => '恢复已回滚';
 
   @override
-  String get backupRestoreRolledBackContent => '恢复未能完成。Kelivo 已验证并保留原有数据。';
+  String get backupRestoreRolledBackContent => '恢复未能完成。Build X 已验证并保留原有数据。';
 
   @override
   String get backupRestoreFailureTitle => '恢复需要处理';
 
   @override
   String get backupRestoreFailureContent =>
-      'Kelivo 无法验证完整的原有或新数据，因此未打开聊天数据。请关闭 Kelivo 后重试；若问题反复出现，请保留诊断码以便支持人员排查。';
+      'Build X 无法验证完整的原有或新数据，因此未打开聊天数据。请关闭 Build X 后重试；若问题反复出现，请保留诊断码以便支持人员排查。';
 
   @override
-  String get backupRestoreBusinessLeaseUnavailableTitle => 'Kelivo 已在运行';
+  String get backupRestoreBusinessLeaseUnavailableTitle => 'Build X 已在运行';
 
   @override
   String get backupRestoreBusinessLeaseUnavailableContent =>
-      'Kelivo 的数据仍被另一个应用进程占用。请关闭其他 Kelivo 窗口后重新启动；当前进程尚未打开聊天数据。';
+      'Build X 的数据仍被另一个应用进程占用。请关闭其他 Build X 窗口后重新启动；当前进程尚未打开聊天数据。';
 
   @override
   String get restoreProgressTitle => '正在恢复备份';
 
   @override
-  String get restoreProgressWarning => '请保持 Kelivo 开启直到完成。此时关闭应用，下次启动会从头再来一次。';
+  String get restoreProgressWarning => '请保持 Build X 开启直到完成。此时关闭应用，下次启动会从头再来一次。';
 
   @override
   String get restoreProgressStageCheckingBackup => '正在校验备份';
@@ -12969,7 +12437,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get restoreProgressStageFinishing => '即将完成';
 
   @override
-  String get backupRestoreFailureRestartButton => '重启 Kelivo';
+  String get backupRestoreFailureRestartButton => '重启 Build X';
 
   @override
   String get backupRestoreFailureCopyButton => '复制诊断码';
@@ -13007,14 +12475,14 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get startupRecoveryRepairFailed => '修复未能解决问题。请先导出数据副本，然后重置。';
 
   @override
-  String get startupRecoveryResetFailed => '重置失败。请彻底关闭 Kelivo 后重新打开。';
+  String get startupRecoveryResetFailed => '重置失败。请彻底关闭 Build X 后重新打开。';
 
   @override
   String get startupRecoveryResetDialogTitle => '重置全部数据？';
 
   @override
   String get startupRecoveryResetDialogContent =>
-      '这将永久删除本设备上 Kelivo 的数据库并重新开始。如果之后可能还需要这些数据，请先导出一份副本。此操作无法撤销。';
+      '这将永久删除本设备上 Build X 的数据库并重新开始。如果之后可能还需要这些数据，请先导出一份副本。此操作无法撤销。';
 
   @override
   String get startupRecoveryResetDialogConfirm => '重置并重启';
@@ -13126,17 +12594,17 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get startupRecoveryDangerBody =>
-      '重置会永久删除本设备上 Kelivo 的数据库。请先导出数据副本——重置同时会销毁排查根本问题所需的证据。';
+      '重置会永久删除本设备上 Build X 的数据库。请先导出数据副本——重置同时会销毁排查根本问题所需的证据。';
 
   @override
   String get startupRecoveryResetAcknowledge => '我已导出副本，或不需要这些数据。';
 
   @override
-  String get startupDatabaseUpdateRequiredTitle => '请更新 Kelivo 以继续';
+  String get startupDatabaseUpdateRequiredTitle => '请更新 Build X 以继续';
 
   @override
   String get startupDatabaseUpdateRequiredContent =>
-      '本设备上的聊天数据库由更新版本的 Kelivo 创建，当前版本无法打开。数据未被改动。请安装最新版 Kelivo 后重新打开。';
+      '本设备上的聊天数据库由更新版本的 Build X 创建，当前版本无法打开。数据未被改动。请安装最新版 Build X 后重新打开。';
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeTitle => '若要改用旧版';
@@ -13147,7 +12615,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeStep1 =>
-      '先安装并打开最新版 Kelivo，在「设置 → 数据备份」导出一份备份文件。';
+      '先安装并打开最新版 Build X，在「设置 → 数据备份」导出一份备份文件。';
 
   @override
   String startupDatabaseUpdateRequiredDowngradeStep2(String url) {
@@ -13205,7 +12673,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String backupPageForwardCompatBody(int backupVersion, int currentVersion) {
-    return '这份备份由更新版本的 Kelivo 创建（数据格式 $backupVersion，当前版本支持 $currentVersion），且未声明旧版本能否读取。\n\n你可以继续导入：当前版本不认识的内容会被跳过，备份文件本身不会被修改。但如果新版本改变了已有数据的存储方式，部分内容可能会被错误导入。\n\n更稳妥的做法是先升级 Kelivo。';
+    return '这份备份由更新版本的 Build X 创建（数据格式 $backupVersion，当前版本支持 $currentVersion），且未声明旧版本能否读取。\n\n你可以继续导入：当前版本不认识的内容会被跳过，备份文件本身不会被修改。但如果新版本改变了已有数据的存储方式，部分内容可能会被错误导入。\n\n更稳妥的做法是先升级 Build X。';
   }
 
   @override
@@ -13216,7 +12684,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get backupPageSchemaTooNewMessage =>
-      '这份备份由更新版本的 Kelivo 创建，当前版本无法读取。请先升级 Kelivo 后重试。';
+      '这份备份由更新版本的 Build X 创建，当前版本无法读取。请先升级 Build X 后重试。';
 
   @override
   String get backupPageBackupUploaded => '已上传备份';
@@ -13388,7 +12856,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String backupPageCherryStudioUnsupportedBackupVersion(String version) {
-    return '此备份使用 Cherry Studio 格式版本 $version，Kelivo 目前尚无法导入。请改用 Cherry Studio v1 导出备份，或等待后续版本支持 Cherry Studio v2。';
+    return '此备份使用 Cherry Studio 格式版本 $version，Build X 目前尚无法导入。请改用 Cherry Studio v1 导出备份，或等待后续版本支持 Cherry Studio v2。';
   }
 
   @override
@@ -14543,23 +14011,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get mcpServerEditSheetUrlRequired => '请输入服务器地址';
 
   @override
-  String get defaultModelPageBackTooltip => '返回';
-
-  @override
   String get defaultModelPageTitle => '默认模型';
 
   @override
-  String get defaultModelPageChatModelTitle => '聊天模型';
-
-  @override
-  String get defaultModelPageChatModelSubtitle => '全局默认的聊天模型';
-
-  @override
   String get defaultModelPageTitleModelTitle => '标题总结模型';
-
-  @override
-  String get defaultModelPageTitleModelSubtitle =>
-      '用于总结对话标题，默认跟随当前对话模型，也可指定其他模型。';
 
   @override
   String get titleModelThinkingTitle => '是否开启思考';
@@ -14568,14 +14023,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get defaultModelPageSummaryModelTitle => '摘要模型';
 
   @override
-  String get defaultModelPageSummaryModelSubtitle => '用于生成对话摘要的模型，推荐使用快速且便宜的模型';
-
-  @override
   String get defaultModelPageSuggestionModelTitle => '聊天建议模型';
-
-  @override
-  String get defaultModelPageSuggestionModelSubtitle =>
-      '用于在助手回复后生成聊天建议，可跟随当前对话模型或指定其他模型。默认未启用。';
 
   @override
   String get assistantEditRecentChatsSummaryFrequencyTitle => '摘要更新频率';
@@ -14611,13 +14059,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '请输入大于 0 的整数';
 
   @override
-  String get defaultModelPageTranslateModelTitle => '翻译模型';
-
-  @override
-  String get defaultModelPageTranslateModelSubtitle =>
-      '用于翻译消息内容的模型，推荐使用快速且准确的模型';
-
-  @override
   String get defaultModelPageOcrModelTitle => 'OCR 模型';
 
   @override
@@ -14626,35 +14067,13 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get defaultModelPageOcrModelSubtitle => '用于对图片执行文字识别的模型';
-
-  @override
-  String get defaultModelPageOcrModelRequiresImageInput =>
-      '请选择标记为支持图片输入的模型用于 OCR';
-
-  @override
   String get defaultModelPagePromptLabel => '提示词';
-
-  @override
-  String get defaultModelPageTitlePromptHint => '输入用于标题总结的提示词模板';
-
-  @override
-  String get defaultModelPageSummaryPromptHint => '输入用于生成摘要的提示词模板';
-
-  @override
-  String get defaultModelPageSuggestionPromptHint => '输入用于生成聊天建议的提示词模板';
-
-  @override
-  String get defaultModelPageTranslatePromptHint => '输入用于翻译的提示词模板';
 
   @override
   String get defaultModelPageOcrPromptHint => '输入用于 OCR 识别的提示词模板';
 
   @override
   String get defaultModelPageResetDefault => '重置为默认';
-
-  @override
-  String get defaultModelPageDisable => '禁用';
 
   @override
   String get defaultModelPageSave => '保存';
@@ -14678,15 +14097,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get defaultModelPageCompressModelTitle => '压缩模型';
-
-  @override
-  String get defaultModelPageCompressModelSubtitle => '用于压缩对话上下文的模型，推荐使用快速模型';
-
-  @override
-  String get defaultModelPageCompressPromptHint => '输入用于上下文压缩的提示词模板';
-
-  @override
   String defaultModelPageCompressVars(String contentVar, String localeVar) {
     return '变量：对话内容：$contentVar，语言：$localeVar';
   }
@@ -14697,72 +14107,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get defaultModelPageUseCurrentModel => '使用当前对话模型';
-
-  @override
-  String get defaultModelPageNotEnabled => '未启用';
-
-  @override
-  String get translatePagePasteButton => '粘贴';
-
-  @override
-  String get translatePageCopyResult => '复制结果';
-
-  @override
-  String get translatePageClearAll => '清空全部';
-
-  @override
-  String get translatePageInputHint => '输入要翻译的内容…';
-
-  @override
-  String get translatePageOutputHint => '翻译结果会显示在这里…';
-
-  @override
-  String get modelDetailSheetAddModel => '添加模型';
-
-  @override
-  String get modelDetailSheetEditModel => '编辑模型';
-
-  @override
-  String get modelDetailSheetBasicTab => '基本设置';
-
-  @override
-  String get modelDetailSheetAdvancedTab => '高级设置';
-
-  @override
-  String get modelDetailSheetBuiltinToolsTab => '内置工具';
-
-  @override
-  String get modelDetailSheetModelIdLabel => '模型 ID';
-
-  @override
-  String get modelDetailSheetModelIdHint => '必填，建议小写字母、数字、连字符';
-
-  @override
   String modelDetailSheetModelIdDisabledHint(String modelId) {
     return '$modelId';
   }
-
-  @override
-  String get modelDetailSheetModelNameLabel => '模型名称';
-
-  @override
-  String get modelDetailSheetModelTypeLabel => '模型类型';
-
-  @override
-  String get modelDetailSheetChatType => '聊天';
-
-  @override
-  String get modelDetailSheetEmbeddingType => '嵌入';
 
   @override
   String get modelDetailSheetInputModesLabel => '输入模式';
 
   @override
   String get modelDetailSheetOutputModesLabel => '输出模式';
-
-  @override
-  String get modelDetailSheetAbilitiesLabel => '能力';
 
   @override
   String get modelDetailSheetTextMode => '文本';
@@ -14777,128 +14130,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get modelDetailSheetReasoningAbility => '推理';
 
   @override
-  String get modelDetailSheetCustomHeadersTitle => '自定义 Headers';
-
-  @override
-  String get modelDetailSheetAddHeader => '添加 Header';
-
-  @override
-  String get modelDetailSheetCustomBodyTitle => '自定义 Body';
-
-  @override
   String get modelFetchInvertTooltip => '反选';
 
   @override
-  String get modelDetailSheetSaveFailedMessage => '保存失败，请重试';
-
-  @override
-  String get modelDetailSheetAddBody => '添加 Body';
-
-  @override
-  String get modelDetailSheetBuiltinToolsDescription => '内置工具取决于供应商和 API 模式。';
-
-  @override
-  String get modelDetailSheetSearchTool => '搜索';
-
-  @override
-  String get modelDetailSheetSearchToolDescription => '启用 Google 搜索集成';
-
-  @override
-  String get modelDetailSheetUrlContextTool => 'URL 上下文';
-
-  @override
-  String get modelDetailSheetUrlContextToolDescription => '启用 URL 内容处理';
-
-  @override
-  String get modelDetailSheetCodeExecutionTool => '代码执行';
-
-  @override
-  String get modelDetailSheetCodeExecutionToolDescription => '启用代码执行工具';
-
-  @override
-  String get modelDetailSheetYoutubeTool => 'YouTube';
-
-  @override
-  String get modelDetailSheetYoutubeToolDescription =>
-      '启用 YouTube 链接读取（自动识别提示词中的链接）';
-
-  @override
-  String get modelDetailSheetOpenaiBuiltinToolsResponsesOnlyHint =>
-      '需要启用 OpenAI Responses API。';
-
-  @override
-  String get modelDetailSheetWebFetchTool => '网页抓取';
-
-  @override
-  String get modelDetailSheetOpenrouterWebFetchToolDescription =>
-      '启用 OpenRouter 网页抓取服务端工具';
-
-  @override
-  String get modelDetailSheetClaudeWebFetchToolDescription =>
-      '允许 Claude 抓取对话中出现的网页与 PDF';
-
-  @override
-  String get modelDetailSheetClaudeCodeExecutionToolDescription =>
-      '允许 Claude 在 Anthropic 沙箱中运行 Python 与 Bash';
-
-  @override
-  String get modelDetailSheetOpenrouterShellTool => 'Shell';
-
-  @override
-  String get modelDetailSheetOpenrouterShellToolDescription =>
-      '在托管的隔离沙箱中运行 Shell 命令';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterTool => '代码解释器';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterToolDescription =>
-      '启用代码解释器工具（容器自动，内存上限 4g）';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationTool => '图像生成';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationToolDescription => '启用图像生成工具';
-
-  @override
-  String get modelDetailSheetCancelButton => '取消';
-
-  @override
-  String get modelDetailSheetAddButton => '添加';
-
-  @override
   String get modelDetailSheetConfirmButton => '确认';
-
-  @override
-  String get modelDetailSheetInvalidIdError => '请输入有效的模型 ID（不少于2个字符）';
-
-  @override
-  String get modelDetailSheetModelIdExistsError => '模型 ID 已存在';
-
-  @override
-  String get modelDetailSheetHeaderKeyHint => 'Header Key';
-
-  @override
-  String get modelDetailSheetHeaderValueHint => 'Header Value';
-
-  @override
-  String get modelDetailSheetBodyKeyHint => 'Body Key';
-
-  @override
-  String get modelDetailSheetBodyJsonHint => 'Body JSON';
-
-  @override
-  String get modelSelectSheetSearchHint => '搜索模型或服务商';
-
-  @override
-  String get modelSelectSheetFavoritesSection => '收藏';
-
-  @override
-  String get modelSelectSheetFollowAssistant => '跟随助手';
-
-  @override
-  String get modelSelectSheetFavoriteTooltip => '收藏';
 
   @override
   String get modelSelectSheetChatType => '聊天';
@@ -14907,53 +14142,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get modelSelectSheetEmbeddingType => '嵌入';
 
   @override
-  String get providerDetailPageShareTooltip => '分享';
-
-  @override
-  String get providerDetailPageDeleteProviderTooltip => '删除供应商';
-
-  @override
-  String get providerDetailPageDeleteProviderTitle => '删除供应商';
-
-  @override
-  String get providerDetailPageDeleteProviderContent => '确定要删除该供应商吗？此操作不可撤销。';
-
-  @override
-  String get providerDetailPageCancelButton => '取消';
-
-  @override
   String get providerDetailPageDeleteButton => '删除';
-
-  @override
-  String get providerDetailPageProviderDeletedSnackbar => '已删除供应商';
-
-  @override
-  String get providerDetailPageConfigTab => '配置';
-
-  @override
-  String get providerDetailPageModelsTab => '模型';
-
-  @override
-  String get providerDetailPageCustomRequestTitle => '自定义请求';
-
-  @override
-  String get providerDetailPageCustomRequestDescription =>
-      '应用于此供应商的所有模型。模型配置优先于此处，此处配置优先于助手配置。';
-
-  @override
-  String get providerDetailPageNetworkTab => '网络代理';
-
-  @override
-  String get providerDetailPageEnabledTitle => '是否启用';
-
-  @override
-  String get providerDetailPageManageSectionTitle => '管理';
-
-  @override
-  String get providerDetailPageNameLabel => '名称';
-
-  @override
-  String get providerDetailPageApiKeyHint => '留空则使用上层默认';
 
   @override
   String get providerDetailPageHideTooltip => '隐藏';
@@ -14962,62 +14151,17 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get providerDetailPageShowTooltip => '显示';
 
   @override
-  String get providerDetailPageApiPathLabel => 'API 路径';
-
-  @override
-  String get providerDetailPageResponseApiTitle => 'Response API (/responses)';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeLabel => '应用 Code（享 10% 优惠）';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeHelp =>
-      '为请求附加 APP-Code，可享 10% 优惠，仅对 AIhubmix 生效。';
-
-  @override
   String get providerDetailPageClaudePromptCachingTitle =>
       'Claude Prompt Caching';
 
   @override
-  String get providerDetailPageClaudePromptCachingHelp =>
-      '通过 Claude 官方或 OpenRouter 调用 Claude 时附加 cache_control。';
-
-  @override
   String get providerDetailPageClaudePromptCachingTtlTitle => '缓存 TTL';
-
-  @override
-  String get providerDetailPageClaudePromptCachingTtlHelp =>
-      '5 分钟为默认值。1 小时写入成本更高，但长对话中可减少重复重建缓存。';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl5m => '5 分钟';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl1h => '1 小时';
-
-  @override
-  String get providerDetailPageBalanceTitle => '账户余额';
-
-  @override
-  String get providerDetailPageBalanceInfo => '获取账户余额';
-
-  @override
-  String get providerDetailPageBalanceApiPathLabel => '余额 API 路径';
-
-  @override
-  String get providerDetailPageBalanceResultPathLabel => '结果 JSON 路径';
-
-  @override
-  String get providerDetailPageBalanceQueryButton => '查询余额';
-
-  @override
-  String get providerDetailPageBalanceQuerying => '查询中...';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsButton => '重置';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsTooltip => '重置余额设置';
 
   @override
   String providerDetailPageBalanceResult(String value) {
@@ -15030,130 +14174,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get providerDetailPageVertexAiTitle => 'Vertex AI';
-
-  @override
-  String get providerDetailPageLocationLabel => '区域 Location';
-
-  @override
-  String get providerDetailPageProjectIdLabel => '项目 ID';
-
-  @override
-  String get providerDetailPageServiceAccountJsonLabel => '服务账号 JSON（粘贴或导入）';
-
-  @override
-  String get providerDetailPageImportJsonButton => '导入 JSON';
-
-  @override
-  String get providerDetailPageImportJsonReadFailedMessage => '读取文件失败';
-
-  @override
-  String get providerDetailPageTestButton => '测试';
-
-  @override
-  String get providerDetailPageSaveButton => '保存';
-
-  @override
-  String get providerDetailPageProviderRemovedMessage => '供应商已删除';
-
-  @override
-  String get providerDetailPageNoModelsTitle => '暂无模型';
-
-  @override
-  String get providerDetailPageNoModelsSubtitle => '点击下方按钮添加模型';
-
-  @override
-  String get providerDetailPageDeleteModelButton => '删除';
-
-  @override
-  String get providerDetailPageConfirmDeleteTitle => '确认删除';
-
-  @override
-  String get providerDetailPageConfirmDeleteContent => '删除后可通过撤销恢复。是否删除？';
-
-  @override
-  String get providerDetailPageModelDeletedSnackbar => '已删除模型';
-
-  @override
-  String get providerDetailPageUndoButton => '撤销';
-
-  @override
-  String get providerDetailPageAddNewModelButton => '添加新模型';
-
-  @override
-  String get providerDetailPageFetchModelsButton => '获取';
-
-  @override
-  String get providerDetailPageEnableProxyTitle => '是否启用代理';
-
-  @override
-  String get providerDetailPageHostLabel => '主机地址';
-
-  @override
-  String get providerDetailPagePortLabel => '端口';
-
-  @override
-  String get providerDetailPageUsernameOptionalLabel => '用户名（可选）';
-
-  @override
-  String get providerDetailPagePasswordOptionalLabel => '密码（可选）';
-
-  @override
-  String get providerDetailPageSavedSnackbar => '已保存';
-
-  @override
-  String get providerDetailPageEmbeddingsGroupTitle => '嵌入';
-
-  @override
-  String get providerDetailPageOtherModelsGroupTitle => '其他模型';
-
-  @override
-  String get providerDetailPageRemoveGroupTooltip => '移除本组';
-
-  @override
-  String get providerDetailPageAddGroupTooltip => '添加本组';
-
-  @override
-  String get providerDetailPageFilterHint => '输入模型名称筛选';
-
-  @override
-  String get providerDetailPageDeleteText => '删除';
-
-  @override
-  String get providerDetailPageEditTooltip => '编辑';
-
-  @override
-  String get providerDetailPageTestConnectionTitle => '测试连接';
-
-  @override
-  String get providerDetailPageSelectModelButton => '选择模型';
-
-  @override
-  String get providerDetailPageChangeButton => '更换';
-
-  @override
-  String get providerDetailPageUseStreamingLabel => '使用流式';
-
-  @override
-  String get providerDetailPageTestingMessage => '正在测试…';
-
-  @override
-  String get providerDetailPageTestSuccessMessage => '测试成功';
-
-  @override
-  String get providersPageTitle => '供应商';
-
-  @override
   String get providersPageImportTooltip => '导入';
-
-  @override
-  String get providersPageAddTooltip => '新增';
-
-  @override
-  String get providersPageSearchHint => '搜索供应商或分组';
-
-  @override
-  String get providersPageProviderAddedSnackbar => '已添加供应商';
 
   @override
   String get providerGroupsGroupLabel => '分组';
@@ -15213,61 +14234,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get providerGroupsExpandToMoveToast => '请先展开分组';
 
   @override
-  String get providersPageSiliconFlowName => '硅基流动';
-
-  @override
-  String get providersPageAliyunName => '阿里云千问';
-
-  @override
-  String get providersPageZhipuName => '智谱';
-
-  @override
-  String get providersPageByteDanceName => '火山引擎';
-
-  @override
-  String get providersPageEnabledStatus => '启用';
-
-  @override
-  String get providersPageDisabledStatus => '禁用';
-
-  @override
-  String get providersPageModelsCountSuffix => ' models';
-
-  @override
-  String get providersPageModelsCountSingleSuffix => '个模型';
-
-  @override
-  String get addProviderSheetTitle => '添加供应商';
-
-  @override
-  String get addProviderSheetEnabledLabel => '是否启用';
-
-  @override
-  String get addProviderSheetNameLabel => '名称';
-
-  @override
-  String get addProviderSheetApiPathLabel => 'API 路径';
-
-  @override
-  String get addProviderSheetVertexAiLocationLabel => '位置';
-
-  @override
-  String get addProviderSheetVertexAiProjectIdLabel => '项目ID';
-
-  @override
-  String get addProviderSheetVertexAiServiceAccountJsonLabel =>
-      '服务账号 JSON（粘贴或导入）';
-
-  @override
-  String get addProviderSheetImportJsonButton => '导入 JSON';
-
-  @override
-  String get addProviderSheetCancelButton => '取消';
-
-  @override
-  String get addProviderSheetAddButton => '添加';
-
-  @override
   String get importProviderSheetTitle => '导入供应商';
 
   @override
@@ -15315,34 +14281,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get shareProviderSheetShareButton => '分享';
 
   @override
-  String get desktopProviderContextMenuShare => '分享';
-
-  @override
-  String get desktopProviderShareCopyText => '复制文字';
-
-  @override
-  String get desktopProviderShareCopyQr => '复制二维码';
-
-  @override
-  String get providerDetailPageApiBaseUrlLabel => 'API Base URL';
-
-  @override
-  String get providerDetailPageModelsTitle => '模型';
-
-  @override
   String get providerModelsGetButton => '获取';
-
-  @override
-  String get providerDetailPageCapsVision => '视觉';
-
-  @override
-  String get providerDetailPageCapsImage => '生图';
-
-  @override
-  String get providerDetailPageCapsTool => '工具';
-
-  @override
-  String get providerDetailPageCapsReasoning => '推理';
 
   @override
   String get qrScanPageTitle => '扫码导入';
@@ -15680,7 +14619,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get aboutPageKelivoSearchAlreadyUnlocked => '这扇门你已经推开过了。';
 
   @override
-  String get aboutPageAppName => 'Kelivo';
+  String get aboutPageAppName => 'Build X';
 
   @override
   String get aboutPageAppDescription => '开源 AI 助手';
@@ -15738,13 +14677,13 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get aboutPageJoinQQGroup => '加入QQ群';
 
   @override
-  String get aboutPageQQGroupOne => 'Kelivo 一群';
+  String get aboutPageQQGroupOne => 'Build X 一群';
 
   @override
-  String get aboutPageQQGroupTwo => 'Kelivo 二群';
+  String get aboutPageQQGroupTwo => 'Build X 二群';
 
   @override
-  String get aboutPageQQGroupThree => 'Kelivo 三群';
+  String get aboutPageQQGroupThree => 'Build X 三群';
 
   @override
   String get aboutPageJoinDiscord => '在 Discord 中加入我们';
@@ -16652,7 +15591,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get settingsShare => 'Kelivo - 开源AI助手';
+  String get settingsShare => 'Build X - 开源AI助手';
 
   @override
   String get searchProviderBingLocalDescription =>
@@ -16835,7 +15774,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '最大 token 数必须介于 1024 和 32768 之间。';
 
   @override
-  String get searchServiceNameKelivo => 'Kelivo';
+  String get searchServiceNameKelivo => 'Build X';
 
   @override
   String get searchServicesDialogCountryOptional => '国家/地区（可选）';
@@ -17111,7 +16050,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get healthDataSettingsDescription =>
-      '当前助手在日常对话中可使用的 HealthKit 信号。开关表示 Kelivo 可以尝试读取该范围，实际授权仍由 iOS 管理。';
+      '当前助手在日常对话中可使用的 HealthKit 信号。开关表示 Build X 可以尝试读取该范围，实际授权仍由 iOS 管理。';
 
   @override
   String healthDataSettingsBadge(int selected, int total) {
@@ -17317,9 +16256,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get providerDetailPageProviderTypeTitle => '供应商类型';
-
-  @override
   String get displaySettingsPageChatItemDisplayTitle => '聊天项显示';
 
   @override
@@ -17338,31 +16274,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get providersPageMultiSelectTooltip => '多选';
 
   @override
-  String get providersPageDeleteSelectedConfirmContent =>
-      '确定要删除选中的供应商吗？该操作不可撤销。';
-
-  @override
-  String get providersPageDeleteSelectedSnackbar => '已删除选中的供应商';
-
-  @override
   String providersPageExportSelectedTitle(int count) {
     return '导出 $count 个供应商';
   }
-
-  @override
-  String get providersPageExportCopyButton => '复制';
-
-  @override
-  String get providersPageExportShareButton => '分享';
-
-  @override
-  String get providersPageExportCopiedSnackbar => '已复制导出代码';
-
-  @override
-  String get providersPageDeleteAction => '删除';
-
-  @override
-  String get providersPageExportAction => '导出';
 
   @override
   String get assistantEditPresetTitle => '预设对话信息';
@@ -17535,39 +16449,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get chatInputBarOcrTooltip => 'OCR 文字识别';
 
   @override
-  String get providerDetailPageMultiSelectButton => '多选';
-
-  @override
-  String get providerDetailPageBatchDetectButton => '检测';
-
-  @override
-  String get providerDetailPageBatchDetecting => '检测中...';
-
-  @override
-  String get providerDetailPageBatchDetectStart => '开始检测';
-
-  @override
-  String get providerDetailPageDetectSuccess => '检测成功';
-
-  @override
-  String get providerDetailPageDetectFailed => '检测失败';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsButton => '删除';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsTooltip => '删除所选模型';
-
-  @override
   String providerDetailPageDeleteSelectedModelsConfirm(int count) {
     return '确定删除选中的 $count 个模型吗？此操作不可撤回。';
   }
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsButton => '删除不可用';
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsTooltip => '删除检测失败的模型';
 
   @override
   String providerDetailPageDeleteFailedDetectedModelsConfirm(int count) {
@@ -17578,12 +16462,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String providerDetailPageSelectedModelsDeletedSnackbar(int count) {
     return '已删除 $count 个模型';
   }
-
-  @override
-  String get providerDetailPageDeleteAllModelsTooltip => '删除全部模型';
-
-  @override
-  String get providerDetailPageDeleteAllModelsWarning => '此操作不可撤回';
 
   @override
   String get requestLogSettingTitle => '请求日志打印';
@@ -18401,7 +17279,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get legacyMemoryExport => '导出';
 
   @override
-  String get legacyMemoryExportTitle => 'Kelivo 旧版记忆导出';
+  String get legacyMemoryExportTitle => 'Build X 旧版记忆导出';
 
   @override
   String legacyMemoryAssistantHeader(String name) {
@@ -18983,7 +17861,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get migrationIntroSubtitle =>
-      'Kelivo 将聊天记录迁移到更快的 SQLite 数据库。升级会在应用打开前完成，避免新旧数据同时写入。';
+      'Build X 将聊天记录迁移到更快的 SQLite 数据库。升级会在应用打开前完成，避免新旧数据同时写入。';
 
   @override
   String get migrationBackupNote => '迁移开始前，会先导出包含设置、聊天记录和本地文件的 ZIP 备份。';
@@ -19025,14 +17903,14 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get migrationBackingUpSubtitle =>
-      '正在导出设置、聊天记录、上传文件、图片和字体。请保持 Kelivo 开启，等待备份完成。';
+      '正在导出设置、聊天记录、上传文件、图片和字体。请保持 Build X 开启，等待备份完成。';
 
   @override
   String get migrationMigratingTitle => '正在迁移到 SQLite';
 
   @override
   String get migrationMigratingSubtitle =>
-      '正在分批写入会话和消息，避免超大聊天记录占满内存。请保持 Kelivo 在前台，等待迁移完成。';
+      '正在分批写入会话和消息，避免超大聊天记录占满内存。请保持 Build X 在前台，等待迁移完成。';
 
   @override
   String migrationBackingUpDetail(String fileName) {
@@ -19091,7 +17969,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get migrationCompleteSubtitle =>
-      '你的聊天记录已迁移到 SQLite。请重启 Kelivo 进入升级后的应用。';
+      '你的聊天记录已迁移到 SQLite。请重启 Build X 进入升级后的应用。';
 
   @override
   String get migrationConversationCount => '对话';
@@ -19109,7 +17987,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get migrationMissingFilesCount => '缺失文件';
 
   @override
-  String get migrationRestartButton => '重启 Kelivo';
+  String get migrationRestartButton => '重启 Build X';
 
   @override
   String get migrationFailedTitle => '迁移失败';
@@ -19135,7 +18013,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get migrationSkipDialogMessage =>
-      'Kelivo 将以空的聊天数据库启动。旧的聊天记录会保留在磁盘上（重命名为 .retired 后缀），但不会被迁移，也不会在应用中显示。之后如需找回，请使用已保存的备份 ZIP。';
+      'Build X 将以空的聊天数据库启动。旧的聊天记录会保留在磁盘上（重命名为 .retired 后缀），但不会被迁移，也不会在应用中显示。之后如需找回，请使用已保存的备份 ZIP。';
 
   @override
   String get migrationSkipDialogCancel => '取消';
@@ -19543,7 +18421,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get localSnapshotEnabledTitle => '保留本地副本';
 
   @override
-  String get localSnapshotEnabledSubtitle => 'Kelivo 会定期在本机存一份数据库副本，让数据不只有一份。';
+  String get localSnapshotEnabledSubtitle => 'Build X 会定期在本机存一份数据库副本，让数据不只有一份。';
 
   @override
   String get localSnapshotIntervalTitle => '备份频率';
@@ -20337,7 +19215,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get workspaceEnvUpToDate => '已是最新';
 
   @override
-  String get workspaceEnvRestartBanner => '请重启 Kelivo 以完成安装';
+  String get workspaceEnvRestartBanner => '请重启 Build X 以完成安装';
 
   @override
   String get workspaceEnvDetectingMirrors => '正在检测最快镜像…';
@@ -20433,7 +19311,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get workspaceEnvNativeExplanation =>
-      '在桌面端，Kelivo 使用系统终端，而不是 Linux 沙箱。';
+      '在桌面端，Build X 使用系统终端，而不是 Linux 沙箱。';
 
   @override
   String workspaceEnvNativeShellPath(String path) {
@@ -21319,7 +20197,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get workspaceDesktopFolderMissing => '请选择已存在的文件夹，或输入它的绝对路径。';
 
   @override
-  String get workspaceDesktopManagedHint => '由 Kelivo 为此项目创建并管理文件夹。';
+  String get workspaceDesktopManagedHint => '由 Build X 为此项目创建并管理文件夹。';
 
   @override
   String get workspaceDesktopHostHint => '在本机访问文件和执行命令。';
@@ -21549,7 +20427,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get workspaceExternalStorageMessage =>
-      '工作区和 Shell 需要直接读写外部文件夹，请在 Android 系统设置中允许 Kelivo 访问文件。Android 11 及以上需开启“所有文件访问权限”，然后选择要挂载的本地文件夹。';
+      '工作区和 Shell 需要直接读写外部文件夹，请在 Android 系统设置中允许 Build X 访问文件。Android 11 及以上需开启“所有文件访问权限”，然后选择要挂载的本地文件夹。';
 
   @override
   String get workspaceExternalGrantAccess => '前往授权';
@@ -21707,13 +20585,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get reasoningBudgetSliderMax => 'Max';
 
   @override
-  String get defaultModelPagePerChatModelTitle => '每个对话独立模型';
-
-  @override
-  String get defaultModelPagePerChatModelSubtitle =>
-      '开启后，在对话中切换模型只影响当前对话；关闭后会直接修改当前助手的模型，使用该助手的所有对话都会跟随。';
-
-  @override
   String get googleFontsTitle => 'Google Fonts';
 
   @override
@@ -21780,7 +20651,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get backgroundSettingsTitle => '后台任务';
 
   @override
-  String get backgroundTaskTitle => 'Kelivo 任务';
+  String get backgroundTaskTitle => 'Build X 任务';
 
   @override
   String get backgroundCompleted => '生成完成';
@@ -21909,7 +20780,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get backgroundOverlayIcon => '悬浮窗图标';
 
   @override
-  String get backgroundIconDefault => 'Kelivo 图标';
+  String get backgroundIconDefault => 'Build X 图标';
 
   @override
   String get backgroundIconImage => '选择图片';
@@ -22118,7 +20989,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get startupRecoverySnapshotBody =>
-      '即使数据库无法打开，也可以选择本机快照恢复聊天和设置。请勿卸载 Kelivo，卸载会一并删除这些快照。';
+      '即使数据库无法打开，也可以选择本机快照恢复聊天和设置。请勿卸载 Build X，卸载会一并删除这些快照。';
 
   @override
   String get startupRecoverySnapshotEmpty => '未在本机找到数据库快照。请先导出数据，再尝试其他恢复操作。';
@@ -22128,7 +20999,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String startupRecoverySnapshotConfirm(String when) {
-    return '将聊天和设置恢复到 $when 的快照？快照之后的更改不会包含在内。现有附件文件和快照会保留，Kelivo 将重启以完成恢复。';
+    return '将聊天和设置恢复到 $when 的快照？快照之后的更改不会包含在内。现有附件文件和快照会保留，Build X 将重启以完成恢复。';
   }
 
   @override
@@ -22137,7 +21008,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get startupRecoverySnapshotReady => '快照已准备好，请重启 Kelivo 完成恢复。';
+  String get startupRecoverySnapshotReady => '快照已准备好，请重启 Build X 完成恢复。';
 
   @override
   String get scheduledTasksTitle => '定时任务';
@@ -22208,7 +21079,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get scheduledTasksReliability =>
-      '建议在电池设置中允许 Kelivo 后台运行。强行停止后需重新打开应用。错过的任务不会补跑，执行时间跟随设备时区。';
+      '建议在电池设置中允许 Build X 后台运行。强行停止后需重新打开应用。错过的任务不会补跑，执行时间跟随设备时区。';
 
   @override
   String get scheduledTasksExecutionDetail =>
@@ -22385,7 +21256,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get scheduledTasksDesktopReliability =>
-      '仅在 Kelivo 运行时执行，最小化或驻留托盘时也会继续。退出或电脑休眠期间错过的任务不会补运行，也不会自动启动应用。';
+      '仅在 Build X 运行时执行，最小化或驻留托盘时也会继续。退出或电脑休眠期间错过的任务不会补运行，也不会自动启动应用。';
 
   @override
   String get scheduledTasksDesktopExecutionDetail =>
@@ -22662,6 +21533,89 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get oauthPromptCachingHelp => '复用多轮对话中的上下文，可设置缓存保留时长。';
+
+  @override
+  String get buildXConnectionTitle => 'Mistral 连接';
+
+  @override
+  String get buildXApiKeyLabel => 'Mistral API 密钥';
+
+  @override
+  String get buildXApiKeyHint => '粘贴 Mistral API 密钥';
+
+  @override
+  String get buildXApiKeyHelp =>
+      'Build X 的所有聊天均使用 mistral-medium-latest。密钥保存在设备安全存储中。';
+
+  @override
+  String get buildXSave => '保存密钥';
+
+  @override
+  String get buildXSaved => 'API 密钥已保存';
+
+  @override
+  String get buildXSaveFailed => '无法保存 API 密钥';
+
+  @override
+  String get buildXSkillSection => '添加技能';
+
+  @override
+  String get buildXSkillName => '名称';
+
+  @override
+  String get buildXSkillDescription => '描述';
+
+  @override
+  String get buildXSkillInstructions => '指令';
+
+  @override
+  String get buildXAddSkill => '保存技能';
+
+  @override
+  String get buildXSkillSaved => '技能已保存';
+
+  @override
+  String get buildXSkillError => '请输入名称、描述和指令。';
+
+  @override
+  String get buildXBrowserSection => '浏览器账号';
+
+  @override
+  String get buildXBrowserHelp =>
+      '保存账号信息，以供未来的已登录浏览器功能使用。Build X 目前不会用此账号打开浏览器。';
+
+  @override
+  String get buildXBrowserSite => '网站';
+
+  @override
+  String get buildXBrowserUser => '用户名或邮箱';
+
+  @override
+  String get buildXBrowserSecret => '密码或会话令牌';
+
+  @override
+  String get buildXSaveBrowser => '保存账号';
+
+  @override
+  String get buildXBrowserSaved => '浏览器账号已保存';
+
+  @override
+  String get buildXBrowserError => '请输入网站和账号凭据。';
+
+  @override
+  String get buildXMemoryWhatIsStored => '下方启用的记忆可加入提示词。已归档的记忆保留供查看，但不会注入。';
+
+  @override
+  String get buildXMemoryWhatIsNotStored => '聊天记录和 Mistral 托管的会话历史与此记忆列表分开。';
+
+  @override
+  String get buildXAdvanced => '高级';
+
+  @override
+  String get buildXShowKey => '显示密钥';
+
+  @override
+  String get buildXHideKey => '隐藏密钥';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -22826,7 +21780,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get storageSpaceClearDisplacedDatabasesConfirmMessage =>
-      '確定刪除這些保留的舊資料庫嗎？它們是 Kelivo 重建資料庫時留下的，可能是那些聊天記錄和設定僅存的一份。刪除後無法復原。';
+      '確定刪除這些保留的舊資料庫嗎？它們是 Build X 重建資料庫時留下的，可能是那些聊天記錄和設定僅存的一份。刪除後無法復原。';
 
   @override
   String get storageSpaceRestoreTracesHint => '還原完成後保留的舊資料快照。清理不會影響目前的應用程式資料。';
@@ -23171,7 +22125,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get sponsorPageAfdianTitle => '愛發電';
 
   @override
-  String get sponsorPageAfdianSubtitle => 'afdian.com/a/kelivo';
+  String get sponsorPageAfdianSubtitle => '支持原專案';
 
   @override
   String get sponsorPageWeChatTitle => '微信贊助';
@@ -23659,9 +22613,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get desktopNavChatTooltip => '聊天';
 
   @override
-  String get desktopNavTranslateTooltip => '翻譯';
-
-  @override
   String get desktopNavStorageTooltip => '儲存';
 
   @override
@@ -23787,12 +22738,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get assistantEditGeneralErrorMessage => '發生錯誤，試試輸入圖片連結';
-
-  @override
-  String get providerDetailPageMultiKeyModeTitle => '多Key模式';
-
-  @override
-  String get providerDetailPageManageKeysButton => '多Key管理';
 
   @override
   String get multiKeyPageTitle => '多Key管理';
@@ -24207,42 +23152,42 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get backupPageRestartRequired => '需要重啟應用程式';
 
   @override
-  String get backupPageRestartContent => '匯入成功。重新啟動 Kelivo 後將安全套用。';
+  String get backupPageRestartContent => '匯入成功。重新啟動 Build X 後將安全套用。';
 
   @override
   String backupPageRestartContentWithSkipped(int count) {
-    return '匯入已完成，但已略過 $count 個訊息順序無效的會話。重新啟動 Kelivo 後將安全套用已匯入的資料。';
+    return '匯入已完成，但已略過 $count 個訊息順序無效的會話。重新啟動 Build X 後將安全套用已匯入的資料。';
   }
 
   @override
-  String get restartAppFailedMessage => 'Kelivo 無法自動重新啟動，請完全關閉後再重新開啟。';
+  String get restartAppFailedMessage => 'Build X 無法自動重新啟動，請完全關閉後再重新開啟。';
 
   @override
   String get backupRestoreRolledBackTitle => '已保留原有資料';
 
   @override
-  String get backupRestoreRolledBackContent => '還原未能完成。Kelivo 已驗證並保留先前的資料。';
+  String get backupRestoreRolledBackContent => '還原未能完成。Build X 已驗證並保留先前的資料。';
 
   @override
   String get backupRestoreFailureTitle => '還原需要處理';
 
   @override
   String get backupRestoreFailureContent =>
-      'Kelivo 無法驗證完整的原有或新資料，因此未開啟聊天資料。請關閉 Kelivo 後重試；若問題持續發生，請保留診斷碼以供支援人員排查。';
+      'Build X 無法驗證完整的原有或新資料，因此未開啟聊天資料。請關閉 Build X 後重試；若問題持續發生，請保留診斷碼以供支援人員排查。';
 
   @override
-  String get backupRestoreBusinessLeaseUnavailableTitle => 'Kelivo 已在執行';
+  String get backupRestoreBusinessLeaseUnavailableTitle => 'Build X 已在執行';
 
   @override
   String get backupRestoreBusinessLeaseUnavailableContent =>
-      'Kelivo 的資料仍由另一個應用程式程序使用。請關閉其他 Kelivo 視窗後重新啟動；目前程序尚未開啟聊天資料。';
+      'Build X 的資料仍由另一個應用程式程序使用。請關閉其他 Build X 視窗後重新啟動；目前程序尚未開啟聊天資料。';
 
   @override
   String get restoreProgressTitle => '正在還原備份';
 
   @override
   String get restoreProgressWarning =>
-      '請保持 Kelivo 開啟直到完成。此時關閉應用程式，下次啟動會從頭再來一次。';
+      '請保持 Build X 開啟直到完成。此時關閉應用程式，下次啟動會從頭再來一次。';
 
   @override
   String get restoreProgressStageCheckingBackup => '正在驗證備份';
@@ -24263,7 +23208,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get restoreProgressStageFinishing => '即將完成';
 
   @override
-  String get backupRestoreFailureRestartButton => '重新啟動 Kelivo';
+  String get backupRestoreFailureRestartButton => '重新啟動 Build X';
 
   @override
   String get backupRestoreFailureCopyButton => '複製診斷碼';
@@ -24301,14 +23246,14 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get startupRecoveryRepairFailed => '修復未能解決問題。請先匯出資料副本，然後重設。';
 
   @override
-  String get startupRecoveryResetFailed => '重設失敗。請完全關閉 Kelivo 後再重新開啟。';
+  String get startupRecoveryResetFailed => '重設失敗。請完全關閉 Build X 後再重新開啟。';
 
   @override
   String get startupRecoveryResetDialogTitle => '重設全部資料？';
 
   @override
   String get startupRecoveryResetDialogContent =>
-      '這會永久刪除本裝置上 Kelivo 的資料庫並重新開始。如果之後可能還需要這些資料，請先匯出一份副本。此操作無法復原。';
+      '這會永久刪除本裝置上 Build X 的資料庫並重新開始。如果之後可能還需要這些資料，請先匯出一份副本。此操作無法復原。';
 
   @override
   String get startupRecoveryResetDialogConfirm => '重設並重新啟動';
@@ -24420,17 +23365,17 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get startupRecoveryDangerBody =>
-      '重設會永久刪除本裝置上 Kelivo 的資料庫。請先匯出資料副本——重設同時會銷毀排查根本問題所需的證據。';
+      '重設會永久刪除本裝置上 Build X 的資料庫。請先匯出資料副本——重設同時會銷毀排查根本問題所需的證據。';
 
   @override
   String get startupRecoveryResetAcknowledge => '我已匯出副本，或不需要這些資料。';
 
   @override
-  String get startupDatabaseUpdateRequiredTitle => '請更新 Kelivo 以繼續';
+  String get startupDatabaseUpdateRequiredTitle => '請更新 Build X 以繼續';
 
   @override
   String get startupDatabaseUpdateRequiredContent =>
-      '本裝置上的聊天資料庫由更新版本的 Kelivo 建立，目前版本無法開啟。資料未被改動。請安裝最新版 Kelivo 後重新開啟。';
+      '本裝置上的聊天資料庫由更新版本的 Build X 建立，目前版本無法開啟。資料未被改動。請安裝最新版 Build X 後重新開啟。';
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeTitle => '若要改用舊版';
@@ -24441,7 +23386,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get startupDatabaseUpdateRequiredDowngradeStep1 =>
-      '先安裝並開啟最新版 Kelivo，在「設定 → 資料備份」匯出一份備份檔。';
+      '先安裝並開啟最新版 Build X，在「設定 → 資料備份」匯出一份備份檔。';
 
   @override
   String startupDatabaseUpdateRequiredDowngradeStep2(String url) {
@@ -24499,7 +23444,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String backupPageForwardCompatBody(int backupVersion, int currentVersion) {
-    return '這份備份由更新版本的 Kelivo 建立（資料格式 $backupVersion，目前版本支援 $currentVersion），且未聲明舊版本能否讀取。\n\n你可以繼續匯入：目前版本不認識的內容會被略過，備份檔案本身不會被修改。但如果新版本改變了既有資料的儲存方式，部分內容可能會被錯誤匯入。\n\n更穩妥的做法是先升級 Kelivo。';
+    return '這份備份由更新版本的 Build X 建立（資料格式 $backupVersion，目前版本支援 $currentVersion），且未聲明舊版本能否讀取。\n\n你可以繼續匯入：目前版本不認識的內容會被略過，備份檔案本身不會被修改。但如果新版本改變了既有資料的儲存方式，部分內容可能會被錯誤匯入。\n\n更穩妥的做法是先升級 Build X。';
   }
 
   @override
@@ -24510,7 +23455,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get backupPageSchemaTooNewMessage =>
-      '這份備份由更新版本的 Kelivo 建立，目前版本無法讀取。請先升級 Kelivo 後重試。';
+      '這份備份由更新版本的 Build X 建立，目前版本無法讀取。請先升級 Build X 後重試。';
 
   @override
   String get backupPageBackupUploaded => '已上傳備份';
@@ -24682,7 +23627,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String backupPageCherryStudioUnsupportedBackupVersion(String version) {
-    return '此備份使用 Cherry Studio 格式版本 $version，Kelivo 目前尚無法匯入。請改用 Cherry Studio v1 匯出備份，或等待後續版本支援 Cherry Studio v2。';
+    return '此備份使用 Cherry Studio 格式版本 $version，Build X 目前尚無法匯入。請改用 Cherry Studio v1 匯出備份，或等待後續版本支援 Cherry Studio v2。';
   }
 
   @override
@@ -25836,23 +24781,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get mcpServerEditSheetUrlRequired => '請輸入伺服器地址';
 
   @override
-  String get defaultModelPageBackTooltip => '返回';
-
-  @override
   String get defaultModelPageTitle => '預設模型';
 
   @override
-  String get defaultModelPageChatModelTitle => '聊天模型';
-
-  @override
-  String get defaultModelPageChatModelSubtitle => '全域預設的聊天模型';
-
-  @override
   String get defaultModelPageTitleModelTitle => '標題總結模型';
-
-  @override
-  String get defaultModelPageTitleModelSubtitle =>
-      '用於總結對話標題，預設跟隨目前對話模型，也可指定其他模型。';
 
   @override
   String get titleModelThinkingTitle => '是否開啟思考';
@@ -25861,14 +24793,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get defaultModelPageSummaryModelTitle => '摘要模型';
 
   @override
-  String get defaultModelPageSummaryModelSubtitle => '用於生成對話摘要的模型，推薦使用快速且便宜的模型';
-
-  @override
   String get defaultModelPageSuggestionModelTitle => '聊天建議模型';
-
-  @override
-  String get defaultModelPageSuggestionModelSubtitle =>
-      '用於在助手回覆後生成聊天建議，可跟隨目前對話模型或指定其他模型。預設未啟用。';
 
   @override
   String get assistantEditRecentChatsSummaryFrequencyTitle => '摘要更新頻率';
@@ -25904,13 +24829,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
       '請輸入大於 0 的整數';
 
   @override
-  String get defaultModelPageTranslateModelTitle => '翻譯模型';
-
-  @override
-  String get defaultModelPageTranslateModelSubtitle =>
-      '用於翻譯訊息內容的模型，推薦使用快速且準確的模型';
-
-  @override
   String get defaultModelPageOcrModelTitle => 'OCR 模型';
 
   @override
@@ -25919,35 +24837,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get defaultModelPageOcrModelSubtitle => '用於對圖片執行文字辨識的模型';
-
-  @override
-  String get defaultModelPageOcrModelRequiresImageInput =>
-      '請選擇標記為支援圖片輸入的模型用於 OCR';
-
-  @override
   String get defaultModelPagePromptLabel => '提示詞';
-
-  @override
-  String get defaultModelPageTitlePromptHint => '輸入用於標題總結的提示詞範本';
-
-  @override
-  String get defaultModelPageSummaryPromptHint => '輸入用於生成摘要的提示詞範本';
-
-  @override
-  String get defaultModelPageSuggestionPromptHint => '輸入用於生成聊天建議的提示詞範本';
-
-  @override
-  String get defaultModelPageTranslatePromptHint => '輸入用於翻譯的提示詞範本';
 
   @override
   String get defaultModelPageOcrPromptHint => '輸入用於 OCR 辨識的提示詞範本';
 
   @override
   String get defaultModelPageResetDefault => '重設為預設';
-
-  @override
-  String get defaultModelPageDisable => '停用';
 
   @override
   String get defaultModelPageSave => '儲存';
@@ -25971,15 +24867,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get defaultModelPageCompressModelTitle => '壓縮模型';
-
-  @override
-  String get defaultModelPageCompressModelSubtitle => '用於壓縮對話上下文的模型，建議使用快速模型';
-
-  @override
-  String get defaultModelPageCompressPromptHint => '輸入用於上下文壓縮的提示詞範本';
-
-  @override
   String defaultModelPageCompressVars(String contentVar, String localeVar) {
     return '變數：對話內容：$contentVar，語言：$localeVar';
   }
@@ -25990,72 +24877,15 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get defaultModelPageUseCurrentModel => '使用目前對話模型';
-
-  @override
-  String get defaultModelPageNotEnabled => '未啟用';
-
-  @override
-  String get translatePagePasteButton => '貼上';
-
-  @override
-  String get translatePageCopyResult => '複製結果';
-
-  @override
-  String get translatePageClearAll => '清空全部';
-
-  @override
-  String get translatePageInputHint => '輸入要翻譯的內容…';
-
-  @override
-  String get translatePageOutputHint => '翻譯結果會顯示在這裡…';
-
-  @override
-  String get modelDetailSheetAddModel => '新增模型';
-
-  @override
-  String get modelDetailSheetEditModel => '編輯模型';
-
-  @override
-  String get modelDetailSheetBasicTab => '基本設定';
-
-  @override
-  String get modelDetailSheetAdvancedTab => '進階設定';
-
-  @override
-  String get modelDetailSheetBuiltinToolsTab => '內建工具';
-
-  @override
-  String get modelDetailSheetModelIdLabel => '模型 ID';
-
-  @override
-  String get modelDetailSheetModelIdHint => '必填，建議小寫字母、數字、連字號';
-
-  @override
   String modelDetailSheetModelIdDisabledHint(String modelId) {
     return '$modelId';
   }
-
-  @override
-  String get modelDetailSheetModelNameLabel => '模型名稱';
-
-  @override
-  String get modelDetailSheetModelTypeLabel => '模型類型';
-
-  @override
-  String get modelDetailSheetChatType => '聊天';
-
-  @override
-  String get modelDetailSheetEmbeddingType => '嵌入';
 
   @override
   String get modelDetailSheetInputModesLabel => '輸入模式';
 
   @override
   String get modelDetailSheetOutputModesLabel => '輸出模式';
-
-  @override
-  String get modelDetailSheetAbilitiesLabel => '能力';
 
   @override
   String get modelDetailSheetTextMode => '文字';
@@ -26070,128 +24900,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get modelDetailSheetReasoningAbility => '推理';
 
   @override
-  String get modelDetailSheetCustomHeadersTitle => '自訂 Headers';
-
-  @override
-  String get modelDetailSheetAddHeader => '新增 Header';
-
-  @override
-  String get modelDetailSheetCustomBodyTitle => '自訂 Body';
-
-  @override
   String get modelFetchInvertTooltip => '反選';
 
   @override
-  String get modelDetailSheetSaveFailedMessage => '保存失敗，請重試';
-
-  @override
-  String get modelDetailSheetAddBody => '新增 Body';
-
-  @override
-  String get modelDetailSheetBuiltinToolsDescription => '內建工具取決於供應商和 API 模式。';
-
-  @override
-  String get modelDetailSheetSearchTool => '搜尋';
-
-  @override
-  String get modelDetailSheetSearchToolDescription => '啟用 Google 搜尋整合';
-
-  @override
-  String get modelDetailSheetUrlContextTool => 'URL 上下文';
-
-  @override
-  String get modelDetailSheetUrlContextToolDescription => '啟用 URL 內容處理';
-
-  @override
-  String get modelDetailSheetCodeExecutionTool => '程式碼執行';
-
-  @override
-  String get modelDetailSheetCodeExecutionToolDescription => '啟用程式碼執行工具';
-
-  @override
-  String get modelDetailSheetYoutubeTool => 'YouTube';
-
-  @override
-  String get modelDetailSheetYoutubeToolDescription =>
-      '啟用 YouTube 連結讀取（自動辨識提示詞中的連結）';
-
-  @override
-  String get modelDetailSheetOpenaiBuiltinToolsResponsesOnlyHint =>
-      '需要啟用 OpenAI Responses API。';
-
-  @override
-  String get modelDetailSheetWebFetchTool => '網頁擷取';
-
-  @override
-  String get modelDetailSheetOpenrouterWebFetchToolDescription =>
-      '啟用 OpenRouter 網頁擷取伺服器工具';
-
-  @override
-  String get modelDetailSheetClaudeWebFetchToolDescription =>
-      '允許 Claude 擷取對話中出現的網頁與 PDF';
-
-  @override
-  String get modelDetailSheetClaudeCodeExecutionToolDescription =>
-      '允許 Claude 在 Anthropic 沙箱中執行 Python 與 Bash';
-
-  @override
-  String get modelDetailSheetOpenrouterShellTool => 'Shell';
-
-  @override
-  String get modelDetailSheetOpenrouterShellToolDescription =>
-      '在託管的隔離沙箱中執行 Shell 命令';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterTool => '程式碼解譯器';
-
-  @override
-  String get modelDetailSheetOpenaiCodeInterpreterToolDescription =>
-      '啟用程式碼解譯器工具（容器自動，記憶體上限 4g）';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationTool => '圖像生成';
-
-  @override
-  String get modelDetailSheetOpenaiImageGenerationToolDescription => '啟用圖像生成工具';
-
-  @override
-  String get modelDetailSheetCancelButton => '取消';
-
-  @override
-  String get modelDetailSheetAddButton => '新增';
-
-  @override
   String get modelDetailSheetConfirmButton => '確認';
-
-  @override
-  String get modelDetailSheetInvalidIdError => '請輸入有效的模型 ID（不少於2個字元）';
-
-  @override
-  String get modelDetailSheetModelIdExistsError => '模型 ID 已存在';
-
-  @override
-  String get modelDetailSheetHeaderKeyHint => 'Header Key';
-
-  @override
-  String get modelDetailSheetHeaderValueHint => 'Header Value';
-
-  @override
-  String get modelDetailSheetBodyKeyHint => 'Body Key';
-
-  @override
-  String get modelDetailSheetBodyJsonHint => 'Body JSON';
-
-  @override
-  String get modelSelectSheetSearchHint => '搜尋模型或供應商';
-
-  @override
-  String get modelSelectSheetFavoritesSection => '收藏';
-
-  @override
-  String get modelSelectSheetFollowAssistant => '跟隨助手';
-
-  @override
-  String get modelSelectSheetFavoriteTooltip => '收藏';
 
   @override
   String get modelSelectSheetChatType => '聊天';
@@ -26200,53 +24912,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get modelSelectSheetEmbeddingType => '嵌入';
 
   @override
-  String get providerDetailPageShareTooltip => '分享';
-
-  @override
-  String get providerDetailPageDeleteProviderTooltip => '刪除供應商';
-
-  @override
-  String get providerDetailPageDeleteProviderTitle => '刪除供應商';
-
-  @override
-  String get providerDetailPageDeleteProviderContent => '確定要刪除該供應商嗎？此操作不可撤銷。';
-
-  @override
-  String get providerDetailPageCancelButton => '取消';
-
-  @override
   String get providerDetailPageDeleteButton => '刪除';
-
-  @override
-  String get providerDetailPageProviderDeletedSnackbar => '已刪除供應商';
-
-  @override
-  String get providerDetailPageConfigTab => '設定';
-
-  @override
-  String get providerDetailPageModelsTab => '模型';
-
-  @override
-  String get providerDetailPageCustomRequestTitle => '自訂請求';
-
-  @override
-  String get providerDetailPageCustomRequestDescription =>
-      '套用於此供應商的所有模型。模型設定優先於此處，此處設定優先於助手設定。';
-
-  @override
-  String get providerDetailPageNetworkTab => '網路代理';
-
-  @override
-  String get providerDetailPageEnabledTitle => '是否啟用';
-
-  @override
-  String get providerDetailPageManageSectionTitle => '管理';
-
-  @override
-  String get providerDetailPageNameLabel => '名稱';
-
-  @override
-  String get providerDetailPageApiKeyHint => '留空則使用上層預設';
 
   @override
   String get providerDetailPageHideTooltip => '隱藏';
@@ -26255,62 +24921,17 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get providerDetailPageShowTooltip => '顯示';
 
   @override
-  String get providerDetailPageApiPathLabel => 'API 路徑';
-
-  @override
-  String get providerDetailPageResponseApiTitle => 'Response API (/responses)';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeLabel => '應用 Code（享 10% 優惠）';
-
-  @override
-  String get providerDetailPageAihubmixAppCodeHelp =>
-      '為請求附加 APP-Code，可享 10% 優惠，僅對 AIhubmix 生效。';
-
-  @override
   String get providerDetailPageClaudePromptCachingTitle =>
       'Claude Prompt Caching';
 
   @override
-  String get providerDetailPageClaudePromptCachingHelp =>
-      '透過 Claude 官方或 OpenRouter 呼叫 Claude 時附加 cache_control。';
-
-  @override
   String get providerDetailPageClaudePromptCachingTtlTitle => '快取 TTL';
-
-  @override
-  String get providerDetailPageClaudePromptCachingTtlHelp =>
-      '5 分鐘為預設值。1 小時寫入成本更高，但長對話中可減少重複重建快取。';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl5m => '5 分鐘';
 
   @override
   String get providerDetailPageClaudePromptCachingTtl1h => '1 小時';
-
-  @override
-  String get providerDetailPageBalanceTitle => '帳戶餘額';
-
-  @override
-  String get providerDetailPageBalanceInfo => '取得帳戶餘額';
-
-  @override
-  String get providerDetailPageBalanceApiPathLabel => '餘額 API 路徑';
-
-  @override
-  String get providerDetailPageBalanceResultPathLabel => '結果 JSON 路徑';
-
-  @override
-  String get providerDetailPageBalanceQueryButton => '查詢餘額';
-
-  @override
-  String get providerDetailPageBalanceQuerying => '查詢中...';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsButton => '重設';
-
-  @override
-  String get providerDetailPageBalanceResetDefaultsTooltip => '重設餘額設定';
 
   @override
   String providerDetailPageBalanceResult(String value) {
@@ -26323,130 +24944,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get providerDetailPageVertexAiTitle => 'Vertex AI';
-
-  @override
-  String get providerDetailPageLocationLabel => '區域 Location';
-
-  @override
-  String get providerDetailPageProjectIdLabel => '專案 ID';
-
-  @override
-  String get providerDetailPageServiceAccountJsonLabel => '服務帳號 JSON（貼上或匯入）';
-
-  @override
-  String get providerDetailPageImportJsonButton => '匯入 JSON';
-
-  @override
-  String get providerDetailPageImportJsonReadFailedMessage => '讀取檔案失敗';
-
-  @override
-  String get providerDetailPageTestButton => '測試';
-
-  @override
-  String get providerDetailPageSaveButton => '儲存';
-
-  @override
-  String get providerDetailPageProviderRemovedMessage => '供應商已刪除';
-
-  @override
-  String get providerDetailPageNoModelsTitle => '暫無模型';
-
-  @override
-  String get providerDetailPageNoModelsSubtitle => '點擊下方按鈕新增模型';
-
-  @override
-  String get providerDetailPageDeleteModelButton => '刪除';
-
-  @override
-  String get providerDetailPageConfirmDeleteTitle => '確認刪除';
-
-  @override
-  String get providerDetailPageConfirmDeleteContent => '刪除後可透過撤銷還原。是否刪除？';
-
-  @override
-  String get providerDetailPageModelDeletedSnackbar => '已刪除模型';
-
-  @override
-  String get providerDetailPageUndoButton => '撤銷';
-
-  @override
-  String get providerDetailPageAddNewModelButton => '新增新模型';
-
-  @override
-  String get providerDetailPageFetchModelsButton => '取得';
-
-  @override
-  String get providerDetailPageEnableProxyTitle => '是否啟用代理';
-
-  @override
-  String get providerDetailPageHostLabel => '主機地址';
-
-  @override
-  String get providerDetailPagePortLabel => '連接埠';
-
-  @override
-  String get providerDetailPageUsernameOptionalLabel => '使用者名稱（可選）';
-
-  @override
-  String get providerDetailPagePasswordOptionalLabel => '密碼（可選）';
-
-  @override
-  String get providerDetailPageSavedSnackbar => '已儲存';
-
-  @override
-  String get providerDetailPageEmbeddingsGroupTitle => '嵌入';
-
-  @override
-  String get providerDetailPageOtherModelsGroupTitle => '其他模型';
-
-  @override
-  String get providerDetailPageRemoveGroupTooltip => '移除本組';
-
-  @override
-  String get providerDetailPageAddGroupTooltip => '新增本組';
-
-  @override
-  String get providerDetailPageFilterHint => '輸入模型名稱篩選';
-
-  @override
-  String get providerDetailPageDeleteText => '刪除';
-
-  @override
-  String get providerDetailPageEditTooltip => '編輯';
-
-  @override
-  String get providerDetailPageTestConnectionTitle => '測試連線';
-
-  @override
-  String get providerDetailPageSelectModelButton => '選擇模型';
-
-  @override
-  String get providerDetailPageChangeButton => '更換';
-
-  @override
-  String get providerDetailPageUseStreamingLabel => '使用串流';
-
-  @override
-  String get providerDetailPageTestingMessage => '正在測試…';
-
-  @override
-  String get providerDetailPageTestSuccessMessage => '測試成功';
-
-  @override
-  String get providersPageTitle => '供應商';
-
-  @override
   String get providersPageImportTooltip => '匯入';
-
-  @override
-  String get providersPageAddTooltip => '新增';
-
-  @override
-  String get providersPageSearchHint => '搜尋供應商或分組';
-
-  @override
-  String get providersPageProviderAddedSnackbar => '已新增供應商';
 
   @override
   String get providerGroupsGroupLabel => '分組';
@@ -26506,61 +25004,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get providerGroupsExpandToMoveToast => '請先展開分組';
 
   @override
-  String get providersPageSiliconFlowName => '矽基流動';
-
-  @override
-  String get providersPageAliyunName => '阿里雲千問';
-
-  @override
-  String get providersPageZhipuName => '智譜';
-
-  @override
-  String get providersPageByteDanceName => '火山引擎';
-
-  @override
-  String get providersPageEnabledStatus => '啟用';
-
-  @override
-  String get providersPageDisabledStatus => '停用';
-
-  @override
-  String get providersPageModelsCountSuffix => ' models';
-
-  @override
-  String get providersPageModelsCountSingleSuffix => '個模型';
-
-  @override
-  String get addProviderSheetTitle => '新增供應商';
-
-  @override
-  String get addProviderSheetEnabledLabel => '是否啟用';
-
-  @override
-  String get addProviderSheetNameLabel => '名稱';
-
-  @override
-  String get addProviderSheetApiPathLabel => 'API 路徑';
-
-  @override
-  String get addProviderSheetVertexAiLocationLabel => '位置';
-
-  @override
-  String get addProviderSheetVertexAiProjectIdLabel => '專案ID';
-
-  @override
-  String get addProviderSheetVertexAiServiceAccountJsonLabel =>
-      '服務帳號 JSON（貼上或匯入）';
-
-  @override
-  String get addProviderSheetImportJsonButton => '匯入 JSON';
-
-  @override
-  String get addProviderSheetCancelButton => '取消';
-
-  @override
-  String get addProviderSheetAddButton => '新增';
-
-  @override
   String get importProviderSheetTitle => '匯入供應商';
 
   @override
@@ -26607,34 +25050,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get shareProviderSheetShareButton => '分享';
 
   @override
-  String get desktopProviderContextMenuShare => '分享';
-
-  @override
-  String get desktopProviderShareCopyText => '複製文字';
-
-  @override
-  String get desktopProviderShareCopyQr => '複製 QR 碼';
-
-  @override
-  String get providerDetailPageApiBaseUrlLabel => 'API Base URL';
-
-  @override
-  String get providerDetailPageModelsTitle => '模型';
-
-  @override
   String get providerModelsGetButton => '取得';
-
-  @override
-  String get providerDetailPageCapsVision => '視覺';
-
-  @override
-  String get providerDetailPageCapsImage => '生圖';
-
-  @override
-  String get providerDetailPageCapsTool => '工具';
-
-  @override
-  String get providerDetailPageCapsReasoning => '推理';
 
   @override
   String get qrScanPageTitle => '掃碼匯入';
@@ -26972,7 +25388,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get aboutPageKelivoSearchAlreadyUnlocked => '這扇門你已經推開過了。';
 
   @override
-  String get aboutPageAppName => 'Kelivo';
+  String get aboutPageAppName => 'Build X';
 
   @override
   String get aboutPageAppDescription => '開源 AI 助理';
@@ -27030,13 +25446,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get aboutPageJoinQQGroup => '加入 QQ 群';
 
   @override
-  String get aboutPageQQGroupOne => 'Kelivo 一群';
+  String get aboutPageQQGroupOne => 'Build X 一群';
 
   @override
-  String get aboutPageQQGroupTwo => 'Kelivo 二群';
+  String get aboutPageQQGroupTwo => 'Build X 二群';
 
   @override
-  String get aboutPageQQGroupThree => 'Kelivo 三群';
+  String get aboutPageQQGroupThree => 'Build X 三群';
 
   @override
   String get aboutPageJoinDiscord => '加入我們的 Discord';
@@ -28018,7 +26434,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get settingsShare => 'Kelivo - 開源AI助理';
+  String get settingsShare => 'Build X - 開源AI助理';
 
   @override
   String get searchProviderBingLocalDescription =>
@@ -28202,7 +26618,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
       '最大 token 數必須介於 1024 和 32768 之間。';
 
   @override
-  String get searchServiceNameKelivo => 'Kelivo';
+  String get searchServiceNameKelivo => 'Build X';
 
   @override
   String get searchServicesDialogCountryOptional => '國家/地區（可選）';
@@ -28479,7 +26895,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get healthDataSettingsDescription =>
-      '目前助手在日常對話中可使用的 HealthKit 訊號。開關表示 Kelivo 可以嘗試讀取該範圍，實際授權仍由 iOS 管理。';
+      '目前助手在日常對話中可使用的 HealthKit 訊號。開關表示 Build X 可以嘗試讀取該範圍，實際授權仍由 iOS 管理。';
 
   @override
   String healthDataSettingsBadge(int selected, int total) {
@@ -28685,9 +27101,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get providerDetailPageProviderTypeTitle => '供應商類型';
-
-  @override
   String get displaySettingsPageChatItemDisplayTitle => '聊天項顯示';
 
   @override
@@ -28706,31 +27119,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get providersPageMultiSelectTooltip => '多選';
 
   @override
-  String get providersPageDeleteSelectedConfirmContent =>
-      '確定要刪除選中的供應商嗎？此操作不可撤銷。';
-
-  @override
-  String get providersPageDeleteSelectedSnackbar => '已刪除選中的供應商';
-
-  @override
   String providersPageExportSelectedTitle(int count) {
     return '匯出 $count 個供應商';
   }
-
-  @override
-  String get providersPageExportCopyButton => '複製';
-
-  @override
-  String get providersPageExportShareButton => '分享';
-
-  @override
-  String get providersPageExportCopiedSnackbar => '已複製匯出代碼';
-
-  @override
-  String get providersPageDeleteAction => '刪除';
-
-  @override
-  String get providersPageExportAction => '匯出';
 
   @override
   String get assistantEditPresetTitle => '預設對話訊息';
@@ -28903,39 +27294,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get chatInputBarOcrTooltip => 'OCR 文字辨識';
 
   @override
-  String get providerDetailPageMultiSelectButton => '多選';
-
-  @override
-  String get providerDetailPageBatchDetectButton => '檢測';
-
-  @override
-  String get providerDetailPageBatchDetecting => '檢測中...';
-
-  @override
-  String get providerDetailPageBatchDetectStart => '開始檢測';
-
-  @override
-  String get providerDetailPageDetectSuccess => '檢測成功';
-
-  @override
-  String get providerDetailPageDetectFailed => '檢測失敗';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsButton => '刪除';
-
-  @override
-  String get providerDetailPageDeleteSelectedModelsTooltip => '刪除所選模型';
-
-  @override
   String providerDetailPageDeleteSelectedModelsConfirm(int count) {
     return '確定刪除選中的 $count 個模型嗎？此操作不可撤回。';
   }
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsButton => '刪除不可用';
-
-  @override
-  String get providerDetailPageDeleteFailedDetectedModelsTooltip => '刪除檢測失敗的模型';
 
   @override
   String providerDetailPageDeleteFailedDetectedModelsConfirm(int count) {
@@ -28946,12 +27307,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String providerDetailPageSelectedModelsDeletedSnackbar(int count) {
     return '已刪除 $count 個模型';
   }
-
-  @override
-  String get providerDetailPageDeleteAllModelsTooltip => '刪除全部模型';
-
-  @override
-  String get providerDetailPageDeleteAllModelsWarning => '此操作不可撤回';
 
   @override
   String get requestLogSettingTitle => '請求日誌列印';
@@ -29769,7 +28124,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get legacyMemoryExport => '匯出';
 
   @override
-  String get legacyMemoryExportTitle => 'Kelivo 舊版記憶匯出';
+  String get legacyMemoryExportTitle => 'Build X 舊版記憶匯出';
 
   @override
   String legacyMemoryAssistantHeader(String name) {
@@ -30351,7 +28706,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get migrationIntroSubtitle =>
-      'Kelivo 將聊天記錄遷移到更快的 SQLite 資料庫。升級會在應用程式開啟前完成，避免新舊資料同時寫入。';
+      'Build X 將聊天記錄遷移到更快的 SQLite 資料庫。升級會在應用程式開啟前完成，避免新舊資料同時寫入。';
 
   @override
   String get migrationBackupNote => '遷移開始前，會先匯出包含設定、聊天記錄和本地檔案的 ZIP 備份。';
@@ -30393,14 +28748,14 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get migrationBackingUpSubtitle =>
-      '正在匯出設定、聊天記錄、上傳檔案、圖片和字體。請保持 Kelivo 開啟，等待備份完成。';
+      '正在匯出設定、聊天記錄、上傳檔案、圖片和字體。請保持 Build X 開啟，等待備份完成。';
 
   @override
   String get migrationMigratingTitle => '正在遷移到 SQLite';
 
   @override
   String get migrationMigratingSubtitle =>
-      '正在分批寫入對話和訊息，避免超大聊天記錄占滿記憶體。請保持 Kelivo 在前台，等待遷移完成。';
+      '正在分批寫入對話和訊息，避免超大聊天記錄占滿記憶體。請保持 Build X 在前台，等待遷移完成。';
 
   @override
   String migrationBackingUpDetail(String fileName) {
@@ -30459,7 +28814,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get migrationCompleteSubtitle =>
-      '你的聊天記錄已遷移到 SQLite。請重啟 Kelivo 進入升級後的應用程式。';
+      '你的聊天記錄已遷移到 SQLite。請重啟 Build X 進入升級後的應用程式。';
 
   @override
   String get migrationConversationCount => '對話';
@@ -30477,7 +28832,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get migrationMissingFilesCount => '缺失檔案';
 
   @override
-  String get migrationRestartButton => '重啟 Kelivo';
+  String get migrationRestartButton => '重啟 Build X';
 
   @override
   String get migrationFailedTitle => '遷移失敗';
@@ -30503,7 +28858,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get migrationSkipDialogMessage =>
-      'Kelivo 將以空的聊天資料庫啟動。舊的聊天記錄會保留在磁碟上（重新命名為 .retired 後綴），但不會被遷移，也不會在應用程式中顯示。之後如需找回，請使用已儲存的備份 ZIP。';
+      'Build X 將以空的聊天資料庫啟動。舊的聊天記錄會保留在磁碟上（重新命名為 .retired 後綴），但不會被遷移，也不會在應用程式中顯示。之後如需找回，請使用已儲存的備份 ZIP。';
 
   @override
   String get migrationSkipDialogCancel => '取消';
@@ -30911,7 +29266,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get localSnapshotEnabledTitle => '保留本機副本';
 
   @override
-  String get localSnapshotEnabledSubtitle => 'Kelivo 會定期在本機存一份資料庫副本，讓資料不只有一份。';
+  String get localSnapshotEnabledSubtitle => 'Build X 會定期在本機存一份資料庫副本，讓資料不只有一份。';
 
   @override
   String get localSnapshotIntervalTitle => '備份頻率';
@@ -31705,7 +30060,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get workspaceEnvUpToDate => '已是最新';
 
   @override
-  String get workspaceEnvRestartBanner => '請重新啟動 Kelivo 以完成安裝';
+  String get workspaceEnvRestartBanner => '請重新啟動 Build X 以完成安裝';
 
   @override
   String get workspaceEnvDetectingMirrors => '正在偵測最快鏡像…';
@@ -31801,7 +30156,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get workspaceEnvNativeExplanation =>
-      '在桌面端，Kelivo 使用系統終端機，而不是 Linux 沙箱。';
+      '在桌面端，Build X 使用系統終端機，而不是 Linux 沙箱。';
 
   @override
   String workspaceEnvNativeShellPath(String path) {
@@ -32688,7 +31043,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get workspaceDesktopFolderMissing => '請選擇已存在的資料夾，或輸入它的絕對路徑。';
 
   @override
-  String get workspaceDesktopManagedHint => '由 Kelivo 為此專案建立並管理資料夾。';
+  String get workspaceDesktopManagedHint => '由 Build X 為此專案建立並管理資料夾。';
 
   @override
   String get workspaceDesktopHostHint => '在本機存取檔案和執行命令。';
@@ -32919,7 +31274,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get workspaceExternalStorageMessage =>
-      '工作區和 Shell 需要直接讀寫外部資料夾，請在 Android 系統設定中允許 Kelivo 存取檔案。Android 11 及以上需開啟「所有檔案存取權限」，然後選擇要掛載的本機資料夾。';
+      '工作區和 Shell 需要直接讀寫外部資料夾，請在 Android 系統設定中允許 Build X 存取檔案。Android 11 及以上需開啟「所有檔案存取權限」，然後選擇要掛載的本機資料夾。';
 
   @override
   String get workspaceExternalGrantAccess => '前往授權';
@@ -33077,13 +31432,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get reasoningBudgetSliderMax => 'Max';
 
   @override
-  String get defaultModelPagePerChatModelTitle => '每個對話獨立模型';
-
-  @override
-  String get defaultModelPagePerChatModelSubtitle =>
-      '開啟後，在對話中切換模型只影響目前對話；關閉後會直接修改目前助手的模型，使用該助手的所有對話都會跟隨。';
-
-  @override
   String get googleFontsTitle => 'Google Fonts';
 
   @override
@@ -33150,7 +31498,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get backgroundSettingsTitle => '背景任務';
 
   @override
-  String get backgroundTaskTitle => 'Kelivo 任務';
+  String get backgroundTaskTitle => 'Build X 任務';
 
   @override
   String get backgroundCompleted => '生成完成';
@@ -33281,7 +31629,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get backgroundOverlayIcon => '懸浮視窗圖示';
 
   @override
-  String get backgroundIconDefault => 'Kelivo 圖示';
+  String get backgroundIconDefault => 'Build X 圖示';
 
   @override
   String get backgroundIconImage => '選擇圖片';
@@ -33490,7 +31838,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get startupRecoverySnapshotBody =>
-      '即使資料庫無法開啟，也可以選擇本機快照還原聊天和設定。請勿解除安裝 Kelivo，解除安裝會一併刪除這些快照。';
+      '即使資料庫無法開啟，也可以選擇本機快照還原聊天和設定。請勿解除安裝 Build X，解除安裝會一併刪除這些快照。';
 
   @override
   String get startupRecoverySnapshotEmpty => '未在本機找到資料庫快照。請先匯出資料，再嘗試其他還原操作。';
@@ -33500,7 +31848,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String startupRecoverySnapshotConfirm(String when) {
-    return '將聊天和設定還原到 $when 的快照？快照之後的變更不會包含在內。現有附件檔案和快照會保留，Kelivo 將重新啟動以完成還原。';
+    return '將聊天和設定還原到 $when 的快照？快照之後的變更不會包含在內。現有附件檔案和快照會保留，Build X 將重新啟動以完成還原。';
   }
 
   @override
@@ -33509,7 +31857,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get startupRecoverySnapshotReady => '快照已準備好，請重新啟動 Kelivo 完成還原。';
+  String get startupRecoverySnapshotReady => '快照已準備好，請重新啟動 Build X 完成還原。';
 
   @override
   String get scheduledTasksTitle => '定時任務';
@@ -33580,7 +31928,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get scheduledTasksReliability =>
-      '建議在電池設定中允許 Kelivo 背景執行。強制停止後需重新開啟應用程式。錯過的任務不會補跑，執行時間跟隨裝置時區。';
+      '建議在電池設定中允許 Build X 背景執行。強制停止後需重新開啟應用程式。錯過的任務不會補跑，執行時間跟隨裝置時區。';
 
   @override
   String get scheduledTasksExecutionDetail =>
@@ -33757,7 +32105,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get scheduledTasksDesktopReliability =>
-      '僅在 Kelivo 執行時運作，最小化或常駐系統匣時也會繼續。結束或電腦休眠期間錯過的任務不會補執行，也不會自動啟動應用程式。';
+      '僅在 Build X 執行時運作，最小化或常駐系統匣時也會繼續。結束或電腦休眠期間錯過的任務不會補執行，也不會自動啟動應用程式。';
 
   @override
   String get scheduledTasksDesktopExecutionDetail =>
@@ -34034,4 +32382,87 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get oauthPromptCachingHelp => '重用多輪對話中的上下文，可設定快取保留時間。';
+
+  @override
+  String get buildXConnectionTitle => 'Mistral 連線';
+
+  @override
+  String get buildXApiKeyLabel => 'Mistral API 金鑰';
+
+  @override
+  String get buildXApiKeyHint => '貼上 Mistral API 金鑰';
+
+  @override
+  String get buildXApiKeyHelp =>
+      'Build X 的所有聊天均使用 mistral-medium-latest。金鑰儲存在裝置安全儲存空間。';
+
+  @override
+  String get buildXSave => '儲存金鑰';
+
+  @override
+  String get buildXSaved => 'API 金鑰已儲存';
+
+  @override
+  String get buildXSaveFailed => '無法儲存 API 金鑰';
+
+  @override
+  String get buildXSkillSection => '新增技能';
+
+  @override
+  String get buildXSkillName => '名稱';
+
+  @override
+  String get buildXSkillDescription => '描述';
+
+  @override
+  String get buildXSkillInstructions => '指令';
+
+  @override
+  String get buildXAddSkill => '儲存技能';
+
+  @override
+  String get buildXSkillSaved => '技能已儲存';
+
+  @override
+  String get buildXSkillError => '請輸入名稱、描述和指令。';
+
+  @override
+  String get buildXBrowserSection => '瀏覽器帳號';
+
+  @override
+  String get buildXBrowserHelp =>
+      '儲存帳號資訊，供未來的已登入瀏覽器功能使用。Build X 目前不會以此帳號開啟瀏覽器。';
+
+  @override
+  String get buildXBrowserSite => '網站';
+
+  @override
+  String get buildXBrowserUser => '使用者名稱或電子郵件';
+
+  @override
+  String get buildXBrowserSecret => '密碼或工作階段權杖';
+
+  @override
+  String get buildXSaveBrowser => '儲存帳號';
+
+  @override
+  String get buildXBrowserSaved => '瀏覽器帳號已儲存';
+
+  @override
+  String get buildXBrowserError => '請輸入網站和帳號憑證。';
+
+  @override
+  String get buildXMemoryWhatIsStored => '下方啟用的記憶可加入提示詞。已封存的記憶保留供檢視，但不會注入。';
+
+  @override
+  String get buildXMemoryWhatIsNotStored => '聊天紀錄和 Mistral 託管的對話歷史與此記憶清單分開。';
+
+  @override
+  String get buildXAdvanced => '進階';
+
+  @override
+  String get buildXShowKey => '顯示金鑰';
+
+  @override
+  String get buildXHideKey => '隱藏金鑰';
 }

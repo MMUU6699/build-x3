@@ -13,7 +13,6 @@ import '../../../shared/widgets/ios_tactile.dart';
 import '../../../shared/widgets/section_card.dart';
 import '../../../shared/widgets/snackbar.dart';
 import '../../../utils/platform_utils.dart';
-import '../../model/widgets/model_select_sheet.dart';
 import '../widgets/memory_ui.dart';
 import 'legacy_memory_page.dart';
 import 'memory_about_page.dart';
@@ -139,21 +138,10 @@ class MemorySettingsContent extends StatelessWidget {
             ? _ModelTipInfoIcon(tip: l10n.memorySettingsModelTip)
             : null,
         children: [
-          _NavRow(
+          _SettingsRow(
             title: l10n.memorySettingsModelTitle,
             subtitle: modelLabel,
-            onTap: () async {
-              final navigator = Navigator.of(context);
-              final settingsApi = context.read<SettingsProvider>();
-              final sel = await showModelSelector(
-                context,
-                initialProviderKey: settings.memoryModelProvider,
-                initialModelId: settings.memoryModelId,
-              );
-              if (sel == null) return;
-              if (!navigator.mounted) return;
-              await settingsApi.setMemoryModel(sel.providerKey, sel.modelId);
-            },
+            trailing: const SizedBox.shrink(),
           ),
           _SettingsRow(
             title: l10n.memorySettingsThinkingTitle,

@@ -11,6 +11,7 @@ import 'package:uuid/uuid.dart';
 import '../../shared/widgets/ios_switch.dart';
 import '../../theme/app_font_weights.dart';
 import '../widgets/desktop_select_dropdown.dart';
+import '../../features/search/widgets/search_future_tools_section.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 import 'package:Kelivo/shared/widgets/section_card.dart';
 
@@ -230,6 +231,8 @@ class _DesktopSearchServicesPaneState extends State<DesktopSearchServicesPane> {
                   ],
                 ),
               ),
+              const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              const SliverToBoxAdapter(child: SearchFutureToolsSection()),
             ],
           ),
         ),

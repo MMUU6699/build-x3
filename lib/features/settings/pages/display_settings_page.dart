@@ -118,225 +118,237 @@ class _DisplaySettingsPageState extends State<DisplaySettingsPage> {
                   ),
                 ),
               ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.TextInitial,
-                label: l10n.displaySettingsPageRenderingSettingsTitle,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const RenderingSettingsPage(),
-                  ),
-                ),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.eclipse,
-                label: l10n.displaySettingsPageBehaviorStartupTitle,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const BehaviorStartupSettingsPage(),
-                  ),
-                ),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.Image,
-                label: l10n.imageSettingsPageTitle,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ImageSettingsPage()),
-                ),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.MessageSquare,
-                label: l10n.messageStyleSettingsPageTitle,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const MessageStyleSettingsPage(),
-                  ),
-                ),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.RefreshCw,
-                label: l10n.settingsPageAutoRetry,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AutoRetryPage()),
-                ),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.Vibrate,
-                label: l10n.displaySettingsPageHapticsSettingsTitle,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const HapticsSettingsPage(),
-                  ),
-                ),
-              ),
-              _iosDivider(context),
-              if (defaultTargetPlatform == TargetPlatform.android ||
-                  defaultTargetPlatform == TargetPlatform.iOS) ...[
-                _iosNavRow(
-                  context,
-                  icon: Lucide.Activity,
-                  label: l10n.backgroundSettingsTitle,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const MobileBackgroundSettingsPage(),
-                    ),
-                  ),
-                ),
-                _iosDivider(context),
-              ],
-              _iosNavRow(
-                context,
-                icon: Lucide.Type,
-                label: l10n.displaySettingsPageAppFontTitle,
-                detailBuilder: (ctx) {
-                  final sp = ctx.watch<SettingsProvider>();
-                  final fam = sp.appFontFamily;
-                  final useLocal = (sp.appFontLocalAlias ?? '').isNotEmpty;
-                  final text = useLocal
-                      ? l10n.displaySettingsPageFontLocalFileLabel
-                      : (fam == null || fam.isEmpty)
-                      ? l10n.desktopFontFamilySystemDefault
-                      : fam;
-                  return Text(
-                    text,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.6),
-                      fontSize: 13,
-                    ),
-                  );
-                },
-                onTap: () => _showMobileFontSourceSheet(
-                  context,
-                  target: _FontTarget.app,
-                ),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.Code,
-                label: l10n.displaySettingsPageCodeFontTitle,
-                detailBuilder: (ctx) {
-                  final sp = ctx.watch<SettingsProvider>();
-                  final fam = sp.codeFontFamily;
-                  final useLocal = (sp.codeFontLocalAlias ?? '').isNotEmpty;
-                  final text = useLocal
-                      ? l10n.displaySettingsPageFontLocalFileLabel
-                      : (fam == null || fam.isEmpty)
-                      ? l10n.desktopFontFamilyMonospaceDefault
-                      : fam;
-                  return Text(
-                    text,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.6),
-                      fontSize: 13,
-                    ),
-                  );
-                },
-                onTap: () => _showMobileFontSourceSheet(
-                  context,
-                  target: _FontTarget.code,
-                ),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.CaseSensitive,
-                label: l10n.displaySettingsPageChatFontSizeTitle,
-                detailBuilder: (ctx) {
-                  final scale = ctx.watch<SettingsProvider>().chatFontScale;
-                  return Text(
-                    '${(scale * 100).round()}%',
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.6),
-                      fontSize: 13,
-                    ),
-                  );
-                },
-                onTap: () => _showChatFontSizeSheet(context),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.ArrowDown,
-                label: l10n.displaySettingsPageAutoScrollIdleTitle,
-                detailBuilder: (ctx) {
-                  final sp = ctx.watch<SettingsProvider>();
-                  if (!sp.autoScrollEnabled) {
-                    return Text(
-                      l10n.displaySettingsPageAutoScrollDisabledLabel,
-                      style: TextStyle(
-                        color: cs.onSurface.withValues(alpha: 0.5),
-                        fontSize: 13,
+            ],
+          ),
+          const SizedBox(height: 12),
+          ExpansionTile(
+            title: Text(l10n.buildXAdvanced),
+            children: [
+              SectionCard(
+                children: [
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.TextInitial,
+                    label: l10n.displaySettingsPageRenderingSettingsTitle,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const RenderingSettingsPage(),
                       ),
-                    );
-                  }
-                  final seconds = sp.autoScrollIdleSeconds;
-                  return Text(
-                    '${seconds.round()}s',
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.6),
-                      fontSize: 13,
                     ),
-                  );
-                },
-                onTap: () => _showAutoScrollIdleSheet(context),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.Image,
-                label: l10n.displaySettingsPageChatBackgroundMaskTitle,
-                detailBuilder: (ctx) {
-                  final v = ctx
-                      .watch<SettingsProvider>()
-                      .chatBackgroundMaskStrength;
-                  return Text(
-                    '${(v * 100).round()}%',
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.6),
-                      fontSize: 13,
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.eclipse,
+                    label: l10n.displaySettingsPageBehaviorStartupTitle,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const BehaviorStartupSettingsPage(),
+                      ),
                     ),
-                  );
-                },
-                onTap: () => _showChatBackgroundMaskSheet(context),
-              ),
-              _iosDivider(context),
-              _iosNavRow(
-                context,
-                icon: Lucide.RectangleHorizontal,
-                label: l10n.displaySettingsPageChatInputBackgroundOpacityTitle,
-                detailBuilder: (ctx) {
-                  final brightness = Theme.of(ctx).brightness;
-                  final settings = ctx.watch<SettingsProvider>();
-                  final opacity = settings.chatInputBackgroundOpacityFor(
-                    brightness,
-                  );
-                  return Text(
-                    '${(opacity * 100).round()}%',
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.6),
-                      fontSize: 13,
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.Image,
+                    label: l10n.imageSettingsPageTitle,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ImageSettingsPage(),
+                      ),
                     ),
-                  );
-                },
-                onTap: () => _showChatInputBackgroundOpacitySheet(context),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.MessageSquare,
+                    label: l10n.messageStyleSettingsPageTitle,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const MessageStyleSettingsPage(),
+                      ),
+                    ),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.RefreshCw,
+                    label: l10n.settingsPageAutoRetry,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AutoRetryPage()),
+                    ),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.Vibrate,
+                    label: l10n.displaySettingsPageHapticsSettingsTitle,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const HapticsSettingsPage(),
+                      ),
+                    ),
+                  ),
+                  _iosDivider(context),
+                  if (defaultTargetPlatform == TargetPlatform.android ||
+                      defaultTargetPlatform == TargetPlatform.iOS) ...[
+                    _iosNavRow(
+                      context,
+                      icon: Lucide.Activity,
+                      label: l10n.backgroundSettingsTitle,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const MobileBackgroundSettingsPage(),
+                        ),
+                      ),
+                    ),
+                    _iosDivider(context),
+                  ],
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.Type,
+                    label: l10n.displaySettingsPageAppFontTitle,
+                    detailBuilder: (ctx) {
+                      final sp = ctx.watch<SettingsProvider>();
+                      final fam = sp.appFontFamily;
+                      final useLocal = (sp.appFontLocalAlias ?? '').isNotEmpty;
+                      final text = useLocal
+                          ? l10n.displaySettingsPageFontLocalFileLabel
+                          : (fam == null || fam.isEmpty)
+                          ? l10n.desktopFontFamilySystemDefault
+                          : fam;
+                      return Text(
+                        text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      );
+                    },
+                    onTap: () => _showMobileFontSourceSheet(
+                      context,
+                      target: _FontTarget.app,
+                    ),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.Code,
+                    label: l10n.displaySettingsPageCodeFontTitle,
+                    detailBuilder: (ctx) {
+                      final sp = ctx.watch<SettingsProvider>();
+                      final fam = sp.codeFontFamily;
+                      final useLocal = (sp.codeFontLocalAlias ?? '').isNotEmpty;
+                      final text = useLocal
+                          ? l10n.displaySettingsPageFontLocalFileLabel
+                          : (fam == null || fam.isEmpty)
+                          ? l10n.desktopFontFamilyMonospaceDefault
+                          : fam;
+                      return Text(
+                        text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      );
+                    },
+                    onTap: () => _showMobileFontSourceSheet(
+                      context,
+                      target: _FontTarget.code,
+                    ),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.CaseSensitive,
+                    label: l10n.displaySettingsPageChatFontSizeTitle,
+                    detailBuilder: (ctx) {
+                      final scale = ctx.watch<SettingsProvider>().chatFontScale;
+                      return Text(
+                        '${(scale * 100).round()}%',
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      );
+                    },
+                    onTap: () => _showChatFontSizeSheet(context),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.ArrowDown,
+                    label: l10n.displaySettingsPageAutoScrollIdleTitle,
+                    detailBuilder: (ctx) {
+                      final sp = ctx.watch<SettingsProvider>();
+                      if (!sp.autoScrollEnabled) {
+                        return Text(
+                          l10n.displaySettingsPageAutoScrollDisabledLabel,
+                          style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.5),
+                            fontSize: 13,
+                          ),
+                        );
+                      }
+                      final seconds = sp.autoScrollIdleSeconds;
+                      return Text(
+                        '${seconds.round()}s',
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      );
+                    },
+                    onTap: () => _showAutoScrollIdleSheet(context),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.Image,
+                    label: l10n.displaySettingsPageChatBackgroundMaskTitle,
+                    detailBuilder: (ctx) {
+                      final v = ctx
+                          .watch<SettingsProvider>()
+                          .chatBackgroundMaskStrength;
+                      return Text(
+                        '${(v * 100).round()}%',
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      );
+                    },
+                    onTap: () => _showChatBackgroundMaskSheet(context),
+                  ),
+                  _iosDivider(context),
+                  _iosNavRow(
+                    context,
+                    icon: Lucide.RectangleHorizontal,
+                    label:
+                        l10n.displaySettingsPageChatInputBackgroundOpacityTitle,
+                    detailBuilder: (ctx) {
+                      final brightness = Theme.of(ctx).brightness;
+                      final settings = ctx.watch<SettingsProvider>();
+                      final opacity = settings.chatInputBackgroundOpacityFor(
+                        brightness,
+                      );
+                      return Text(
+                        '${(opacity * 100).round()}%',
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      );
+                    },
+                    onTap: () => _showChatInputBackgroundOpacitySheet(context),
+                  ),
+                ],
               ),
             ],
           ),

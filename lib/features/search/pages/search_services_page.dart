@@ -11,6 +11,7 @@ import '../../../core/services/haptics.dart';
 import '../../../shared/widgets/ios_switch.dart';
 import '../../../theme/app_font_weights.dart';
 import 'search_service_editor_page.dart';
+import '../widgets/search_future_tools_section.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 import 'package:Kelivo/shared/widgets/section_card.dart';
 
@@ -190,6 +191,8 @@ class _SearchServicesPageState extends State<SearchServicesPage> {
           const SizedBox(height: 16),
           _sectionHeader(l10n.searchServicesPageGeneralOptions, cs),
           _buildCommonOptionsSection(context),
+          const SizedBox(height: 20),
+          const SearchFutureToolsSection(),
         ],
       ),
     );

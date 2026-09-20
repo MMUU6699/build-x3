@@ -1,4 +1,3 @@
-import '../../provider/widgets/oauth_message_recovery.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
@@ -538,7 +537,7 @@ void _replayTextToSpeech(BuildContext context, String text) {
     FlutterError.reportError(
       FlutterErrorDetails(
         exception: StateError('Text-to-speech is unavailable.'),
-        library: 'Kelivo chat message tools',
+        library: 'Build X chat message tools',
         context: ErrorDescription('while replaying text-to-speech'),
       ),
     );
@@ -551,7 +550,7 @@ void _replayTextToSpeech(BuildContext context, String text) {
         FlutterErrorDetails(
           exception: error,
           stack: stack,
-          library: 'Kelivo chat message tools',
+          library: 'Build X chat message tools',
           context: ErrorDescription('while replaying text-to-speech'),
         ),
       );
@@ -3245,9 +3244,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                 onTap: () => _showCitationsSheet(searchItems),
               ),
             ],
-            for (final error
-                in widget.message.parts.whereType<ProviderAuthErrorPart>())
-              OAuthMessageRecovery(error: error),
             // Action buttons (hidden while generating)
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 220),

@@ -1197,20 +1197,16 @@ class _HoverDropdownButton extends StatelessWidget {
     required this.label,
     required this.onHover,
     required this.onTap,
-    this.fontSize = 14,
-    this.verticalPadding = 8,
-    this.borderRadius = 10,
-    this.rightAlignArrow = false,
   });
   final bool hovered;
   final bool open;
   final String label;
   final ValueChanged<bool> onHover;
   final VoidCallback onTap;
-  final double fontSize;
-  final double verticalPadding;
-  final double borderRadius;
-  final bool rightAlignArrow;
+  final double fontSize = 14;
+  final double verticalPadding = 8;
+  final double borderRadius = 10;
+  final bool rightAlignArrow = false;
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;

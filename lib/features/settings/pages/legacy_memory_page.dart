@@ -23,7 +23,6 @@ import '../../../shared/widgets/ios_tactile.dart';
 import '../../../shared/widgets/ios_tile_button.dart';
 import '../../../shared/widgets/snackbar.dart';
 import '../../../utils/platform_utils.dart';
-import '../../model/widgets/model_select_sheet.dart';
 import '../widgets/memory_ui.dart';
 
 /// Read-only legacy memories from [MemoryProvider] (§14.5 / D-29).
@@ -406,7 +405,7 @@ class _LegacyMemoryMigrationPanelState
     extends State<_LegacyMemoryMigrationPanel> {
   static const List<int> _batchSizeOptions = <int>[6, 8, 12, 16, 24];
 
-  ModelSelection? _model;
+  ({String providerKey, String modelId})? _model;
   LegacyMemoryMigrationTarget _target = LegacyMemoryMigrationTarget.assistant;
   bool _preserveOriginal = true;
   LegacyMemoryMigrationProgress? _progress;
@@ -425,31 +424,8 @@ class _LegacyMemoryMigrationPanelState
     final provider = settings.memoryModelProvider;
     final model = settings.memoryModelId;
     if (provider != null && model != null) {
-      _model = ModelSelection(provider, model);
+      _model = (providerKey: provider, modelId: model);
     }
-  }
-
-  String _modelLabel(AppLocalizations l10n) {
-    final selection = _model;
-    if (selection == null) return l10n.legacyMemoryMigrationChooseModel;
-    final config = context.read<SettingsProvider>().getProviderConfig(
-      selection.providerKey,
-    );
-    final providerName = config.name.trim().isEmpty
-        ? selection.providerKey
-        : config.name.trim();
-    return '$providerName / ${selection.modelId}';
-  }
-
-  Future<void> _pickModel() async {
-    if (_running) return;
-    final selection = await showModelSelector(
-      context,
-      initialProviderKey: _model?.providerKey,
-      initialModelId: _model?.modelId,
-    );
-    if (!mounted || selection == null) return;
-    setState(() => _model = selection);
   }
 
   Future<void> _runMigration() async {
@@ -612,16 +588,6 @@ class _LegacyMemoryMigrationPanelState
               ),
             ] else ...[
               const SizedBox(height: 20),
-              _MigrationFieldLabel(text: l10n.legacyMemoryMigrationModel),
-              MemorySectionCard(
-                children: [
-                  MemoryNavRow(
-                    title: l10n.legacyMemoryMigrationModel,
-                    subtitle: _modelLabel(l10n),
-                    onTap: _pickModel,
-                  ),
-                ],
-              ),
               const SizedBox(height: 18),
               _MigrationFieldLabel(text: l10n.legacyMemoryMigrationTarget),
               MemorySectionCard(

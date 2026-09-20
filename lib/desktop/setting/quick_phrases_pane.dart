@@ -111,8 +111,6 @@ class _DesktopQuickPhrasesPaneState extends State<DesktopQuickPhrasesPane> {
                             phrase: phrase,
                             onTap: () =>
                                 _showAddEditDialog(context, phrase: phrase),
-                            onEdit: () =>
-                                _showAddEditDialog(context, phrase: phrase),
                             onDelete: () async {
                               await context.read<QuickPhraseProvider>().delete(
                                 phrase.id,
@@ -178,12 +176,10 @@ class _QuickPhraseCard extends StatefulWidget {
   const _QuickPhraseCard({
     required this.phrase,
     required this.onTap,
-    required this.onEdit,
     required this.onDelete,
   });
   final QuickPhrase phrase;
   final VoidCallback onTap;
-  final VoidCallback onEdit;
   final VoidCallback onDelete;
   @override
   State<_QuickPhraseCard> createState() => _QuickPhraseCardState();
@@ -247,11 +243,6 @@ class _QuickPhraseCardState extends State<_QuickPhraseCard> {
                 ),
               ),
               const SizedBox(width: 8),
-              _SmallIconBtn(
-                icon: lucide.Lucide.Settings2,
-                onTap: widget.onEdit,
-              ),
-              const SizedBox(width: 6),
               _SmallIconBtn(icon: lucide.Lucide.Trash2, onTap: widget.onDelete),
             ],
           ),

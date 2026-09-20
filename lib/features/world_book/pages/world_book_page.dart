@@ -1922,45 +1922,50 @@ class _WorldBookEntryEditSheetState extends State<_WorldBookEntryEditSheet> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _IosSectionCard(
+                    ExpansionTile(
+                      title: Text(l10n.buildXAdvanced),
                       children: [
-                        WorldBookTimedEffectsFields(
-                          entry: base ?? const WorldBookEntry(id: ''),
-                          onChanged: (sticky, cooldown, delay) {
-                            _sticky = sticky;
-                            _cooldown = cooldown;
-                            _delay = delay;
-                          },
+                        _IosSectionCard(
+                          children: [
+                            WorldBookTimedEffectsFields(
+                              entry: base ?? const WorldBookEntry(id: ''),
+                              onChanged: (sticky, cooldown, delay) {
+                                _sticky = sticky;
+                                _cooldown = cooldown;
+                                _delay = delay;
+                              },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _IosSectionCard(
-                      children: [
-                        valueRow(
-                          label: l10n.worldBookEntryInjectionPositionLabel,
-                          valueText: positionLabel(_position),
-                          onTap: pickPosition,
-                        ),
-                        if (_position ==
-                            WorldBookInjectionPosition.atDepth) ...[
-                          IosFormTextField(
-                            label: l10n.worldBookEntryInjectDepthLabel,
-                            controller: _injectDepthController,
-                            keyboardType: TextInputType.number,
-                            fieldWidth: 64,
-                          ),
-                        ],
-                        valueRow(
-                          label: l10n.worldBookEntryInjectionRoleLabel,
-                          valueText: roleLabel(_role),
-                          onTap: pickRole,
-                        ),
-                        IosFormTextField(
-                          label: l10n.worldBookEntryPriorityLabel,
-                          controller: _priorityController,
-                          keyboardType: TextInputType.number,
-                          fieldWidth: 64,
+                        const SizedBox(height: 12),
+                        _IosSectionCard(
+                          children: [
+                            valueRow(
+                              label: l10n.worldBookEntryInjectionPositionLabel,
+                              valueText: positionLabel(_position),
+                              onTap: pickPosition,
+                            ),
+                            if (_position ==
+                                WorldBookInjectionPosition.atDepth) ...[
+                              IosFormTextField(
+                                label: l10n.worldBookEntryInjectDepthLabel,
+                                controller: _injectDepthController,
+                                keyboardType: TextInputType.number,
+                                fieldWidth: 64,
+                              ),
+                            ],
+                            valueRow(
+                              label: l10n.worldBookEntryInjectionRoleLabel,
+                              valueText: roleLabel(_role),
+                              onTap: pickRole,
+                            ),
+                            IosFormTextField(
+                              label: l10n.worldBookEntryPriorityLabel,
+                              controller: _priorityController,
+                              keyboardType: TextInputType.number,
+                              fieldWidth: 64,
+                            ),
+                          ],
                         ),
                       ],
                     ),

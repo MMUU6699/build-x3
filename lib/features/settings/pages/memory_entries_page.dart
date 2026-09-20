@@ -410,6 +410,34 @@ class _MemoryEntriesContentState extends State<MemoryEntriesContent> {
     return Column(
       children: [
         Padding(
+          padding: EdgeInsets.fromLTRB(
+            desktop ? 12 : 16,
+            8,
+            desktop ? 12 : 16,
+            8,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '${mp.entries.where((entry) => entry.status == MemoryStatus.active).length} ${l10n.memoryFilterStatusActive} · '
+                '${mp.entries.where((entry) => entry.status == MemoryStatus.archived).length} ${l10n.memoryFilterStatusArchived}',
+                style: TextStyle(
+                  fontWeight: AppFontWeights.emphasis,
+                  color: cs.onSurface,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(l10n.buildXMemoryWhatIsStored),
+              const SizedBox(height: 4),
+              Text(
+                l10n.buildXMemoryWhatIsNotStored,
+                style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7)),
+              ),
+            ],
+          ),
+        ),
+        Padding(
           padding: widget.padding == null
               ? EdgeInsets.fromLTRB(desktop ? 12 : 16, 8, desktop ? 12 : 16, 4)
               : const EdgeInsets.fromLTRB(0, 0, 0, 4),

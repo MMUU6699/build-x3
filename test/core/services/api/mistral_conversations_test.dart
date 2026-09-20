@@ -83,10 +83,83 @@ void main() {
       'top_p': 1.0,
     });
     expect(append['inputs'], 'Again');
-    expect(append['instructions'], 'Be helpful now.');
+    expect(append.containsKey('instructions'), isFalse);
     expect(append.containsKey('model'), isFalse);
     expect(first.whereType<TextDelta>().single.text, 'reply 1');
     expect(second.whereType<TextDelta>().single.text, 'reply 2');
+    client.close();
+  });
+
+  test('function call results are appended to the same conversation', () async {
+    SharedPreferences.setMockInitialValues({});
+    final requests = <http.Request>[];
+    final client = MockClient((request) async {
+      requests.add(request);
+      final events = requests.length == 1
+          ? [
+              {
+                'type': 'conversation.response.started',
+                'conversation_id': 'remote-tool',
+              },
+              {
+                'type': 'conversation.response.done',
+                'conversation_id': 'remote-tool',
+                'outputs': [
+                  {
+                    'type': 'function.call',
+                    'tool_call_id': 'call-1',
+                    'name': 'lookup',
+                    'arguments': '{"term":"hello"}',
+                  },
+                ],
+              },
+            ]
+          : [
+              {'type': 'message.output.delta', 'content': 'Found it.'},
+              {
+                'type': 'conversation.response.done',
+                'conversation_id': 'remote-final',
+              },
+            ];
+      return http.Response(
+        events.map((event) => 'data: ${jsonEncode(event)}\n\n').join(),
+        200,
+      );
+    });
+    final chunks = await MistralConversations.send(
+      client: client,
+      messages: [
+        {'role': 'user', 'content': 'Look up hello'},
+      ],
+      localConversationId: 'tool-chat',
+      apiKeyOverride: 'test-key',
+      tools: [
+        {
+          'type': 'function',
+          'function': {'name': 'lookup'},
+        },
+      ],
+      onToolCall: (name, args, {toolCallId}) async {
+        expect(name, 'lookup');
+        expect(args, {'term': 'hello'});
+        expect(toolCallId, 'call-1');
+        return {'answer': 42};
+      },
+    ).toList();
+    expect(requests.length, 2);
+    final first = jsonDecode(requests[0].body) as Map<String, dynamic>;
+    final followUp = jsonDecode(requests[1].body) as Map<String, dynamic>;
+    expect(first['tools'], isNotEmpty);
+    expect(requests[1].url.path, '/v1/conversations/remote-tool');
+    expect(followUp['inputs'], [
+      {
+        'type': 'function.result',
+        'tool_call_id': 'call-1',
+        'result': '{"answer":42}',
+      },
+    ]);
+    expect(chunks.whereType<ToolCallResult>().single.output, {'answer': 42});
+    expect(chunks.whereType<TextDelta>().single.text, 'Found it.');
     client.close();
   });
 }

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../build_x_config.dart';
 import '../../build_x_secure_store.dart';
+import '../chat_api_helpers.dart' show ToolCallHandler;
 import '../stream/stream_chunk.dart';
 
 /// Dedicated adapter for Mistral's stateful Conversations API.
@@ -39,6 +40,8 @@ abstract final class MistralConversations {
     String? localConversationId,
     bool persistConversation = true,
     String? apiKeyOverride,
+    List<Map<String, dynamic>>? tools,
+    ToolCallHandler? onToolCall,
   }) async* {
     final apiKey = apiKeyOverride ?? await BuildXSecureStore.readMistralKey();
     if (apiKey.isEmpty) {
@@ -50,83 +53,143 @@ abstract final class MistralConversations {
         persistConversation && localId != null && localId.isNotEmpty
         ? await _remoteId(localId, apiKey)
         : null;
-    final isAppend = remoteId != null && remoteId.isNotEmpty;
-    final uri = Uri.parse(
-      isAppend ? '${BuildXConfig.apiBase}/$remoteId' : BuildXConfig.apiBase,
-    );
-    final request = http.Request('POST', uri)
-      ..headers.addAll({
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-        'Accept': 'text/event-stream',
-      })
-      ..body = jsonEncode({
-        if (!isAppend) 'model': BuildXConfig.modelId,
-        'inputs': isAppend
-            ? _lastUserInput(messages)
-            : _initialInputs(messages),
-        if (_instructions(messages).isNotEmpty)
-          'instructions': _instructions(messages),
-        'completion_args': const {
-          'temperature': BuildXConfig.temperature,
-          'max_tokens': BuildXConfig.maxTokens,
-          'top_p': BuildXConfig.topP,
-        },
-        'store': true,
-        'stream': true,
-      });
-
-    final response = await client.send(request);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      await response.stream.drain<void>();
-      throw StateError('Mistral request failed (HTTP ${response.statusCode}).');
-    }
-
-    String? newRemoteId;
-    var completed = false;
-    var emittedText = false;
+    String? currentRemoteId = remoteId;
+    Object inputs = currentRemoteId == null
+        ? _initialInputs(messages)
+        : _lastUserInput(messages);
     yield const TextStart('mistral-text');
-    await for (final event in decodeEvents(response.stream)) {
-      final type = event['type']?.toString() ?? '';
-      switch (type) {
-        case 'conversation.response.started':
-          newRemoteId = event['conversation_id']?.toString() ?? newRemoteId;
-        case 'message.output.delta':
-          final text = _contentText(event['content']);
-          if (text.isNotEmpty) {
-            emittedText = true;
-            yield TextDelta(id: 'mistral-text', text: text);
-          }
-        case 'conversation.response.done':
-          newRemoteId = event['conversation_id']?.toString() ?? newRemoteId;
-          if (!emittedText) {
-            final text = _outputText(event['outputs']);
+    for (var round = 0; round < 8; round++) {
+      final isAppend = currentRemoteId != null && currentRemoteId.isNotEmpty;
+      final uri = Uri.parse(
+        isAppend
+            ? '${BuildXConfig.apiBase}/$currentRemoteId'
+            : BuildXConfig.apiBase,
+      );
+      final request = http.Request('POST', uri)
+        ..headers.addAll({
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream',
+        })
+        ..body = jsonEncode({
+          if (!isAppend) 'model': BuildXConfig.modelId,
+          'inputs': inputs,
+          if (!isAppend && _instructions(messages).isNotEmpty)
+            'instructions': _instructions(messages),
+          if (!isAppend && tools != null && tools.isNotEmpty) 'tools': tools,
+          'completion_args': const {
+            'temperature': BuildXConfig.temperature,
+            'max_tokens': BuildXConfig.maxTokens,
+            'top_p': BuildXConfig.topP,
+          },
+          'store': true,
+          'stream': true,
+        });
+      final response = await client.send(request);
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        await response.stream.drain<void>();
+        throw StateError(
+          'Mistral request failed (HTTP ${response.statusCode}).',
+        );
+      }
+
+      var completed = false;
+      var emittedThisResponse = false;
+      final calls = <String, Map<String, dynamic>>{};
+      await for (final event in decodeEvents(response.stream)) {
+        final type = event['type']?.toString() ?? '';
+        switch (type) {
+          case 'conversation.response.started':
+            currentRemoteId =
+                event['conversation_id']?.toString() ?? currentRemoteId;
+          case 'message.output.delta':
+            final text = _contentText(event['content']);
             if (text.isNotEmpty) {
-              emittedText = true;
+              emittedThisResponse = true;
               yield TextDelta(id: 'mistral-text', text: text);
             }
+          case 'function.call':
+            _collectCall(calls, event);
+          case 'conversation.response.done':
+            currentRemoteId =
+                event['conversation_id']?.toString() ?? currentRemoteId;
+            final outputs = event['outputs'];
+            if (outputs is List) {
+              for (final output in outputs.whereType<Map>()) {
+                _collectCall(calls, Map<String, dynamic>.from(output));
+              }
+            }
+            if (!emittedThisResponse) {
+              final text = _outputText(outputs);
+              if (text.isNotEmpty) {
+                yield TextDelta(id: 'mistral-text', text: text);
+              }
+            }
+            completed = true;
+          case 'conversation.response.error':
+            throw StateError(
+              'Mistral could not complete the conversation: '
+              '${event['message'] ?? event['error'] ?? 'unknown error'}',
+            );
+        }
+      }
+      if (!completed) {
+        throw StateError(
+          'Mistral closed the stream before completing the reply.',
+        );
+      }
+      if (calls.isEmpty) {
+        if (persistConversation && localId != null && localId.isNotEmpty) {
+          final id = currentRemoteId;
+          if (id == null || id.isEmpty) {
+            throw StateError('Mistral did not return a conversation ID.');
           }
-          completed = true;
-        case 'conversation.response.error':
-          throw StateError(
-            'Mistral could not complete the conversation: '
-            '${event['message'] ?? event['error'] ?? 'unknown error'}',
-          );
+          await _saveRemoteId(localId, apiKey, id);
+        }
+        yield const TextEnd('mistral-text');
+        return;
       }
-    }
-    if (!completed) {
-      throw StateError(
-        'Mistral closed the stream before completing the reply.',
-      );
-    }
-    if (persistConversation && localId != null && localId.isNotEmpty) {
-      final id = newRemoteId;
-      if (id == null || id.isEmpty) {
-        throw StateError('Mistral did not return a conversation ID.');
+      if (onToolCall == null || currentRemoteId == null) {
+        throw StateError('Mistral requested a tool that is unavailable.');
       }
-      await _saveRemoteId(localId, apiKey, id);
+      final results = <Map<String, String>>[];
+      for (final call in calls.values) {
+        final id = call['tool_call_id']?.toString() ?? '';
+        final name = call['name']?.toString() ?? '';
+        if (id.isEmpty || name.isEmpty) {
+          throw StateError('Mistral returned an incomplete tool call.');
+        }
+        final rawArgs = call['arguments'];
+        final decodedArgs = rawArgs is String ? jsonDecode(rawArgs) : rawArgs;
+        if (decodedArgs is! Map) {
+          throw StateError('Mistral returned invalid tool arguments.');
+        }
+        yield ToolCallStart(id: id, toolName: name);
+        yield ToolCallEnd(id);
+        final output = await onToolCall(
+          name,
+          Map<String, dynamic>.from(decodedArgs),
+          toolCallId: id,
+        );
+        yield ToolCallResult(id: id, output: output);
+        results.add({
+          'type': 'function.result',
+          'tool_call_id': id,
+          'result': output is String ? output : jsonEncode(output),
+        });
+      }
+      inputs = results;
     }
-    yield const TextEnd('mistral-text');
+    throw StateError('Mistral exceeded the tool-call limit.');
+  }
+
+  static void _collectCall(
+    Map<String, Map<String, dynamic>> calls,
+    Map<String, dynamic> event,
+  ) {
+    if (event['type'] != 'function.call') return;
+    final id = event['tool_call_id']?.toString() ?? '';
+    if (id.isNotEmpty) calls[id] = event;
   }
 
   static Object _lastUserInput(List<Map<String, dynamic>> messages) {

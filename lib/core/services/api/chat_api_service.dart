@@ -82,6 +82,8 @@ class ChatApiService {
         messages: messages,
         localConversationId: conversationId,
         persistConversation: persistConversation,
+        tools: tools,
+        onToolCall: onToolCall,
       );
     } finally {
       if (id.isNotEmpty && identical(_activeClients[id], client)) {

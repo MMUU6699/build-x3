@@ -23,13 +23,13 @@ import '../../../core/models/chat_input_data.dart';
 import '../../../utils/clipboard_images.dart';
 import '../../../core/providers/asr_provider.dart';
 import '../../../core/providers/settings_provider.dart';
+import '../../../core/providers/work_mode_provider.dart';
 import '../../../core/providers/assistant_provider.dart';
-import '../../../core/services/search/search_service.dart';
 import '../../../core/services/api/builtin_tools.dart';
 import '../../../core/services/api/chat_api_service.dart';
 import '../../../core/utils/multimodal_input_utils.dart';
-import '../../../utils/brand_assets.dart';
 import '../../../utils/sandbox_path_resolver.dart';
+import '../../../core/services/haptics.dart';
 import '../../../shared/widgets/ios_tactile.dart';
 import '../../../shared/widgets/snackbar.dart';
 import '../../../utils/app_directories.dart';
@@ -644,6 +644,12 @@ class _ChatInputBarState extends State<ChatInputBar>
   }
 
   String _hint(BuildContext context) {
+    try {
+      final workProvider = context.watch<WorkModeProvider?>();
+      if (workProvider?.isWorkMode ?? false) {
+        return 'Describe what to build or investigate...';
+      }
+    } catch (_) {}
     final l10n = AppLocalizations.of(context)!;
     return l10n.chatInputBarHint;
   }
@@ -1784,121 +1790,6 @@ class _ChatInputBarState extends State<ChatInputBar>
       builder: (context, constraints) {
         final List<_OverflowAction> actions = [];
 
-        // Search button (stateful icon depending on provider config)
-        final settings = context.watch<SettingsProvider>();
-        final ap = context.watch<AssistantProvider>();
-        final currentProviderKey = widget.chatModelProviderKey;
-        final currentModelId = widget.chatModelId;
-        final cfg = (currentProviderKey != null)
-            ? settings.getProviderConfig(currentProviderKey)
-            : null;
-        // Check built-in tools state using helper
-        final toolsState = BuiltInToolsHelper.getActiveTools(
-          cfg: cfg,
-          modelId: currentModelId,
-        );
-        final builtinSearchActive = toolsState.searchActive;
-        final appSearchEnabled = ap.currentSearchEnabled;
-        final brandAsset = (() {
-          if (!appSearchEnabled || builtinSearchActive) return null;
-          final services = settings.searchServices;
-          final sel = settings.searchServiceSelected.clamp(
-            0,
-            services.isNotEmpty ? services.length - 1 : 0,
-          );
-          final options = services.isNotEmpty
-              ? services[sel]
-              : SearchServiceOptions.defaultOption;
-          final svc = SearchService.getService(options);
-          return BrandAssets.assetForName(svc.name);
-        })();
-
-        // Search button
-        actions.add(
-          _OverflowAction(
-            width: normalButtonW,
-            builder: () {
-              // Not enabled at all -> default globe
-              if (!appSearchEnabled && !builtinSearchActive) {
-                return _CompactIconButton(
-                  tooltip: l10n.chatInputBarOnlineSearchTooltip,
-                  icon: Lucide.Globe,
-                  active: false,
-                  onTap: lockTap(widget.onOpenSearch),
-                );
-              }
-              // Built-in search -> magnifier icon in theme color
-              if (builtinSearchActive) {
-                return _CompactIconButton(
-                  tooltip: l10n.chatInputBarOnlineSearchTooltip,
-                  icon: Lucide.Search,
-                  active: true,
-                  onTap: lockTap(widget.onOpenSearch),
-                );
-              }
-              // External provider search -> brand icon
-              return _CompactIconButton(
-                tooltip: l10n.chatInputBarOnlineSearchTooltip,
-                icon: Lucide.Globe,
-                active: true,
-                onTap: lockTap(widget.onOpenSearch),
-                childBuilder: (c) {
-                  final asset = brandAsset;
-                  if (asset != null) {
-                    if (asset.endsWith('.svg')) {
-                      return SvgPicture.asset(
-                        asset,
-                        width: 20,
-                        height: 20,
-                        colorFilter: ColorFilter.mode(c, BlendMode.srcIn),
-                      );
-                    } else {
-                      return Image.asset(
-                        asset,
-                        width: 20,
-                        height: 20,
-                        color: c,
-                        colorBlendMode: BlendMode.srcIn,
-                      );
-                    }
-                  } else {
-                    return Icon(Lucide.Globe, size: 20, color: c);
-                  }
-                },
-              );
-            },
-            menu: () {
-              // Prefer vector icon if brandAsset is svg, otherwise pick reasonable default
-              if (!appSearchEnabled && !builtinSearchActive) {
-                return DesktopContextMenuItem(
-                  icon: Lucide.Globe,
-                  label: l10n.chatInputBarOnlineSearchTooltip,
-                  onTap: lockTap(widget.onOpenSearch),
-                );
-              }
-              if (builtinSearchActive) {
-                return DesktopContextMenuItem(
-                  icon: Lucide.Search,
-                  label: l10n.chatInputBarOnlineSearchTooltip,
-                  onTap: lockTap(widget.onOpenSearch),
-                );
-              }
-              if (brandAsset != null && brandAsset.endsWith('.svg')) {
-                return DesktopContextMenuItem(
-                  svgAsset: brandAsset,
-                  label: l10n.chatInputBarOnlineSearchTooltip,
-                  onTap: lockTap(widget.onOpenSearch),
-                );
-              }
-              return DesktopContextMenuItem(
-                icon: Lucide.Globe,
-                label: l10n.chatInputBarOnlineSearchTooltip,
-                onTap: lockTap(widget.onOpenSearch),
-              );
-            }(),
-          ),
-        );
-
         if (widget.supportsReasoning) {
           actions.add(
             _OverflowAction(
@@ -2532,10 +2423,128 @@ class _ChatInputBarState extends State<ChatInputBar>
     );
   }
 
+  Widget _buildWebSearchChip(
+    BuildContext context,
+    ThemeData theme,
+    bool isDark,
+    AssistantProvider ap,
+    SettingsProvider settings,
+  ) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.xs,
+          AppSpacing.md,
+          0,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark
+                ? theme.colorScheme.onSurface.withValues(alpha: 0.08)
+                : theme.colorScheme.onSurface.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark
+                  ? theme.colorScheme.outline.withValues(alpha: 0.18)
+                  : theme.colorScheme.outline.withValues(alpha: 0.14),
+              width: 1,
+            ),
+          ),
+          padding: const EdgeInsetsDirectional.only(
+            start: 10,
+            end: 6,
+            top: 4,
+            bottom: 4,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Lucide.Globe,
+                size: 14,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Web Search',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: AppFontWeights.medium,
+                  fontSize: 12,
+                  color: theme.colorScheme.onSurface,
+                  letterSpacing: 0,
+                ),
+              ),
+              const SizedBox(width: 6),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () async {
+                  Haptics.light();
+                  await ap.setSearchEnabledForCurrentAssistant(false);
+                  final pk = widget.chatModelProviderKey;
+                  final mid = widget.chatModelId;
+                  final pCfg =
+                      pk != null ? settings.getProviderConfig(pk) : null;
+                  if (pk != null && mid != null && pCfg != null) {
+                    final overrides =
+                        Map<String, dynamic>.from(pCfg.modelOverrides);
+                    final rawMo = overrides[mid];
+                    final baseMo = rawMo is Map ? rawMo : null;
+                    final mo = Map<String, dynamic>.from(
+                      baseMo?.map((k, val) => MapEntry(k.toString(), val)) ??
+                          const <String, dynamic>{},
+                    );
+                    final builtIns =
+                        BuiltInToolNames.parseAndNormalize(mo['builtInTools']);
+                    if (builtIns.contains(BuiltInToolNames.search)) {
+                      builtIns.remove(BuiltInToolNames.search);
+                      if (builtIns.isEmpty) {
+                        mo.remove('builtInTools');
+                      } else {
+                        mo['builtInTools'] =
+                            BuiltInToolNames.orderedForStorage(builtIns);
+                      }
+                      overrides[mid] = mo;
+                      await settings.setProviderConfig(
+                        pk,
+                        pCfg.copyWith(modelOverrides: overrides),
+                      );
+                    }
+                  }
+                  if (mounted) setState(() {});
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Icon(
+                    Lucide.X,
+                    size: 13,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
+    final ap = context.watch<AssistantProvider>();
+    final currentProviderKey = widget.chatModelProviderKey;
+    final currentModelId = widget.chatModelId;
+    final cfg = (currentProviderKey != null)
+        ? settings.getProviderConfig(currentProviderKey)
+        : null;
+    final toolsState = BuiltInToolsHelper.getActiveTools(
+      cfg: cfg,
+      modelId: currentModelId,
+    );
+    final isWebSearchActive = ap.currentSearchEnabled || toolsState.searchActive;
     final selectedAsrService = settings.selectedAsrService;
     final asr = widget.asrProvider;
     final showVoiceInput =
@@ -2739,6 +2748,14 @@ class _ChatInputBarState extends State<ChatInputBar>
                             ],
                             if (hasDocs || hasImages)
                               _buildInlineAttachmentPreviews(context, isDark),
+                            if (isWebSearchActive)
+                              _buildWebSearchChip(
+                                context,
+                                theme,
+                                isDark,
+                                ap,
+                                settings,
+                              ),
                             // Input field with expand/collapse button
                             Stack(
                               children: [
@@ -2955,66 +2972,72 @@ class _ChatInputBarState extends State<ChatInputBar>
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          // Responsive left action bar that overflows into a + menu on desktop
+                                          // Left action bar: standard controls (+ button and mode actions)
                                           Expanded(
-                                            child: _buildResponsiveLeftActions(
-                                              context,
+                                            child: Row(
+                                              children: [
+                                                if (widget.showMoreButton) ...[
+                                                  _CompactIconButton(
+                                                    tooltip: AppLocalizations.of(
+                                                      context,
+                                                    )!.chatInputBarMoreTooltip,
+                                                    icon: Lucide.Plus,
+                                                    active: widget.moreOpen,
+                                                    onTap: _composerLocked
+                                                        ? null
+                                                        : widget.onMore,
+                                                    childBuilder: (c) =>
+                                                        AnimatedSwitcher(
+                                                          duration:
+                                                              const Duration(
+                                                                milliseconds: 200,
+                                                              ),
+                                                          transitionBuilder:
+                                                              (
+                                                                child,
+                                                                anim,
+                                                              ) => RotationTransition(
+                                                                turns:
+                                                                    Tween<double>(
+                                                                      begin: 0.85,
+                                                                      end: 1,
+                                                                    ).animate(
+                                                                      anim,
+                                                                    ),
+                                                                child:
+                                                                    FadeTransition(
+                                                                      opacity:
+                                                                          anim,
+                                                                      child:
+                                                                          child,
+                                                                    ),
+                                                              ),
+                                                          child: Icon(
+                                                            widget.moreOpen
+                                                                ? Lucide.X
+                                                                : Lucide.Plus,
+                                                            key: ValueKey(
+                                                              widget.moreOpen
+                                                                  ? 'close'
+                                                                  : 'add',
+                                                            ),
+                                                            size: 20,
+                                                            color: c,
+                                                          ),
+                                                        ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                ],
+                                                Expanded(
+                                                  child: _buildResponsiveLeftActions(
+                                                    context,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           Row(
                                             children: [
-                                              if (widget.showMoreButton) ...[
-                                                _CompactIconButton(
-                                                  tooltip: AppLocalizations.of(
-                                                    context,
-                                                  )!.chatInputBarMoreTooltip,
-                                                  icon: Lucide.Plus,
-                                                  active: widget.moreOpen,
-                                                  onTap: _composerLocked
-                                                      ? null
-                                                      : widget.onMore,
-                                                  childBuilder: (c) =>
-                                                      AnimatedSwitcher(
-                                                        duration:
-                                                            const Duration(
-                                                              milliseconds: 200,
-                                                            ),
-                                                        transitionBuilder:
-                                                            (
-                                                              child,
-                                                              anim,
-                                                            ) => RotationTransition(
-                                                              turns:
-                                                                  Tween<double>(
-                                                                    begin: 0.85,
-                                                                    end: 1,
-                                                                  ).animate(
-                                                                    anim,
-                                                                  ),
-                                                              child:
-                                                                  FadeTransition(
-                                                                    opacity:
-                                                                        anim,
-                                                                    child:
-                                                                        child,
-                                                                  ),
-                                                            ),
-                                                        child: Icon(
-                                                          widget.moreOpen
-                                                              ? Lucide.X
-                                                              : Lucide.Plus,
-                                                          key: ValueKey(
-                                                            widget.moreOpen
-                                                                ? 'close'
-                                                                : 'add',
-                                                          ),
-                                                          size: 20,
-                                                          color: c,
-                                                        ),
-                                                      ),
-                                                ),
-                                                const SizedBox(width: 8),
-                                              ],
                                               if (showVoiceInput) ...[
                                                 _CompactIconButton(
                                                   tooltip: AppLocalizations.of(
@@ -3540,3 +3563,4 @@ class _VoiceWaveformPainter extends CustomPainter {
   @override
   bool shouldRepaint(_VoiceWaveformPainter oldDelegate) => true;
 }
+

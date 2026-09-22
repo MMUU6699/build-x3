@@ -18,6 +18,7 @@ import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/quick_phrase_provider.dart';
 import '../../../core/providers/instruction_injection_provider.dart';
+import '../../../core/services/api/builtin_tools.dart';
 import '../../../core/providers/world_book_provider.dart';
 import '../../../core/models/quick_phrase.dart';
 import '../../../core/models/chat_input_data.dart';
@@ -68,6 +69,9 @@ import '../controllers/home_page_controller.dart';
 import '../controllers/scroll_controller.dart' as scroll_ctrl;
 import 'home_mobile_layout.dart';
 import 'home_desktop_layout.dart';
+import '../../../core/providers/work_mode_provider.dart';
+import '../../work/pages/work_surface_view.dart';
+import '../../work/widgets/work_sticky_status_panel.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 
 class HomePage extends StatefulWidget {
@@ -1005,7 +1009,6 @@ class _HomePageState extends State<HomePage>
       onNewConversation: () async {
         await _controller.createNewConversationAnimated();
       },
-      onOpenMiniMap: _openMiniMap,
       onCreateNewConversation: () async {
         await _controller.createNewConversationAnimated();
         if (mounted) {
@@ -1063,6 +1066,12 @@ class _HomePageState extends State<HomePage>
       backgroundImageActive: backgroundImageActive,
       content: Builder(
         builder: (context) {
+          final workProvider = context.watch<WorkModeProvider?>();
+          if (workProvider?.isWorkMode ?? false) {
+            return WorkSurfaceView(
+              onSelectPrompt: (p) => _inputController.text = p,
+            );
+          }
           final content = KeyedSubtree(
             key: ValueKey<String>(
               _controller.currentConversation?.id ?? 'none',
@@ -1256,24 +1265,34 @@ class _HomePageState extends State<HomePage>
             )
           : null,
       backgroundImageActive: backgroundImageActive,
-      content: FadeTransition(
-        opacity: _controller.convoFade,
-        child: _wrapMessageJumpTransition(
-          KeyedSubtree(
-            key: ValueKey<String>(
-              _controller.currentConversation?.id ?? 'none',
-            ),
-            child: _buildMessageListView(
-              context,
-              topContentPadding: topContentPadding,
-              bottomContentPadding: bottomContentPadding,
-              dividerPadding: const EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 12,
+      content: Builder(
+        builder: (context) {
+          final workProvider = context.watch<WorkModeProvider?>();
+          if (workProvider?.isWorkMode ?? false) {
+            return WorkSurfaceView(
+              onSelectPrompt: (p) => _inputController.text = p,
+            );
+          }
+          return FadeTransition(
+            opacity: _controller.convoFade,
+            child: _wrapMessageJumpTransition(
+              KeyedSubtree(
+                key: ValueKey<String>(
+                  _controller.currentConversation?.id ?? 'none',
+                ),
+                child: _buildMessageListView(
+                  context,
+                  topContentPadding: topContentPadding,
+                  bottomContentPadding: bottomContentPadding,
+                  dividerPadding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 12,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       bottomOverlay: _controller.selecting
           ? ConstrainedBox(
@@ -1465,7 +1484,7 @@ class _HomePageState extends State<HomePage>
       conversation: conversation,
       assistant: context.watch<AssistantProvider>().currentAssistant,
     );
-    return ChatInputSection(
+    final inputSection = ChatInputSection(
       inputBarKey: _inputBarKey,
       chatModelProviderKey: chatModel.providerKey,
       chatModelId: chatModel.modelId,
@@ -1477,7 +1496,9 @@ class _HomePageState extends State<HomePage>
       inputController: _inputController,
       mediaController: _mediaController,
       isTablet: isTablet,
-      isLoading: _controller.isCurrentConversationLoading,
+      isLoading: context.watch<WorkModeProvider>().isWorkMode
+          ? context.watch<WorkModeProvider>().isExecuting
+          : _controller.isCurrentConversationLoading,
       isToolModel: _controller.isToolModel,
       isReasoningModel: _controller.isReasoningModel,
       isReasoningEnabled: _controller.isReasoningEnabled,
@@ -1572,8 +1593,16 @@ class _HomePageState extends State<HomePage>
           );
         }
       },
-      onSend: (text) async {
-        final result = await _controller.sendMessage(text);
+      onSend: (data) async {
+        final workProvider = context.read<WorkModeProvider>();
+        if (workProvider.isWorkMode) {
+          unawaited(workProvider.runTask(data.text));
+          if (PlatformUtils.isMobile) {
+            _controller.dismissKeyboard();
+          }
+          return ChatInputSubmissionResult.sent;
+        }
+        final result = await _controller.sendMessage(data);
         if (!mounted) return result;
         if (PlatformUtils.isMobile &&
             result == ChatInputSubmissionResult.sent) {
@@ -1581,7 +1610,14 @@ class _HomePageState extends State<HomePage>
         }
         return result;
       },
-      onStop: _controller.cancelStreaming,
+      onStop: () {
+        final workProvider = context.read<WorkModeProvider>();
+        if (workProvider.isWorkMode) {
+          workProvider.cancelTask();
+          return;
+        }
+        _controller.cancelStreaming();
+      },
       hasQueuedInput: _controller.currentQueuedInput != null,
       queuedPreviewText: _controller.currentQueuedInput?.input.text,
       onCancelQueuedInput: _controller.cancelQueuedMessage,
@@ -1606,6 +1642,18 @@ class _HomePageState extends State<HomePage>
       onCompressContext: _handleDesktopCompressContext,
       backgroundImageActive: _assistantBackgroundActive(context),
     );
+
+    final isWorkMode = context.watch<WorkModeProvider>().isWorkMode;
+    if (isWorkMode) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const WorkStickyStatusPanel(),
+          inputSection,
+        ],
+      );
+    }
+    return inputSection;
   }
 
   Widget _buildScrollButtons() {
@@ -1924,6 +1972,18 @@ class _HomePageState extends State<HomePage>
   void _toggleTools() async {
     _controller.dismissKeyboard();
     final assistantId = context.read<AssistantProvider>().currentAssistantId;
+    final ap = context.read<AssistantProvider>();
+    final settings = context.read<SettingsProvider>();
+    final model = _resolvedChatModel();
+    final pCfg = model.providerKey != null
+        ? settings.getProviderConfig(model.providerKey!)
+        : null;
+    final tools = BuiltInToolsHelper.getActiveTools(
+      cfg: pCfg,
+      modelId: model.modelId,
+    );
+    final isWebSearchActive = ap.currentSearchEnabled || tools.searchActive;
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1954,6 +2014,40 @@ class _HomePageState extends State<HomePage>
                   await Navigator.of(ctx).maybePop();
                   _showContextManagementSheet();
                 },
+                webSearchActive: isWebSearchActive,
+                onToggleWebSearch: () async {
+                  final next = !isWebSearchActive;
+                  await ap.setSearchEnabledForCurrentAssistant(next);
+                  if (!next &&
+                      tools.searchActive &&
+                      model.providerKey != null &&
+                      model.modelId != null &&
+                      pCfg != null) {
+                    final overrides =
+                        Map<String, dynamic>.from(pCfg.modelOverrides);
+                    final rawMo = overrides[model.modelId!];
+                    final baseMo = rawMo is Map ? rawMo : null;
+                    final mo = Map<String, dynamic>.from(
+                      baseMo?.map((k, val) => MapEntry(k.toString(), val)) ??
+                          const <String, dynamic>{},
+                    );
+                    final builtIns =
+                        BuiltInToolNames.parseAndNormalize(mo['builtInTools']);
+                    builtIns.remove(BuiltInToolNames.search);
+                    if (builtIns.isEmpty) {
+                      mo.remove('builtInTools');
+                    } else {
+                      mo['builtInTools'] =
+                          BuiltInToolNames.orderedForStorage(builtIns);
+                    }
+                    overrides[model.modelId!] = mo;
+                    await settings.setProviderConfig(
+                      model.providerKey!,
+                      pCfg.copyWith(modelOverrides: overrides),
+                    );
+                  }
+                },
+                onConfigureSearch: _openSearchSettings,
                 assistantId: assistantId,
                 conversationId: _controller.currentConversation?.id,
                 onClose: () => Navigator.of(ctx).maybePop(),

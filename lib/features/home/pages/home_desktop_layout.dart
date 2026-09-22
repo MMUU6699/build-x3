@@ -11,7 +11,6 @@ import 'dart:ui' as ui;
 import '../../../l10n/app_localizations.dart';
 import '../widgets/side_drawer.dart';
 import '../../../icons/lucide_adapter.dart';
-import '../../../core/models/assistant.dart';
 import '../../../core/models/workspace_binding.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../../core/providers/settings_provider.dart';
@@ -19,16 +18,12 @@ import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/workspace_provider.dart';
 import '../../../core/services/chat/chat_service.dart';
 import '../../workspace/widgets/desktop_workspace_bar.dart';
-import '../../../shared/animations/widgets.dart';
 import '../../../shared/widgets/ios_tactile.dart';
-import '../../../utils/brand_assets.dart';
 import '../../../utils/sandbox_path_resolver.dart';
 import '../../../desktop/hotkeys/chat_action_bus.dart';
-import '../../../desktop/hotkeys/sidebar_tab_bus.dart';
 import '../../chat/widgets/frosted/chat_frosted_backdrop.dart';
-import '../widgets/assistant_avatar.dart';
-import '../widgets/assistant_entry_actions.dart';
-import 'package:Kelivo/theme/app_font_weights.dart';
+import '../widgets/mode_segmented_toggle.dart';
+import '../widgets/header_bubble_button.dart';
 
 /// Desktop/Tablet layout scaffold for the home page
 /// Handles the overall structure: left sidebar, main content, optional right sidebar
@@ -350,7 +345,6 @@ class HomeDesktopScaffold extends StatelessWidget {
     required bool workspaceBound,
   }) {
     return AppBar(
-      centerTitle: false,
       systemOverlayStyle: (Theme.of(context).brightness == Brightness.dark)
           ? const SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
@@ -366,20 +360,25 @@ class HomeDesktopScaffold extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: IosIconButton(
-        size: 20,
-        padding: const EdgeInsets.all(8),
-        minSize: 40,
-        builder: (color) => SvgPicture.asset(
-          'assets/icons/list.svg',
-          width: 14,
-          height: 14,
-          colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      leadingWidth: 64,
+      leading: Padding(
+        padding: const EdgeInsetsDirectional.only(start: 12),
+        child: Center(
+          child: HeaderBubbleButton(
+            tooltip: AppLocalizations.of(context)!.sideDrawerHistory,
+            onTap: onToggleSidebar,
+            child: SvgPicture.asset(
+              'assets/icons/list.svg',
+              width: 18,
+              height: 18,
+              colorFilter: ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
+            ),
+          ),
         ),
-        onTap: onToggleSidebar,
       ),
-      titleSpacing: 2,
-      title: _buildTitle(context, cs),
+      titleSpacing: 0,
+      centerTitle: true,
+      title: const ModeSegmentedToggle(),
       actions: _buildActions(
         context,
         topicsOnRight,
@@ -388,232 +387,13 @@ class HomeDesktopScaffold extends StatelessWidget {
     );
   }
 
-  Widget _buildTitle(BuildContext context, ColorScheme cs) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final useNewAssistantAvatarUx = context
-        .watch<SettingsProvider>()
-        .useNewAssistantAvatarUx;
-    final currentAssistant = context
-        .watch<AssistantProvider>()
-        .currentAssistant;
-    final String? brandAsset =
-        (modelDisplay != null
-            ? BrandAssets.assetForName(modelDisplay!)
-            : null) ??
-        (providerName != null ? BrandAssets.assetForName(providerName!) : null);
-
-    Widget? capsule;
-    String? capsuleLabel;
-
-    if (providerName != null && modelDisplay != null) {
-      final showProv = context
-          .watch<SettingsProvider>()
-          .showProviderInModelCapsule;
-      capsuleLabel = showProv
-          ? '$modelDisplay | $providerName'
-          : '$modelDisplay';
-
-      final Widget brandIcon = AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, anim) => FadeTransition(
-          opacity: anim,
-          child: ScaleTransition(scale: anim, child: child),
-        ),
-        child: (brandAsset != null)
-            ? (brandAsset.endsWith('.svg')
-                  ? SvgPicture.asset(
-                      brandAsset,
-                      width: 16,
-                      height: 16,
-                      key: ValueKey('brand:$brandAsset'),
-                      colorFilter:
-                          isDark && BrandAssets.assetNeedsDarkInvert(brandAsset)
-                          ? ColorFilter.mode(cs.onSurface, BlendMode.srcIn)
-                          : null,
-                    )
-                  : Image.asset(
-                      brandAsset,
-                      width: 16,
-                      height: 16,
-                      key: ValueKey('brand:$brandAsset'),
-                    ))
-            : Icon(
-                Lucide.Boxes,
-                size: 16,
-                color: cs.onSurface.withValues(alpha: 0.7),
-                key: const ValueKey('brand:default'),
-              ),
-      );
-
-      capsule = AnimatedSize(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              brandIcon,
-              const SizedBox(width: 6),
-              Flexible(
-                child: AnimatedTextSwap(
-                  text: capsuleLabel,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1.1,
-                    color: cs.onSurface.withValues(alpha: isDark ? 0.92 : 0.9),
-                    fontWeight: AppFontWeights.medium,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final row = Row(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (useNewAssistantAvatarUx) ...[
-          _buildAssistantTitleAvatar(
-            context,
-            assistant: currentAssistant,
-            fallbackName: _getAssistantName(context),
-          ),
-          const SizedBox(width: 10),
-        ],
-        Flexible(
-          fit: FlexFit.loose,
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            child: AnimatedTextSwap(
-              text: title,
-              style: TextStyle(fontSize: 16, fontWeight: AppFontWeights.medium),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-        if (capsule != null) ...[
-          const SizedBox(width: 8),
-          Flexible(
-            fit: FlexFit.loose,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
-                transitionBuilder: (child, anim) => FadeTransition(
-                  opacity: anim,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.06, 0),
-                      end: Offset.zero,
-                    ).animate(anim),
-                    child: child,
-                  ),
-                ),
-                child: KeyedSubtree(
-                  key: ValueKey('cap:${capsuleLabel ?? ''}'),
-                  child: capsule,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ],
-    );
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
-        transitionBuilder: (child, anim) => FadeTransition(
-          opacity: anim,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.08),
-              end: Offset.zero,
-            ).animate(anim),
-            child: child,
-          ),
-        ),
-        child: KeyedSubtree(
-          key: ValueKey('hdr:$title|${capsuleLabel ?? ''}'),
-          child: row,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAssistantTitleAvatar(
-    BuildContext context, {
-    required Assistant? assistant,
-    required String fallbackName,
-  }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onSecondaryTapDown: !_isDesktop || assistant == null
-          ? null
-          : (details) {
-              AssistantEntryActions.showAssistantItemMenu(
-                context: context,
-                assistant: assistant,
-                globalPosition: details.globalPosition,
-              );
-            },
-      child: IosCardPress(
-        borderRadius: BorderRadius.circular(999),
-        baseColor: Colors.transparent,
-        padding: const EdgeInsets.all(2),
-        onTap: _isDesktop
-            ? () => _revealAssistantTopics(context)
-            : onToggleSidebar,
-        onLongPress: !_isDesktop && assistant != null
-            ? () {
-                AssistantEntryActions.openAssistantSettings(
-                  context,
-                  assistant.id,
-                );
-              }
-            : null,
-        child: AssistantAvatar(
-          assistant: assistant,
-          fallbackName: fallbackName,
-          size: 28,
-        ),
-      ),
-    );
-  }
-
-  void _revealAssistantTopics(BuildContext context) {
-    final topicsOnRight =
-        context.read<SettingsProvider>().desktopTopicPosition ==
-        DesktopTopicPosition.right;
-    if (topicsOnRight) {
-      if (!rightSidebarOpen) {
-        onToggleRightSidebar();
-      }
-      return;
-    }
-    if (!tabletSidebarOpen) {
-      onToggleSidebar();
-    }
-    DesktopSidebarTabBus.instance.switchToTopics();
-  }
-
   List<Widget> _buildActions(
     BuildContext context,
     bool topicsOnRight, {
     required bool workspaceBound,
   }) {
     final l10n = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
     return [
       if (_isDesktop && workspaceBound)
         Tooltip(
@@ -643,34 +423,38 @@ class HomeDesktopScaffold extends StatelessWidget {
           icon: Lucide.panelRight,
           onTap: onToggleRightSidebar,
         ),
-      const SizedBox(width: 2),
-      IosIconButton(
-        size: 20,
-        padding: const EdgeInsets.all(8),
-        minSize: 40,
-        semanticLabel: canToggleTemporaryConversation
-            ? AppLocalizations.of(context)!.temporaryChatToggleTooltip
-            : AppLocalizations.of(context)!.titleForLocale,
-        icon: canToggleTemporaryConversation && !temporaryConversationEnabled
-            ? Lucide.MessageCircleDashed
-            : Lucide.MessageCirclePlus,
-        builder: canToggleTemporaryConversation && temporaryConversationEnabled
-            ? (color) => SvgPicture.asset(
-                'assets/icons/temporary_chat_checked.svg',
-                width: 20,
-                height: 20,
-                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-              )
-            : null,
-        onTap: () async {
-          if (canToggleTemporaryConversation) {
-            await onToggleTemporaryConversation();
-          } else {
-            await onCreateNewConversation();
-          }
-        },
+      const SizedBox(width: 4),
+      Padding(
+        padding: const EdgeInsetsDirectional.only(end: 12),
+        child: Center(
+          child: HeaderBubbleButton(
+            tooltip: canToggleTemporaryConversation
+                ? AppLocalizations.of(context)!.temporaryChatToggleTooltip
+                : AppLocalizations.of(context)!.titleForLocale,
+            onTap: () async {
+              if (canToggleTemporaryConversation) {
+                await onToggleTemporaryConversation();
+              } else {
+                await onCreateNewConversation();
+              }
+            },
+            child: canToggleTemporaryConversation && temporaryConversationEnabled
+                ? SvgPicture.asset(
+                    'assets/icons/temporary_chat_checked.svg',
+                    width: 22,
+                    height: 22,
+                    colorFilter: ColorFilter.mode(cs.primary, BlendMode.srcIn),
+                  )
+                : Icon(
+                    canToggleTemporaryConversation && !temporaryConversationEnabled
+                        ? Lucide.MessageCircleDashed
+                        : Lucide.MessageCirclePlus,
+                    size: 22,
+                    color: cs.onSurface,
+                  ),
+          ),
+        ),
       ),
-      const SizedBox(width: 6),
     ];
   }
 }

@@ -210,7 +210,7 @@ class SettingsPage extends StatelessWidget {
               _iosNavRow(
                 context,
                 icon: Lucide.KeyRound,
-                label: l10n.buildXConnectionTitle,
+                label: 'Build X Connection (NVIDIA NIM)',
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

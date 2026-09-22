@@ -1,6 +1,6 @@
-# Build X
+# build-x3
 
-Build X is a Flutter chat client for mobile and desktop. Every model text request uses Mistral’s Conversations API with `mistral-medium-latest`.
+Build X is an autonomous agent and chat client for mobile and desktop, powered by NVIDIA Nemotron with Chat and Work modes.
 
 ## Start chatting
 

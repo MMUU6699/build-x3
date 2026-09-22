@@ -44,6 +44,9 @@ class BottomToolsSheet extends StatelessWidget {
     this.assistantId,
     this.conversationId,
     this.onClose,
+    this.webSearchActive = false,
+    this.onToggleWebSearch,
+    this.onConfigureSearch,
   });
 
   final VoidCallback? onCamera;
@@ -54,6 +57,9 @@ class BottomToolsSheet extends StatelessWidget {
   final String? assistantId;
   final String? conversationId;
   final VoidCallback? onClose;
+  final bool webSearchActive;
+  final VoidCallback? onToggleWebSearch;
+  final VoidCallback? onConfigureSearch;
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +165,41 @@ class BottomToolsSheet extends StatelessWidget {
                           onTap: onUpload,
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 14),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 6),
+                        child: Text(
+                          'Plugins',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: AppFontWeights.semibold,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                    ToolsSheetRow(
+                      icon: Lucide.Globe,
+                      label: 'Web Search',
+                      selected: webSearchActive,
+                      onTap: () {
+                        Haptics.light();
+                        Navigator.of(context).maybePop();
+                        onToggleWebSearch?.call();
+                      },
+                      onLongPress: onConfigureSearch != null
+                          ? () {
+                              Haptics.light();
+                              Navigator.of(context).maybePop();
+                              onConfigureSearch?.call();
+                            }
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     _LearningAndClearSection(

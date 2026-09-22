@@ -7,7 +7,7 @@ import 'chat_api_helpers.dart';
 import 'generation/text_generation_result.dart';
 import 'providers/claude_official.dart' show normalizeClaudeImageMime;
 import 'providers/google_vertex.dart' show shouldAttachVertexMediaAuth;
-import 'providers/mistral_conversations.dart';
+import 'providers/nvidia_chat_completions.dart';
 import 'providers/openai/openai_vendor_compat.dart'
     show isLongCatHost, shouldIncludeStreamingUsageOptions;
 import 'stream/stream_chunk.dart';
@@ -77,13 +77,16 @@ class ChatApiService {
       _activeClients[id] = client;
     }
     try {
-      yield* MistralConversations.send(
+      yield* NvidiaChatCompletions.send(
         client: client,
         messages: messages,
         localConversationId: conversationId,
         persistConversation: persistConversation,
+        apiKeyOverride:
+            config.apiKey.trim().isNotEmpty ? config.apiKey.trim() : null,
         tools: tools,
         onToolCall: onToolCall,
+        suppressReasoning: true,
       );
     } finally {
       if (id.isNotEmpty && identical(_activeClients[id], client)) {

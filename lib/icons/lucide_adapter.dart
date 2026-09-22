@@ -114,6 +114,8 @@ class Lucide {
   static const IconData Compass = lucide.LucideIcons.compass;
   static const IconData ArrowDown = lucide.LucideIcons.arrowDown;
   static const IconData Edit2 = lucide.LucideIcons.squarePen;
+  static const IconData ThumbsUp = lucide.LucideIcons.thumbsUp;
+  static const IconData ThumbsDown = lucide.LucideIcons.thumbsDown;
   static const IconData BookOpen = lucide.LucideIcons.bookOpen;
   static const IconData Calculator = lucide.LucideIcons.calculator;
   static const IconData Activity = lucide.LucideIcons.activity;
@@ -247,4 +249,8 @@ class Lucide {
   static const IconData SlidersHorizontal =
       lucide.LucideIcons.slidersHorizontal;
   static const IconData AudioLines = lucide.LucideIcons.audioLines;
+  static const IconData Cpu = lucide.LucideIcons.cpu;
+  static const IconData AlertTriangle = lucide.LucideIcons.triangleAlert;
+  static const IconData AlertCircle = lucide.LucideIcons.circleAlert;
+  static const IconData CheckCircle2 = lucide.LucideIcons.circleCheck;
 }

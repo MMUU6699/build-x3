@@ -8,6 +8,8 @@ class AppFontWeights {
   static FontWeight get regular => normalize(FontWeight.w400);
   static FontWeight get medium => normalize(FontWeight.w500);
   static FontWeight get semibold => normalize(FontWeight.w600);
+  static FontWeight get semiBold => normalize(FontWeight.w600);
+  static FontWeight get bold => normalize(FontWeight.w700);
   static FontWeight get emphasis => normalize(FontWeight.w700);
   static FontWeight get strong => normalize(FontWeight.w700);
   static FontWeight get heavy => normalize(FontWeight.w800);

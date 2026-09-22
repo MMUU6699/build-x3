@@ -1,0 +1,161 @@
+# Build X change inventory
+
+This inventory covers the five implementation commits and this report.
+
+## Assumptions and scope
+
+- Kept the original Dart package identifier, native bundle identifiers, URL schemes, database keys, and stored-data names for compatibility. Visible app names are Build X.
+- The #stream suffix in the Mistral documentation is a URL fragment; HTTP requests use /v1/conversations or /v1/conversations/{id} with stream: true and Accept: text/event-stream.
+- An existing chat maps to the latest Mistral conversation ID in local preferences, scoped by a fingerprint of the saved API key. Utility calls start independent conversations.
+- The Search browser account form stores one site, username, and secret in platform secure storage. Browser control is reserved for a later update.
+- Removed the Translation page and navigation. Existing per-message translation actions remain.
+- The global grayscale filter also desaturates user media and previews. Existing theme and color-mode settings remain available as requested.
+- Text generation routes through the Mistral Conversations adapter. Function calls from completed Mistral events are executed locally and their results appended to the same conversation. Image and other multimodal attachment behavior has not been adapted to the Conversations API.
+
+## Verification
+
+- flutter analyze --no-pub: passed, no issues.
+- flutter test --no-pub test/core/services/api/mistral_conversations_test.dart: passed, 3 tests.
+- Full historical test suite: stopped after more than 150 failures, including tests for removed provider behavior and Windows file/symlink issues.
+- Android release APK build: PENDING.
+- Web build: failed because upstream native dart:ffi imports are unsupported by the web target.
+
+## Files (134)
+
+- **Modified** README.md
+- **Modified** README_ZH_CN.md
+- **Modified** analysis_options.yaml
+- **Modified** android/app/src/main/AndroidManifest.xml
+- **Modified** android/app/src/main/kotlin/com/psyche/kelivo/DeviceLocalToolsHandler.kt
+- **Modified** android/app/src/main/kotlin/com/psyche/kelivo/OAuthHandler.kt
+- **Modified** android/app/src/main/kotlin/com/psyche/kelivo/background/BackgroundRuntime.kt
+- **Modified** android/app/src/main/kotlin/com/psyche/kelivo/workspace/WorkspaceDirectoryAccess.kt
+- **Modified** android/app/src/main/kotlin/com/psyche/kelivo/workspace/WorkspaceDocumentsProvider.kt
+- **Modified** ios/GenerationActivityExtension/Info.plist
+- **Modified** ios/Runner/Info.plist
+- **Modified** ios/Runner/MobileBackgroundHandler.swift
+- **Modified** ios/ShareExtension/Info.plist
+- **Modified** ios/ShareExtension/en.lproj/Localizable.strings
+- **Modified** ios/ShareExtension/zh-Hans.lproj/Localizable.strings
+- **Modified** ios/ShareExtension/zh-Hant.lproj/Localizable.strings
+- **Added** lib/core/build_x_config.dart
+- **Modified** lib/core/database/startup_failure_report.dart
+- **Modified** lib/core/providers/hotkey_provider.dart
+- **Modified** lib/core/providers/mcp_provider.dart
+- **Modified** lib/core/providers/settings_provider.dart
+- **Modified** lib/core/services/api/chat_api_helpers.dart
+- **Modified** lib/core/services/api/chat_api_service.dart
+- **Modified** lib/core/services/api/provider_request_headers.dart
+- **Added** lib/core/services/api/providers/mistral_conversations.dart
+- **Modified** lib/core/services/api/providers/openai_images.dart
+- **Modified** lib/core/services/auth/oauth_callback_io.dart
+- **Added** lib/core/services/build_x_secure_store.dart
+- **Modified** lib/core/services/mcp/kelivo_fetch/kelivo_fetch_inmemory.dart
+- **Modified** lib/core/services/mcp/mcp_oauth_service.dart
+- **Modified** lib/core/services/mobile_background.dart
+- **Modified** lib/core/services/notification_service.dart
+- **Modified** lib/core/services/search/providers/kelivo_search_service.dart
+- **Deleted** lib/desktop/add_provider_dialog.dart
+- **Modified** lib/desktop/desktop_home_page.dart
+- **Modified** lib/desktop/desktop_nav_rail.dart
+- **Modified** lib/desktop/desktop_settings_page.dart
+- **Deleted** lib/desktop/desktop_translate_page.dart
+- **Modified** lib/desktop/desktop_tray_controller.dart
+- **Modified** lib/desktop/hotkeys/chat_action_bus.dart
+- **Modified** lib/desktop/hotkeys/hotkey_event_bus.dart
+- **Deleted** lib/desktop/model_edit_dialog.dart
+- **Deleted** lib/desktop/model_fetch_dialog.dart
+- **Added** lib/desktop/setting/common_controls.dart
+- **Deleted** lib/desktop/setting/default_model_pane.dart
+- **Modified** lib/desktop/setting/display_pane.dart
+- **Modified** lib/desktop/setting/hotkeys_pane.dart
+- **Deleted** lib/desktop/setting/providers_pane.dart
+- **Modified** lib/desktop/setting/quick_phrases_pane.dart
+- **Modified** lib/desktop/setting/search_services_pane.dart
+- **Modified** lib/features/assistant/pages/assistant_settings_edit_basic_tab.dart
+- **Modified** lib/features/assistant/pages/assistant_settings_edit_page.dart
+- **Modified** lib/features/chat/widgets/chat_message_widget.dart
+- **Modified** lib/features/home/controllers/chat_actions.dart
+- **Modified** lib/features/home/controllers/home_page_controller.dart
+- **Modified** lib/features/home/pages/home_desktop_layout.dart
+- **Modified** lib/features/home/pages/home_mobile_layout.dart
+- **Modified** lib/features/home/pages/home_page.dart
+- **Modified** lib/features/home/services/tool_handler_service.dart
+- **Modified** lib/features/home/utils/model_display_helper.dart
+- **Modified** lib/features/home/widgets/chat_input_bar.dart
+- **Modified** lib/features/home/widgets/chat_input_section.dart
+- **Modified** lib/features/home/widgets/side_drawer.dart
+- **Deleted** lib/features/model/pages/default_model_page.dart
+- **Deleted** lib/features/model/widgets/model_detail_sheet.dart
+- **Deleted** lib/features/model/widgets/model_edit_state_helper.dart
+- **Deleted** lib/features/model/widgets/model_select_sheet.dart
+- **Deleted** lib/features/provider/pages/multi_key_manager_page.dart
+- **Deleted** lib/features/provider/pages/oauth_provider_detail_page.dart
+- **Deleted** lib/features/provider/pages/provider_balance_page.dart
+- **Deleted** lib/features/provider/pages/provider_custom_request_page.dart
+- **Deleted** lib/features/provider/pages/provider_detail_page.dart
+- **Deleted** lib/features/provider/pages/provider_groups_page.dart
+- **Deleted** lib/features/provider/pages/provider_network_page.dart
+- **Deleted** lib/features/provider/pages/providers_page.dart
+- **Deleted** lib/features/provider/widgets/add_provider_sheet.dart
+- **Deleted** lib/features/provider/widgets/import_provider_sheet.dart
+- **Deleted** lib/features/provider/widgets/oauth_account_card.dart
+- **Deleted** lib/features/provider/widgets/oauth_connection_info.dart
+- **Deleted** lib/features/provider/widgets/oauth_login_panel.dart
+- **Deleted** lib/features/provider/widgets/oauth_message_recovery.dart
+- **Deleted** lib/features/provider/widgets/provider_custom_request_editor.dart
+- **Deleted** lib/features/provider/widgets/provider_group_picker_sheet.dart
+- **Deleted** lib/features/provider/widgets/provider_group_select_sheet.dart
+- **Deleted** lib/features/provider/widgets/share_provider_sheet.dart
+- **Modified** lib/features/scheduled_tasks/pages/scheduled_task_editor_page.dart
+- **Modified** lib/features/search/pages/search_services_page.dart
+- **Added** lib/features/search/widgets/search_future_tools_section.dart
+- **Modified** lib/features/settings/pages/about_page.dart
+- **Modified** lib/features/settings/pages/display_settings_page.dart
+- **Modified** lib/features/settings/pages/legacy_memory_page.dart
+- **Modified** lib/features/settings/pages/memory_entries_page.dart
+- **Modified** lib/features/settings/pages/memory_settings_page.dart
+- **Added** lib/features/settings/pages/mistral_connection_page.dart
+- **Modified** lib/features/settings/pages/settings_page.dart
+- **Modified** lib/features/settings/search/settings_search_index.dart
+- **Modified** lib/features/settings/search/settings_search_navigation.dart
+- **Modified** lib/features/settings/widgets/background_status_preview.dart
+- **Deleted** lib/features/translate/pages/translate_page.dart
+- **Modified** lib/features/world_book/pages/world_book_page.dart
+- **Modified** lib/l10n/app_en.arb
+- **Modified** lib/l10n/app_localizations.dart
+- **Modified** lib/l10n/app_localizations_en.dart
+- **Modified** lib/l10n/app_localizations_zh.dart
+- **Modified** lib/l10n/app_zh.arb
+- **Modified** lib/l10n/app_zh_Hans.arb
+- **Modified** lib/l10n/app_zh_Hant.arb
+- **Modified** lib/main.dart
+- **Modified** lib/shared/widgets/restart_app_action.dart
+- **Modified** lib/shared/widgets/restore_failure_screen.dart
+- **Added** lib/theme/build_x_monochrome.dart
+- **Modified** lib/utils/brand_assets.dart
+- **Modified** linux/flutter/generated_plugin_registrant.cc
+- **Modified** linux/flutter/generated_plugins.cmake
+- **Modified** linux/runner/my_application.cc
+- **Modified** macos/Flutter/GeneratedPluginRegistrant.swift
+- **Modified** macos/Runner/Configs/AppInfo.xcconfig
+- **Modified** macos/Runner/Info.plist
+- **Modified** pubspec.yaml
+- **Added** test/core/services/api/mistral_conversations_test.dart
+- **Modified** test/core/services/auth/provider_oauth_service_test.dart
+- **Deleted** test/desktop_provider_detail_pane_test.dart
+- **Deleted** test/features/model/pages/default_model_page_test.dart
+- **Deleted** test/features/model/widgets/model_select_sheet_test.dart
+- **Deleted** test/features/provider/oauth_widgets_test.dart
+- **Deleted** test/features/provider/pages/provider_detail_page_selection_toolbar_test.dart
+- **Deleted** test/features/provider/widgets/provider_custom_request_editor_test.dart
+- **Modified** web/index.html
+- **Modified** web/manifest.json
+- **Modified** windows/flutter/generated_plugin_registrant.cc
+- **Modified** windows/flutter/generated_plugins.cmake
+- **Modified** windows/runner/Runner.rc
+- **Modified** windows/runner/main.cpp
+- **Added** BUILD_X_CHANGES.md
+
+
+

@@ -9,6 +9,7 @@ import '../../../core/services/haptics.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:open_filex/open_filex.dart';
+import 'package:share_plus/share_plus.dart';
 // import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'dart:convert';
 import '../../home/widgets/file_processing_indicator.dart';
@@ -17,15 +18,11 @@ import '../../../core/models/chat_message.dart';
 import '../../../core/models/message_part.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../icons/reasoning_icons.dart';
-// import '../../../theme/design_tokens.dart';
-import '../../../core/providers/user_provider.dart';
 import '../../../core/services/chat/chat_service.dart';
 import '../../../core/providers/assistant_provider.dart';
-import 'package:intl/intl.dart';
 import '../../../utils/sandbox_path_resolver.dart';
 import '../../../utils/safe_resize_image.dart';
 import '../../../utils/utf16_safe_cut.dart';
-import '../../../utils/avatar_cache.dart';
 import '../../../utils/assistant_regex.dart';
 import '../../../core/models/assistant.dart';
 import '../../../core/providers/tts_provider.dart';
@@ -35,7 +32,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/providers/settings_provider.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
-import '../../../core/providers/model_provider.dart';
 import '../../../core/models/assistant_regex.dart';
 import '../../../shared/widgets/custom_bottom_sheet.dart';
 import '../../../shared/widgets/ios_checkbox.dart';
@@ -43,7 +39,6 @@ import '../../../shared/widgets/ios_tactile.dart';
 import '../../../shared/widgets/thinking_sheen.dart';
 import '../../../desktop/desktop_context_menu.dart';
 import '../../../desktop/menu_anchor.dart';
-import '../../../shared/widgets/emoji_text.dart';
 import '../../../utils/platform_utils.dart';
 import '../../home/services/ask_user_interaction_service.dart';
 import '../../home/services/local_tools_service.dart';
@@ -56,7 +51,6 @@ import 'citation_sources_sheet.dart';
 import 'chat_surface.dart';
 import 'collapsible_user_text.dart';
 import 'chat_suggestion_bubbles.dart';
-import 'token_display_widget.dart';
 import 'screen_time_tool_ui.dart';
 import 'weather_tool_ui.dart';
 import 'tool_detail_text_section.dart';
@@ -1120,9 +1114,9 @@ class ChatMessageWidget extends StatefulWidget {
 }
 
 class _ChatMessageWidgetState extends State<ChatMessageWidget> {
-  final DateFormat _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   final ScrollController _reasoningScroll = ScrollController();
   bool _tickActive = false;
+  bool? _liked;
   // Local expand state for inline <think> card (defaults to expanded)
   bool? _inlineThinkExpanded;
   bool _inlineThinkManuallyToggled = false;
@@ -1132,7 +1126,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
   // Desktop anchored menus for bottom action buttons
   final GlobalKey _moreBtnKey1 = GlobalKey();
   final GlobalKey _moreBtnKey2 = GlobalKey();
-  final GlobalKey _translateBtnKey2 = GlobalKey();
   // ValueNotifier for reasoning animation tick - avoids full widget rebuild
   final ValueNotifier<int> _reasoningTick = ValueNotifier<int>(0);
   Timer? _reasoningTimer;
@@ -1311,20 +1304,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     );
   }
 
-  String _assistantNameFallback() {
-    try {
-      final chat = context.read<ChatService>();
-      final convo = chat.getConversation(widget.message.conversationId);
-      final aId = convo?.assistantId;
-      if (aId != null && aId.isNotEmpty) {
-        final ap = context.read<AssistantProvider>();
-        final a = ap.getById(aId);
-        final name = a?.name.trim();
-        if (name != null && name.isNotEmpty) return name;
-      }
-    } catch (_) {}
-    return 'AI Assistant';
-  }
 
   Assistant? _assistantForMessage() {
     try {
@@ -1371,54 +1350,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     if (ok == true && mounted) action();
   }
 
-  String _resolveModelDisplayName(SettingsProvider settings) {
-    final modelId = widget.message.modelId;
-    if (modelId == null || modelId.trim().isEmpty) {
-      // Model metadata can be missing for legacy/preset messages.
-      return AppLocalizations.of(context)?.messageExportSheetAssistant ??
-          'Assistant';
-    }
-
-    final providerId = widget.message.providerId;
-    String baseId = modelId;
-    String? providerName;
-    if (providerId != null && providerId.isNotEmpty) {
-      try {
-        final cfg = settings.getProviderConfig(providerId);
-        providerName = cfg.name.trim();
-        final ov = cfg.modelOverrides[modelId] as Map?;
-        if (ov != null) {
-          final name = (ov['name'] as String?)?.trim();
-          if (name != null && name.isNotEmpty) {
-            if (settings.showProviderInChatMessage && providerName.isNotEmpty) {
-              return '$name | $providerName';
-            }
-            return name;
-          }
-          final apiId = (ov['apiModelId'] ?? ov['api_model_id'])
-              ?.toString()
-              .trim();
-          if (apiId != null && apiId.isNotEmpty) {
-            baseId = apiId;
-          }
-        }
-      } catch (_) {
-        // ignore lookup failures; fall through to inferred name.
-      }
-    }
-
-    final inferred = ModelRegistry.infer(
-      ModelInfo(id: baseId, displayName: baseId),
-    );
-    final fallback = inferred.displayName.trim();
-    final displayName = fallback.isNotEmpty ? fallback : baseId;
-    if (settings.showProviderInChatMessage &&
-        providerName != null &&
-        providerName.isNotEmpty) {
-      return '$displayName | $providerName';
-    }
-    return displayName;
-  }
 
   @override
   void dispose() {
@@ -1601,77 +1532,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     });
   }
 
-  Widget _buildUserAvatar(
-    String? avatarType,
-    String? avatarValue,
-    ColorScheme cs,
-  ) {
-    Widget avatarContent;
-
-    if (avatarType == 'emoji' && avatarValue != null) {
-      final bool isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-      final double fs = 18;
-      final Offset? nudge = isIOS ? Offset(fs * 0.065, fs * -0.05) : null;
-      avatarContent = Center(
-        child: EmojiText(
-          avatarValue,
-          fontSize: fs,
-          optimizeEmojiAlign: true,
-          nudge: nudge,
-        ),
-      );
-    } else if (avatarType == 'url' && avatarValue != null) {
-      final url = avatarValue;
-      avatarContent = FutureBuilder<String?>(
-        future: AvatarCache.getPath(url),
-        builder: (ctx, snap) {
-          final p = snap.data;
-          if (p != null && File(p).existsSync()) {
-            return ClipOval(
-              child: Image.file(
-                File(p),
-                width: 32,
-                height: 32,
-                fit: BoxFit.cover,
-              ),
-            );
-          }
-          return ClipOval(
-            child: Image.network(
-              url,
-              width: 32,
-              height: 32,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  Icon(Lucide.User, size: 18, color: cs.primary),
-            ),
-          );
-        },
-      );
-    } else if (avatarType == 'file' && avatarValue != null) {
-      final fixed = SandboxPathResolver.fix(avatarValue);
-      final f = File(fixed);
-      if (f.existsSync()) {
-        avatarContent = ClipOval(
-          child: Image.file(f, width: 32, height: 32, fit: BoxFit.cover),
-        );
-      } else {
-        avatarContent = Icon(Lucide.User, size: 18, color: cs.primary);
-      }
-    } else {
-      avatarContent = Icon(Lucide.User, size: 18, color: cs.primary);
-    }
-
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-      ),
-      child: avatarContent,
-    );
-  }
 
   Widget _buildToolMessage() {
     // Parse JSON payload embedded in tool message content
@@ -1720,37 +1580,26 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
   }
 
   Widget _buildUserMessage() {
-    final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final userName = context.select<UserProvider, String>((u) => u.name);
-    final userAvatarType = context.select<UserProvider, String?>(
-      (u) => u.avatarType,
-    );
-    final userAvatarValue = context.select<UserProvider, String?>(
-      (u) => u.avatarValue,
-    );
-    final l10n = AppLocalizations.of(context)!;
     final userMessageSettings = context
         .select<
           SettingsProvider,
           ({
             bool showActions,
-            bool showName,
-            bool showTimestamp,
             bool enableMarkdown,
             int collapseChars,
           })
         >(
           (s) => (
             showActions: s.showUserMessageActions,
-            showName: s.showUserName,
-            showTimestamp: s.showUserTimestamp,
             enableMarkdown: s.enableUserMarkdown,
             collapseChars: s.collapseLongUserMessages
                 ? s.collapseLongUserMessageChars
                 : 0,
           ),
         );
+    final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     // Attachments come from structured parts only. Literal marker-like text
     // inside TextPart stays plain text and is never re-parsed.
     final assistant = _assistantForMessage();
@@ -1786,49 +1635,10 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
         : null;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Header: User info and avatar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (userMessageSettings.showName ||
-                  userMessageSettings.showTimestamp)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (userMessageSettings.showName)
-                      Text(
-                        userName,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: AppFontWeights.medium,
-                          color: cs.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    if (userMessageSettings.showName &&
-                        userMessageSettings.showTimestamp)
-                      const SizedBox(height: 2),
-                    if (userMessageSettings.showTimestamp)
-                      Text(
-                        _dateFormat.format(widget.message.timestamp),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: cs.onSurface.withValues(alpha: 0.5),
-                        ),
-                      ),
-                  ],
-                ),
-              if (widget.showUserAvatar) ...[
-                const SizedBox(width: 8),
-                // User avatar
-                _buildUserAvatar(userAvatarType, userAvatarValue, cs),
-              ],
-            ],
-          ),
-          const SizedBox(height: 8),
           // Message content (context menu: long-press on mobile, right-click on desktop)
           GestureDetector(
             onLongPressStart: (_) {
@@ -2770,12 +2580,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     final cs = Theme.of(context).colorScheme;
     final fg = computeChatSurfaceForegroundPalette(context);
     final l10n = AppLocalizations.of(context)!;
-    final showModelName = context.select<SettingsProvider, bool>(
-      (s) => s.showModelName,
-    );
-    final showModelTimestamp = context.select<SettingsProvider, bool>(
-      (s) => s.showModelTimestamp,
-    );
     final enableAssistantMarkdown = context.select<SettingsProvider, bool>(
       (s) => s.enableAssistantMarkdown,
     );
@@ -2787,9 +2591,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     );
     final showProducedFiles = context.select<SettingsProvider, bool>(
       (s) => s.showProducedFiles,
-    );
-    final modelDisplayName = context.select<SettingsProvider, String>(
-      _resolveModelDisplayName,
     );
     final assistant = _assistantForMessage();
 
@@ -2838,74 +2639,10 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     return ChatSurfaceTheme(
       palette: fg,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Model info and time
-            Row(
-              children: [
-                if (widget.useAssistantAvatar) ...[
-                  _buildAssistantAvatar(cs),
-                  const SizedBox(width: 8),
-                ] else if (widget.showModelIcon) ...[
-                  widget.modelIcon ??
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: cs.secondary.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Lucide.Bot, size: 18, color: cs.secondary),
-                      ),
-                  const SizedBox(width: 8),
-                ],
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (showModelName)
-                        Text(
-                          widget.useAssistantName
-                              ? (widget.assistantName?.trim().isNotEmpty == true
-                                    ? widget.assistantName!.trim()
-                                    : _assistantNameFallback())
-                              : modelDisplayName,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: AppFontWeights.medium,
-                            color: cs.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      Builder(
-                        builder: (context) {
-                          final List<Widget> rowChildren = [];
-                          if (showModelTimestamp) {
-                            rowChildren.add(
-                              Text(
-                                _dateFormat.format(widget.message.timestamp),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: cs.onSurface.withValues(alpha: 0.5),
-                                ),
-                              ),
-                            );
-                          }
-                          // Token stats moved to action toolbar
-                          return rowChildren.isNotEmpty
-                              ? Row(children: rowChildren)
-                              : const SizedBox.shrink();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
             if (mediaPreview != null) ...[
               mediaPreview,
               const SizedBox(height: 8),
@@ -3261,17 +2998,17 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                       padding: const EdgeInsets.only(top: 8),
                       child: Row(
                         children: [
+                          // 1. Copy
                           SizedBox(
                             width: 28,
                             height: 28,
                             child: Center(
                               child: IosIconButton(
                                 size: 16,
-                                padding: EdgeInsets.all(4),
+                                padding: const EdgeInsets.all(4),
                                 icon: Lucide.Copy,
-                                color: cs.onSurface.withValues(alpha: 0.9),
-                                onTap:
-                                    widget.onCopy ??
+                                color: cs.onSurface.withValues(alpha: 0.65),
+                                onTap: widget.onCopy ??
                                     () {
                                       Clipboard.setData(
                                         ClipboardData(
@@ -3289,24 +3026,51 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                             ),
                           ),
                           const SizedBox(width: 6),
+                          // 2. Thumbs Up (Like)
                           SizedBox(
                             width: 28,
                             height: 28,
                             child: Center(
                               child: IosIconButton(
                                 size: 16,
-                                padding: EdgeInsets.all(4),
-                                icon: Lucide.RefreshCw,
-                                color: cs.onSurface.withValues(alpha: 0.9),
-                                onTap: widget.onRegenerate == null
-                                    ? null
-                                    : () => _confirmRegeneration(
-                                        widget.onRegenerate!,
-                                      ),
+                                padding: const EdgeInsets.all(4),
+                                icon: Lucide.ThumbsUp,
+                                color: _liked == true
+                                    ? cs.primary
+                                    : cs.onSurface.withValues(alpha: 0.65),
+                                onTap: () {
+                                  Haptics.light();
+                                  setState(() {
+                                    _liked = _liked == true ? null : true;
+                                  });
+                                },
                               ),
                             ),
                           ),
                           const SizedBox(width: 6),
+                          // 3. Thumbs Down (Dislike)
+                          SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: Center(
+                              child: IosIconButton(
+                                size: 16,
+                                padding: const EdgeInsets.all(4),
+                                icon: Lucide.ThumbsDown,
+                                color: _liked == false
+                                    ? cs.error
+                                    : cs.onSurface.withValues(alpha: 0.65),
+                                onTap: () {
+                                  Haptics.light();
+                                  setState(() {
+                                    _liked = _liked == false ? null : false;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          // 4. Read aloud / Speak
                           Consumer<TtsProvider>(
                             builder: (context, tts, _) {
                               final ttsActive = tts.playbackState.isActive;
@@ -3316,9 +3080,9 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                                 child: Center(
                                   child: IosIconButton(
                                     size: 16,
-                                    padding: EdgeInsets.all(4),
+                                    padding: const EdgeInsets.all(4),
                                     onTap: widget.onSpeak,
-                                    color: cs.onSurface.withValues(alpha: 0.9),
+                                    color: cs.onSurface.withValues(alpha: 0.65),
                                     builder: (color) => AnimatedSwitcher(
                                       duration: const Duration(
                                         milliseconds: 200,
@@ -3348,93 +3112,43 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                             },
                           ),
                           const SizedBox(width: 6),
+                          // 5. Share
                           SizedBox(
                             width: 28,
                             height: 28,
                             child: Center(
-                              child: GestureDetector(
-                                key: _translateBtnKey2,
-                                behavior: HitTestBehavior.opaque,
-                                onTapDown: (d) {
-                                  final isDesktop =
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.macOS ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.windows ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.linux;
-                                  if (isDesktop) {
-                                    try {
-                                      DesktopMenuAnchor.setPosition(
-                                        d.globalPosition,
-                                      );
-                                    } catch (_) {}
-                                  }
-                                },
+                              child: IosIconButton(
+                                size: 16,
+                                padding: const EdgeInsets.all(4),
+                                icon: Lucide.Share2,
+                                color: cs.onSurface.withValues(alpha: 0.65),
                                 onTap: () {
-                                  final isDesktop =
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.macOS ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.windows ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.linux;
-                                  if (isDesktop) {
-                                    _setAnchorFromKey(_translateBtnKey2);
-                                  }
-                                  widget.onTranslate?.call();
+                                  Haptics.light();
+                                  SharePlus.instance.share(
+                                    ShareParams(
+                                      text: widget.message.content,
+                                    ),
+                                  );
                                 },
-                                child: IosIconButton(
-                                  size: 16,
-                                  padding: EdgeInsets.all(4),
-                                  icon: Lucide.Languages,
-                                  color: cs.onSurface.withValues(alpha: 0.9),
-                                  onTap: null,
-                                ),
                               ),
                             ),
                           ),
                           const SizedBox(width: 6),
+                          // 6. More options
                           SizedBox(
                             width: 28,
                             height: 28,
                             child: Center(
                               child: GestureDetector(
                                 key: _moreBtnKey2,
-                                onTapDown: (d) {
-                                  final isDesktop =
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.macOS ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.windows ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.linux;
-                                  if (isDesktop) {
-                                    try {
-                                      DesktopMenuAnchor.setPosition(
-                                        d.globalPosition,
-                                      );
-                                    } catch (_) {}
-                                  }
-                                },
                                 onTap: () {
-                                  final isDesktop =
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.macOS ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.windows ||
-                                      defaultTargetPlatform ==
-                                          TargetPlatform.linux;
-                                  if (isDesktop) {
-                                    _setAnchorFromKey(_moreBtnKey2);
-                                  }
                                   widget.onMore?.call();
                                 },
                                 child: IosIconButton(
                                   size: 16,
-                                  padding: EdgeInsets.all(4),
-                                  icon: Lucide.Ellipsis,
-                                  color: cs.onSurface.withValues(alpha: 0.9),
+                                  padding: const EdgeInsets.all(4),
+                                  icon: Lucide.MoreVertical,
+                                  color: cs.onSurface.withValues(alpha: 0.65),
                                   onTap: null,
                                 ),
                               ),
@@ -3447,17 +3161,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                               total: widget.versionCount ?? 1,
                               onPrev: widget.onPrevVersion,
                               onNext: widget.onNextVersion,
-                            ),
-                          ],
-                          if (widget.showTokenStats &&
-                              widget.message.totalTokens != null) ...[
-                            const Spacer(),
-                            TokenDisplayWidget(
-                              totalTokens: widget.message.totalTokens!,
-                              promptTokens: widget.message.promptTokens,
-                              completionTokens: widget.message.completionTokens,
-                              cachedTokens: widget.message.cachedTokens,
-                              durationMs: widget.message.durationMs,
                             ),
                           ],
                         ],
@@ -3670,89 +3373,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     }
   }
 
-  Widget _buildAssistantAvatar(ColorScheme cs) {
-    final av = (widget.assistantAvatar ?? '').trim();
-    if (av.isNotEmpty) {
-      if (av.startsWith('http')) {
-        return FutureBuilder<String?>(
-          future: AvatarCache.getPath(av),
-          builder: (ctx, snap) {
-            final p = snap.data;
-            if (p != null && File(p).existsSync()) {
-              return ClipOval(
-                child: Image.file(
-                  File(p),
-                  width: 32,
-                  height: 32,
-                  fit: BoxFit.cover,
-                ),
-              );
-            }
-            return ClipOval(
-              child: Image.network(
-                av,
-                width: 32,
-                height: 32,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _assistantInitial(cs),
-              ),
-            );
-          },
-        );
-      }
-      if (av.startsWith('/') || av.contains(':')) {
-        final fixed = SandboxPathResolver.fix(av);
-        final f = File(fixed);
-        if (f.existsSync()) {
-          return ClipOval(
-            child: Image.file(f, width: 32, height: 32, fit: BoxFit.cover),
-          );
-        }
-        return _assistantInitial(cs);
-      }
-      // treat as emoji or single char label
-      final bool isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-      final double fs = 18;
-      final Offset? nudge = isIOS ? Offset(fs * 0.065, fs * -0.05) : null;
-      return Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: cs.primary.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        alignment: Alignment.center,
-        child: EmojiText(
-          av.characters.take(1).toString(),
-          fontSize: fs,
-          optimizeEmojiAlign: true,
-          nudge: nudge,
-        ),
-      );
-    }
-    return _assistantInitial(cs);
-  }
-
-  Widget _assistantInitial(ColorScheme cs) {
-    final name = (widget.assistantName ?? '').trim();
-    final ch = name.isNotEmpty ? name.characters.first.toUpperCase() : 'A';
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        ch,
-        style: TextStyle(
-          color: cs.primary,
-          fontWeight: AppFontWeights.emphasis,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

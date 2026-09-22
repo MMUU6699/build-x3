@@ -556,11 +556,11 @@ class SettingsProvider extends ChangeNotifier {
   // Returns a config for the given key without mutating internal state when missing.
   // This avoids implicitly creating providers during read paths (e.g., rendering old chats).
   ProviderConfig getProviderConfig(String key, {String? defaultName}) {
-    if (key == BuildXConfig.providerKey) {
-      return ProviderConfig.defaultsFor(key, displayName: 'Mistral').copyWith(
+    if (key == BuildXConfig.providerKey || key == BuildXConfig.legacyProviderKey) {
+      return ProviderConfig.defaultsFor(key, displayName: 'NVIDIA NIM').copyWith(
         enabled: true,
-        name: 'Mistral',
-        baseUrl: 'https://api.mistral.ai/v1',
+        name: 'NVIDIA NIM',
+        baseUrl: BuildXConfig.apiBase,
         models: const [BuildXConfig.modelId],
       );
     }

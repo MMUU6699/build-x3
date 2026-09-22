@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../../../core/services/build_x_secure_store.dart';
 import '../../../icons/lucide_adapter.dart';
-import '../../../l10n/app_localizations.dart';
 
-class MistralConnectionPage extends StatefulWidget {
-  const MistralConnectionPage({super.key, this.embedded = false});
+/// Connection settings page for Build X (NVIDIA NIM & OpenHands).
+class CerebrasConnectionPage extends StatefulWidget {
+  const CerebrasConnectionPage({super.key, this.embedded = false});
 
   final bool embedded;
 
   @override
-  State<MistralConnectionPage> createState() => _MistralConnectionPageState();
+  State<CerebrasConnectionPage> createState() => _CerebrasConnectionPageState();
 }
 
-class _MistralConnectionPageState extends State<MistralConnectionPage> {
+class _CerebrasConnectionPageState extends State<CerebrasConnectionPage> {
   final _keyController = TextEditingController();
+  final _urlController = TextEditingController();
   bool _loading = true;
   bool _saving = false;
   bool _showKey = false;
@@ -28,7 +29,11 @@ class _MistralConnectionPageState extends State<MistralConnectionPage> {
   Future<void> _load() async {
     try {
       final key = await BuildXSecureStore.readNvidiaKey();
-      if (mounted) _keyController.text = key;
+      final url = await BuildXSecureStore.readWorkBackendUrl();
+      if (mounted) {
+        _keyController.text = key;
+        _urlController.text = url;
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -37,24 +42,25 @@ class _MistralConnectionPageState extends State<MistralConnectionPage> {
   @override
   void dispose() {
     _keyController.dispose();
+    _urlController.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
-    final l10n = AppLocalizations.of(context)!;
     setState(() => _saving = true);
     try {
       await BuildXSecureStore.saveNvidiaKey(_keyController.text);
+      await BuildXSecureStore.saveWorkBackendUrl(_urlController.text);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.buildXSaved)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Build X connection settings saved.')),
+        );
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.buildXSaveFailed)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save settings.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -63,13 +69,10 @@ class _MistralConnectionPageState extends State<MistralConnectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final colors = Theme.of(context).colorScheme;
-    const pageTitle = 'Build X Connection (NVIDIA NIM)';
-
+    final cs = Theme.of(context).colorScheme;
     final form = Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
+        constraints: const BoxConstraints(maxWidth: 580),
         child: ListView(
           padding: const EdgeInsets.all(24),
           shrinkWrap: true,
@@ -78,17 +81,13 @@ class _MistralConnectionPageState extends State<MistralConnectionPage> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: Text(
-                  pageTitle,
+                  'Build X Connection (NVIDIA NIM)',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
             Text(
-              'Enter your NVIDIA API Key (nvapi-...). This single key powers both Chat and Work modes via nvidia/nemotron-3-ultra-550b-a55b with live reasoning on NVIDIA NIM.',
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontSize: 13,
-                height: 1.5,
-              ),
+              'Configure your NVIDIA API key (nvapi-...) to power autonomous Work mode and Chat mode with nvidia/nemotron-3-ultra-550b-a55b.',
+              style: TextStyle(fontSize: 13, height: 1.5, color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
             TextField(
@@ -104,30 +103,45 @@ class _MistralConnectionPageState extends State<MistralConnectionPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 suffixIcon: IconButton(
-                  tooltip: _showKey ? l10n.buildXHideKey : l10n.buildXShowKey,
+                  tooltip: _showKey ? 'Hide key' : 'Show key',
                   onPressed: () => setState(() => _showKey = !_showKey),
                   icon: Icon(
                     _showKey ? Lucide.EyeOff : Lucide.Eye,
-                    color: colors.onSurface,
+                    color: cs.onSurface,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
+            TextField(
+              controller: _urlController,
+              enabled: !_loading && !_saving,
+              autocorrect: false,
+              enableSuggestions: false,
+              decoration: InputDecoration(
+                labelText: 'OpenHands Backend URL (Optional)',
+                hintText: 'http://localhost:8000 or remote VM URL',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton(
                 onPressed: _loading || _saving ? null : _save,
-                child: Text(l10n.buildXSave),
+                child: const Text('Save Settings'),
               ),
             ),
           ],
         ),
       ),
     );
+
     if (widget.embedded) return form;
     return Scaffold(
-      appBar: AppBar(title: const Text(pageTitle)),
+      appBar: AppBar(title: const Text('Build X Connection (NVIDIA NIM)')),
       body: form,
     );
   }

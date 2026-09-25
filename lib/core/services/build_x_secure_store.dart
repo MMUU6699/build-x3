@@ -11,73 +11,96 @@ abstract final class BuildXSecureStore {
   static const _workBackendUrlKey = 'build_x_work_backend_url';
   static const _browserAccount = 'build_x_browser_account';
 
-  /// Sanitizes an API key by stripping quotes, whitespace, and leading 'Bearer ' prefixes.
+  /// Sanitizes an API key by stripping quotes, angle brackets, whitespace, and leading 'Bearer ' prefixes.
   static String sanitizeApiKey(String raw) {
-    var key = raw.trim();
-    if (key.startsWith('"') && key.endsWith('"') && key.length >= 2) {
-      key = key.substring(1, key.length - 1).trim();
-    } else if (key.startsWith("'") && key.endsWith("'") && key.length >= 2) {
+    var key = raw.trim().replaceAll('\r', '').replaceAll('\n', '').trim();
+    while ((key.startsWith('"') && key.endsWith('"') && key.length >= 2) ||
+        (key.startsWith("'") && key.endsWith("'") && key.length >= 2)) {
       key = key.substring(1, key.length - 1).trim();
     }
-    if (key.toLowerCase().startsWith('bearer ')) {
+    while (key.startsWith('<') && key.endsWith('>') && key.length >= 2) {
+      key = key.substring(1, key.length - 1).trim();
+    }
+    while (key.toLowerCase().startsWith('bearer ')) {
       key = key.substring(7).trim();
+    }
+    while ((key.startsWith('"') && key.endsWith('"') && key.length >= 2) ||
+        (key.startsWith("'") && key.endsWith("'") && key.length >= 2) ||
+        (key.startsWith('<') && key.endsWith('>') && key.length >= 2)) {
+      key = key.substring(1, key.length - 1).trim();
     }
     return key;
   }
 
-  /// Reads NVIDIA API key from secure storage, falling back to environment variables
-  /// (NVIDIA_API_KEY, WORK_LLM_API_KEY, BUILD_X_API_KEY) and SharedPreferences.
-  /// Never returns a legacy Mistral (mk-...) or Cerebras (csk-...) key.
+  /// Whether a string is a valid NVIDIA API key.
+  static bool isValidNvidiaKey(String key) {
+    return key.startsWith('nvapi-') && key.length >= 20;
+  }
+
+  /// Reads a user-provided NVIDIA API key from secure storage, falling back to
+  /// development-only OS environment variables.
+  ///
+  /// A shared production key must never be supplied with `--dart-define`: that
+  /// embeds the credential in the application binary. Production traffic uses
+  /// the authenticated Supabase Edge Function instead.
+  /// Strictly requires candidate keys to start with `nvapi-`.
   static Future<String> readNvidiaKey() async {
+    // 1. OS environment variables are supported for local development only.
     try {
       final envNvidia = Platform.environment['NVIDIA_API_KEY'];
       if (envNvidia != null) {
         final sanitized = sanitizeApiKey(envNvidia);
-        if (sanitized.isNotEmpty) return sanitized;
+        if (isValidNvidiaKey(sanitized)) return sanitized;
       }
 
       final envWork = Platform.environment['WORK_LLM_API_KEY'];
       if (envWork != null) {
         final sanitized = sanitizeApiKey(envWork);
-        if (sanitized.isNotEmpty) return sanitized;
+        if (isValidNvidiaKey(sanitized)) return sanitized;
       }
 
       final envBuildX = Platform.environment['BUILD_X_API_KEY'];
       if (envBuildX != null) {
         final sanitized = sanitizeApiKey(envBuildX);
-        if (sanitized.isNotEmpty) return sanitized;
+        if (isValidNvidiaKey(sanitized)) return sanitized;
       }
     } catch (_) {}
 
+    // 2. Flutter Secure Storage (BYOK only).
     try {
       final stored = await _storage.read(key: _nvidiaKey);
       if (stored != null) {
         final sanitized = sanitizeApiKey(stored);
-        if (sanitized.isNotEmpty) return sanitized;
+        if (isValidNvidiaKey(sanitized)) return sanitized;
       }
     } catch (_) {}
 
+    // Migrate the legacy plaintext preference once, then erase it.
     try {
       final prefs = await SharedPreferences.getInstance();
       final prefKey = prefs.getString(_nvidiaKey);
       if (prefKey != null) {
         final sanitized = sanitizeApiKey(prefKey);
-        if (sanitized.isNotEmpty) return sanitized;
+        await prefs.remove(_nvidiaKey);
+        if (isValidNvidiaKey(sanitized)) {
+          await _storage.write(key: _nvidiaKey, value: sanitized);
+          return sanitized;
+        }
       }
     } catch (_) {}
 
-    // Check legacy slots ONLY if they actually hold an NVIDIA key (nvapi-...)
+    // 3. Check legacy secure slots only if they hold an NVIDIA key.
     try {
       final legacyMistral = await _storage.read(key: _mistralKey);
       if (legacyMistral != null) {
         final sanitized = sanitizeApiKey(legacyMistral);
-        if (sanitized.startsWith('nvapi-')) return sanitized;
+        if (isValidNvidiaKey(sanitized)) return sanitized;
       }
 
       final legacyCerebras = await _storage.read(key: _cerebrasKey);
       if (legacyCerebras != null) {
         final sanitized = sanitizeApiKey(legacyCerebras);
-        if (sanitized.startsWith('nvapi-')) return sanitized;
+        if (isValidNvidiaKey(sanitized)) return sanitized;
       }
     } catch (_) {}
 
@@ -86,6 +109,9 @@ abstract final class BuildXSecureStore {
 
   static Future<void> saveNvidiaKey(String value) async {
     final key = sanitizeApiKey(value);
+    if (key.isNotEmpty && !isValidNvidiaKey(key)) {
+      throw const FormatException('Invalid NVIDIA API key format.');
+    }
     try {
       if (key.isEmpty) {
         await _storage.delete(key: _nvidiaKey);
@@ -94,13 +120,10 @@ abstract final class BuildXSecureStore {
       }
     } catch (_) {}
 
+    // Ensure old plaintext copies cannot survive a save/delete operation.
     try {
       final prefs = await SharedPreferences.getInstance();
-      if (key.isEmpty) {
-        await prefs.remove(_nvidiaKey);
-      } else {
-        await prefs.setString(_nvidiaKey, key);
-      }
+      await prefs.remove(_nvidiaKey);
     } catch (_) {}
   }
 
@@ -118,10 +141,11 @@ abstract final class BuildXSecureStore {
       if (env != null && env.isNotEmpty) return env;
     } catch (_) {}
     try {
-      final stored = (await _storage.read(key: _workBackendUrlKey))?.trim() ?? '';
+      final stored =
+          (await _storage.read(key: _workBackendUrlKey))?.trim() ?? '';
       if (stored.isNotEmpty) return stored;
     } catch (_) {}
-    return 'http://localhost:8000';
+    return '';
   }
 
   static Future<void> saveWorkBackendUrl(String value) async {

@@ -346,11 +346,6 @@ class _SettingsMenu extends StatelessWidget {
         l10n.settingsPageDisplay,
       ),
       (
-        _SettingsMenuItem.connection,
-        lucide.Lucide.KeyRound,
-        l10n.buildXConnectionTitle,
-      ),
-      (
         _SettingsMenuItem.assistant,
         lucide.Lucide.Bot,
         l10n.settingsPageAssistant,

@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
+import 'select_copy_sheet.dart';
 // import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'dart:convert';
 import '../../home/widgets/file_processing_indicator.dart';
@@ -38,7 +40,6 @@ import '../../../shared/widgets/ios_checkbox.dart';
 import '../../../shared/widgets/ios_tactile.dart';
 import '../../../shared/widgets/thinking_sheen.dart';
 import '../../../desktop/desktop_context_menu.dart';
-import '../../../desktop/menu_anchor.dart';
 import '../../../utils/platform_utils.dart';
 import '../../home/services/ask_user_interaction_service.dart';
 import '../../home/services/local_tools_service.dart';
@@ -1124,7 +1125,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
   final GlobalKey _userBubbleKey = GlobalKey();
   OverlayEntry? _userMenuOverlay;
   // Desktop anchored menus for bottom action buttons
-  final GlobalKey _moreBtnKey1 = GlobalKey();
   final GlobalKey _moreBtnKey2 = GlobalKey();
   // ValueNotifier for reasoning animation tick - avoids full widget rebuild
   final ValueNotifier<int> _reasoningTick = ValueNotifier<int>(0);
@@ -1304,7 +1304,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     );
   }
 
-
   Assistant? _assistantForMessage() {
     try {
       final chat = context.read<ChatService>();
@@ -1350,7 +1349,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     if (ok == true && mounted) action();
   }
 
-
   @override
   void dispose() {
     try {
@@ -1365,7 +1363,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
   }
 
   void _showUserContextMenu() {
-    // Haptic feedback (optional)
+    // Haptic feedback
     try {
       Haptics.light();
     } catch (_) {}
@@ -1384,9 +1382,39 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     final safeTop = insets.top + 12;
     final safeBottom = insets.bottom + 12;
 
-    const double menuWidth = 220; // compact width
-    const double estMenuHeight = 140; // ~ 3 rows
-    const double gap = 10; // space between bubble and menu
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = l10n.localeName;
+    final dt = widget.message.timestamp.toLocal();
+    final now = DateTime.now();
+    final isToday =
+        dt.year == now.year && dt.month == now.month && dt.day == now.day;
+    final yesterday = now.subtract(const Duration(days: 1));
+    final isYesterday =
+        dt.year == yesterday.year &&
+        dt.month == yesterday.month &&
+        dt.day == yesterday.day;
+    final timeStr = DateFormat.jm(locale).format(dt);
+    String dateStr;
+    if (isToday) {
+      dateStr = locale.startsWith('zh') ? '今天' : 'Today';
+    } else if (isYesterday) {
+      dateStr = locale.startsWith('zh') ? '昨天' : 'Yesterday';
+    } else {
+      dateStr = DateFormat.yMMMd(locale).format(dt);
+    }
+    final formattedTime = '$dateStr • $timeStr';
+
+    // Calculate menu height dynamically:
+    // Header ~ 36px, each item 44px
+    int itemCount = 3; // Copy, Select text, Share
+    if (widget.onEdit != null) itemCount++;
+    if (widget.onResend != null) itemCount++;
+    if (widget.onDelete != null || widget.onMore != null) itemCount++;
+    final double estMenuHeight = 36.0 + (itemCount * 44.0) + 8.0;
+    const double menuWidth = 230;
+    const double gap = 8; // space between bubble and menu
 
     // Horizontal placement: align menu's right edge to bubble's right edge,
     // and clamp into safe area for better reachability on long messages.
@@ -1411,7 +1439,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     } else if (canPlaceBelow) {
       placeAbove = false;
     } else {
-      // Fallback: choose the side with more space
       placeAbove = availableAbove > availableBelow;
     }
 
@@ -1425,45 +1452,49 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     if (y < minY) y = minY;
     if (y > maxY) y = maxY;
 
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
-
     showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
       barrierLabel: 'context-menu',
-      barrierColor: cs.scrim.withValues(alpha: 0.08),
+      barrierColor: cs.scrim.withValues(alpha: 0.12),
+      transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (ctx, _, __) {
         return Stack(
           children: [
-            // Positioned popup
             Positioned(
               left: x,
               top: y,
               width: menuWidth,
               child: _AnimatedPopup(
-                child: DecoratedBox(
-                  // Draw border outside the clipped/blurred content to avoid corner clipping
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: isDark
-                            ? cs.onSurface.withValues(alpha: 0.08)
-                            : cs.outlineVariant.withValues(alpha: 0.2),
-                        width: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.40 : 0.12,
+                        ),
+                        blurRadius: 28,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 10),
                       ),
-                    ),
+                    ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(24),
                     child: BackdropFilter(
-                      filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-                      child: DecoratedBox(
+                      filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                      child: Container(
                         decoration: BoxDecoration(
-                          color: cs.surfaceContainerHigh.withValues(
-                            alpha: 0.66,
+                          color: isDark
+                              ? const Color(0xFF1E1E24).withValues(alpha: 0.82)
+                              : Colors.white.withValues(alpha: 0.88),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : Colors.black.withValues(alpha: 0.08),
+                            width: 1,
                           ),
                         ),
                         child: Material(
@@ -1471,6 +1502,48 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              // Timestamp header
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  12,
+                                  16,
+                                  8,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Lucide.clock,
+                                      size: 13,
+                                      color: cs.onSurface.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 7),
+                                    Expanded(
+                                      child: Text(
+                                        formattedTime,
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: AppFontWeights.medium,
+                                          color: cs.onSurface.withValues(
+                                            alpha: 0.65,
+                                          ),
+                                          decoration: TextDecoration.none,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Divider(
+                                height: 1,
+                                thickness: 0.5,
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.black.withValues(alpha: 0.06),
+                              ),
                               _MenuItem(
                                 icon: Lucide.Copy,
                                 label: l10n.shareProviderSheetCopyButton,
@@ -1495,6 +1568,19 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                                   }
                                 },
                               ),
+                              _MenuItem(
+                                icon: Lucide.TextSelect,
+                                label: l10n.messageMoreSheetSelectCopy,
+                                onTap: () {
+                                  Navigator.of(ctx).pop();
+                                  unawaited(
+                                    showSelectCopySheet(
+                                      context,
+                                      message: widget.message,
+                                    ),
+                                  );
+                                },
+                              ),
                               if (widget.onEdit != null)
                                 _MenuItem(
                                   icon: Lucide.Pencil,
@@ -1504,15 +1590,39 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                                     widget.onEdit?.call();
                                   },
                                 ),
+                              if (widget.onResend != null)
+                                _MenuItem(
+                                  icon: Lucide.RefreshCw,
+                                  label: locale.startsWith('zh')
+                                      ? '重新发送'
+                                      : 'Resend',
+                                  onTap: () {
+                                    Navigator.of(ctx).pop();
+                                    _confirmRegeneration(widget.onResend!);
+                                  },
+                                ),
                               _MenuItem(
-                                icon: Lucide.Trash2,
-                                danger: true,
-                                label: l10n.messageMoreSheetDelete,
+                                icon: Lucide.Share2,
+                                label: l10n.messageMoreSheetShare,
                                 onTap: () {
                                   Navigator.of(ctx).pop();
-                                  (widget.onDelete ?? widget.onMore)?.call();
+                                  SharePlus.instance.share(
+                                    ShareParams(text: widget.message.content),
+                                  );
                                 },
                               ),
+                              if (widget.onDelete != null ||
+                                  widget.onMore != null)
+                                _MenuItem(
+                                  icon: Lucide.Trash2,
+                                  danger: true,
+                                  label: l10n.messageMoreSheetDelete,
+                                  onTap: () {
+                                    Navigator.of(ctx).pop();
+                                    (widget.onDelete ?? widget.onMore)?.call();
+                                  },
+                                ),
+                              const SizedBox(height: 4),
                             ],
                           ),
                         ),
@@ -1531,7 +1641,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
       }
     });
   }
-
 
   Widget _buildToolMessage() {
     // Parse JSON payload embedded in tool message content
@@ -1582,24 +1691,14 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
   Widget _buildUserMessage() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userMessageSettings = context
-        .select<
-          SettingsProvider,
-          ({
-            bool showActions,
-            bool enableMarkdown,
-            int collapseChars,
-          })
-        >(
+        .select<SettingsProvider, ({bool enableMarkdown, int collapseChars})>(
           (s) => (
-            showActions: s.showUserMessageActions,
             enableMarkdown: s.enableUserMarkdown,
             collapseChars: s.collapseLongUserMessages
                 ? s.collapseLongUserMessageChars
                 : 0,
           ),
         );
-    final cs = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
     // Attachments come from structured parts only. Literal marker-like text
     // inside TextPart stays plain text and is never re-parsed.
     final assistant = _assistantForMessage();
@@ -1608,7 +1707,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
       assistant: assistant,
       scope: AssistantRegexScope.user,
     );
-    final showUserActions = userMessageSettings.showActions;
     final showVersionSwitcher = (widget.versionCount ?? 1) > 1;
     final mediaPreview = _buildAttachmentPreview(
       context,
@@ -1675,8 +1773,8 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
               ),
             ),
           ),
-          if (showUserActions || showVersionSwitcher) ...[
-            SizedBox(height: showUserActions ? 8 : 6),
+          if (showVersionSwitcher) ...[
+            const SizedBox(height: 6),
             Align(
               alignment: Alignment.centerRight,
               child: ConstrainedBox(
@@ -1686,118 +1784,12 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (showUserActions) ...[
-                      SizedBox(
-                        width: 28,
-                        height: 28,
-                        child: Center(
-                          child: IosIconButton(
-                            size: 16,
-                            padding: EdgeInsets.all(4),
-                            icon: Lucide.Copy,
-                            color: cs.onSurface.withValues(alpha: 0.9),
-                            onTap:
-                                widget.onCopy ??
-                                () {
-                                  Clipboard.setData(
-                                    ClipboardData(text: widget.message.content),
-                                  );
-                                  showAppSnackBar(
-                                    context,
-                                    message:
-                                        l10n.chatMessageWidgetCopiedToClipboard,
-                                    type: NotificationType.success,
-                                  );
-                                },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: 28,
-                        height: 28,
-                        child: Center(
-                          child: IosIconButton(
-                            size: 16,
-                            padding: EdgeInsets.all(4),
-                            icon: Lucide.RefreshCw,
-                            color: cs.onSurface.withValues(alpha: 0.9),
-                            onTap: widget.onResend == null
-                                ? null
-                                : () => _confirmRegeneration(widget.onResend!),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      if (widget.onEdit != null) ...[
-                        SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: Center(
-                            child: IosIconButton(
-                              size: 16,
-                              padding: EdgeInsets.all(4),
-                              icon: Lucide.Pencil,
-                              color: cs.onSurface.withValues(alpha: 0.9),
-                              onTap: widget.onEdit,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                      ],
-                      SizedBox(
-                        width: 28,
-                        height: 28,
-                        child: Center(
-                          child: GestureDetector(
-                            key: _moreBtnKey1,
-                            onTapDown: (d) {
-                              final isDesktop =
-                                  defaultTargetPlatform ==
-                                      TargetPlatform.macOS ||
-                                  defaultTargetPlatform ==
-                                      TargetPlatform.windows ||
-                                  defaultTargetPlatform == TargetPlatform.linux;
-                              if (isDesktop) {
-                                try {
-                                  DesktopMenuAnchor.setPosition(
-                                    d.globalPosition,
-                                  );
-                                } catch (_) {}
-                              }
-                            },
-                            onTap: () {
-                              final isDesktop =
-                                  defaultTargetPlatform ==
-                                      TargetPlatform.macOS ||
-                                  defaultTargetPlatform ==
-                                      TargetPlatform.windows ||
-                                  defaultTargetPlatform == TargetPlatform.linux;
-                              if (isDesktop) {
-                                _setAnchorFromKey(_moreBtnKey1);
-                              }
-                              widget.onMore?.call();
-                            },
-                            child: IosIconButton(
-                              size: 16,
-                              padding: EdgeInsets.all(4),
-                              icon: Lucide.Ellipsis,
-                              color: cs.onSurface.withValues(alpha: 0.9),
-                              onTap: null,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                    if (showVersionSwitcher) ...[
-                      if (showUserActions) const SizedBox(width: 6),
-                      _BranchSelector(
-                        index: widget.versionIndex ?? 0,
-                        total: widget.versionCount ?? 1,
-                        onPrev: widget.onPrevVersion,
-                        onNext: widget.onNextVersion,
-                      ),
-                    ],
+                    _BranchSelector(
+                      index: widget.versionIndex ?? 0,
+                      total: widget.versionCount ?? 1,
+                      onPrev: widget.onPrevVersion,
+                      onNext: widget.onNextVersion,
+                    ),
                   ],
                 ),
               ),
@@ -1810,6 +1802,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
 
   void _showUserContextMenuAt(Offset globalPosition) async {
     final l10n = AppLocalizations.of(context)!;
+    final locale = l10n.localeName;
     // Haptic feedback
     try {
       Haptics.light();
@@ -1838,31 +1831,39 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
             }
           },
         ),
+        DesktopContextMenuItem(
+          icon: Lucide.TextSelect,
+          label: l10n.messageMoreSheetSelectCopy,
+          onTap: () =>
+              unawaited(showSelectCopySheet(context, message: widget.message)),
+        ),
         if (widget.onEdit != null)
           DesktopContextMenuItem(
             icon: Lucide.Pencil,
             label: l10n.messageMoreSheetEdit,
             onTap: () => widget.onEdit?.call(),
           ),
+        if (widget.onResend != null)
+          DesktopContextMenuItem(
+            icon: Lucide.RefreshCw,
+            label: locale.startsWith('zh') ? '重新发送' : 'Resend',
+            onTap: () => _confirmRegeneration(widget.onResend!),
+          ),
         DesktopContextMenuItem(
-          icon: Lucide.Trash2,
-          label: l10n.messageMoreSheetDelete,
-          danger: true,
-          onTap: () => (widget.onDelete ?? widget.onMore)?.call(),
+          icon: Lucide.Share2,
+          label: l10n.messageMoreSheetShare,
+          // ignore: deprecated_member_use
+          onTap: () => unawaited(Share.share(widget.message.content)),
         ),
+        if (widget.onDelete != null || widget.onMore != null)
+          DesktopContextMenuItem(
+            icon: Lucide.Trash2,
+            label: l10n.messageMoreSheetDelete,
+            danger: true,
+            onTap: () => (widget.onDelete ?? widget.onMore)?.call(),
+          ),
       ],
     );
-  }
-
-  void _setAnchorFromKey(GlobalKey key) {
-    final rb = key.currentContext?.findRenderObject() as RenderBox?;
-    if (rb == null) return;
-    try {
-      final center = rb.localToGlobal(
-        Offset(rb.size.width / 2, rb.size.height),
-      );
-      DesktopMenuAnchor.setPosition(center);
-    } catch (_) {}
   }
 
   /// Number of text lines kept visible when a long user message is collapsed.
@@ -3008,7 +3009,8 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                                 padding: const EdgeInsets.all(4),
                                 icon: Lucide.Copy,
                                 color: cs.onSurface.withValues(alpha: 0.65),
-                                onTap: widget.onCopy ??
+                                onTap:
+                                    widget.onCopy ??
                                     () {
                                       Clipboard.setData(
                                         ClipboardData(
@@ -3125,9 +3127,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                                 onTap: () {
                                   Haptics.light();
                                   SharePlus.instance.share(
-                                    ShareParams(
-                                      text: widget.message.content,
-                                    ),
+                                    ShareParams(text: widget.message.content),
                                   );
                                 },
                               ),
@@ -3372,7 +3372,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

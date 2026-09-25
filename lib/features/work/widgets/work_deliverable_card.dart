@@ -6,10 +6,7 @@ import 'work_deliverable_preview_modal.dart';
 
 /// 5. Finished Deliverable Card: Openable/previewable artifact card.
 class WorkDeliverableCard extends StatelessWidget {
-  const WorkDeliverableCard({
-    super.key,
-    required this.deliverable,
-  });
+  const WorkDeliverableCard({super.key, required this.deliverable});
 
   final WorkDeliverableEvent deliverable;
 
@@ -22,10 +19,7 @@ class WorkDeliverableCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: cs.onSurface.withAlpha(50),
-          width: 1.5,
-        ),
+        border: Border.all(color: cs.onSurface.withAlpha(50), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(35),
@@ -42,7 +36,9 @@ class WorkDeliverableCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest.withAlpha(70),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(18),
+              ),
             ),
             child: Row(
               children: [
@@ -52,11 +48,7 @@ class WorkDeliverableCard extends StatelessWidget {
                     color: cs.onSurface,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Lucide.Sparkles,
-                    size: 16,
-                    color: cs.surface,
-                  ),
+                  child: Icon(Lucide.Sparkles, size: 16, color: cs.surface),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -109,7 +101,10 @@ class WorkDeliverableCard extends StatelessWidget {
                   runSpacing: 6,
                   children: deliverable.files.map((file) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerHighest.withAlpha(120),
                         borderRadius: BorderRadius.circular(8),
@@ -118,7 +113,11 @@ class WorkDeliverableCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Lucide.FileCode, size: 13, color: cs.onSurfaceVariant),
+                          Icon(
+                            Lucide.FileCode,
+                            size: 13,
+                            color: cs.onSurfaceVariant,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             file,

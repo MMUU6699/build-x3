@@ -9,7 +9,6 @@ import '../../../shared/widgets/interactive_drawer.dart';
 import '../widgets/side_drawer.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../core/providers/user_provider.dart';
-import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../chat/widgets/frosted/chat_frosted_backdrop.dart';
 import '../../chat/widgets/chat_assistant_background.dart';
@@ -133,6 +132,7 @@ class HomeMobileScaffold extends StatelessWidget {
     final isWorkMode = workProvider?.isWorkMode ?? false;
 
     return AppBar(
+      toolbarHeight: 46.0,
       systemOverlayStyle: (Theme.of(context).brightness == Brightness.dark)
           ? const SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
@@ -148,11 +148,12 @@ class HomeMobileScaffold extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leadingWidth: 64,
+      leadingWidth: 62,
       leading: Padding(
-        padding: const EdgeInsetsDirectional.only(start: 12),
+        padding: const EdgeInsetsDirectional.only(start: 10),
         child: Center(
           child: HeaderBubbleButton(
+            size: 42.0,
             tooltip: AppLocalizations.of(context)!.sideDrawerHistory,
             onTap: () {
               onDismissKeyboard();
@@ -160,8 +161,8 @@ class HomeMobileScaffold extends StatelessWidget {
             },
             child: SvgPicture.asset(
               'assets/icons/list.svg',
-              width: 18,
-              height: 18,
+              width: 20,
+              height: 20,
               colorFilter: ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
             ),
           ),
@@ -171,52 +172,23 @@ class HomeMobileScaffold extends StatelessWidget {
       centerTitle: true,
       title: const ModeSegmentedToggle(),
       actions: [
-        Padding(
-          padding: const EdgeInsetsDirectional.only(end: 12),
+        Container(
+          width: 62,
+          padding: const EdgeInsetsDirectional.only(end: 10),
           child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!isWorkMode) ...[
-                  HeaderBubbleButton(
-                    isDashed: true,
-                    tooltip: AppLocalizations.of(context)!.temporaryChatToggleTooltip,
-                    onTap: () async {
-                      if (canToggleTemporaryConversation) {
-                        await onToggleTemporaryConversation();
-                      }
-                    },
-                    child: temporaryConversationEnabled
-                        ? SvgPicture.asset(
-                            'assets/icons/temporary_chat_checked.svg',
-                            width: 20,
-                            height: 20,
-                            colorFilter: ColorFilter.mode(cs.primary, BlendMode.srcIn),
-                          )
-                        : Icon(
-                            Lucide.MessageCircleDashed,
-                            size: 20,
-                            color: cs.onSurface,
-                          ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                HeaderBubbleButton(
-                  isDashed: false,
-                  tooltip: isWorkMode ? 'New Task' : AppLocalizations.of(context)!.titleForLocale,
-                  onTap: () async {
-                    if (isWorkMode) {
-                      context.read<WorkModeProvider?>()?.clearSession();
-                    }
-                    await onCreateNewConversation();
-                  },
-                  child: Icon(
-                    Lucide.SquarePen,
-                    size: 20,
-                    color: cs.onSurface,
-                  ),
-                ),
-              ],
+            child: HeaderBubbleButton(
+              size: 42.0,
+              isDashed: false,
+              tooltip: isWorkMode
+                  ? 'New Task'
+                  : AppLocalizations.of(context)!.titleForLocale,
+              onTap: () async {
+                if (isWorkMode) {
+                  context.read<WorkModeProvider?>()?.clearSession();
+                }
+                await onCreateNewConversation();
+              },
+              child: Icon(Lucide.SquarePen, size: 21, color: cs.onSurface),
             ),
           ),
         ),
@@ -254,129 +226,7 @@ class ScrollNavigationButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showSetting = context.watch<SettingsProvider>().showMessageNavButtons;
-    if (!showSetting || !hasMessages) return const SizedBox.shrink();
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bottomOffset = inputBarHeight + 12;
-
-    return Stack(
-      children: [
-        // Scroll to bottom button
-        Align(
-          alignment: Alignment.bottomRight,
-          child: SafeArea(
-            top: false,
-            bottom: false,
-            child: IgnorePointer(
-              ignoring: !showJumpToBottom,
-              child: AnimatedScale(
-                scale: showJumpToBottom ? 1.0 : 0.9,
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
-                  opacity: showJumpToBottom ? 1 : 0,
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 16, bottom: bottomOffset),
-                    child: _ScrollButton(
-                      isDark: isDark,
-                      icon: Lucide.ChevronDown,
-                      onTap: onScrollToBottom,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        // Scroll to previous message button
-        Align(
-          alignment: Alignment.bottomRight,
-          child: SafeArea(
-            top: false,
-            bottom: false,
-            child: IgnorePointer(
-              ignoring: !showJumpToBottom,
-              child: AnimatedScale(
-                scale: showJumpToBottom ? 1.0 : 0.9,
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
-                  opacity: showJumpToBottom ? 1 : 0,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      right: 16,
-                      bottom: bottomOffset + 52,
-                    ),
-                    child: _ScrollButton(
-                      isDark: isDark,
-                      icon: Lucide.ChevronUp,
-                      onTap: onScrollToPreviousQuestion,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ScrollButton extends StatelessWidget {
-  const _ScrollButton({
-    required this.isDark,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final bool isDark;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return ClipOval(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? cs.onSurface.withValues(alpha: 0.06)
-                : cs.surface.withValues(alpha: 0.07),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: isDark
-                  ? cs.onSurface.withValues(alpha: 0.10)
-                  : cs.outline.withValues(alpha: 0.20),
-              width: 1,
-            ),
-          ),
-          child: Material(
-            type: MaterialType.transparency,
-            shape: const CircleBorder(),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: Icon(
-                  icon,
-                  size: 16,
-                  color: cs.onSurface.withValues(alpha: isDark ? 1.0 : 0.87),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    return const SizedBox.shrink();
   }
 }
 

@@ -38,13 +38,64 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
     super.dispose();
   }
 
+  String _getActionSummary(WorkModeProvider workProvider) {
+    if (!workProvider.isExecuting) {
+      if (workProvider.hasActiveArtifact) {
+        return 'Deliverable ready for preview';
+      }
+      return 'Task completed';
+    }
+
+    if (workProvider.codingEvents.isNotEmpty &&
+        workProvider.terminalEvents.isEmpty) {
+      final lastCode = workProvider.codingEvents.last;
+      return 'Writing ${lastCode.filePath}…';
+    }
+    if (workProvider.terminalEvents.isNotEmpty &&
+        !workProvider.hasActiveArtifact) {
+      final lastTerm = workProvider.terminalEvents.last;
+      final cmd = lastTerm.command.trim().toLowerCase();
+      if (cmd.contains('bundle') || cmd.contains('build')) {
+        return 'Bundling application runtime…';
+      }
+      return 'Running build & package tasks…';
+    }
+    if (workProvider.browsingEvent != null &&
+        workProvider.codingEvents.isEmpty) {
+      final title = workProvider.browsingEvent!.title;
+      if (title.isNotEmpty) {
+        return 'Researching $title…';
+      }
+      return 'Researching component libraries…';
+    }
+    if (workProvider.activeStep != null) {
+      final title = workProvider.activeStep!.title;
+      final lower = title.toLowerCase();
+      if (lower.startsWith('analyze')) {
+        return 'Analyzing task requirements…';
+      }
+      if (lower.startsWith('research')) {
+        return 'Researching component libraries…';
+      }
+      if (lower.startsWith('generate')) {
+        return 'Writing code & interactive logic…';
+      }
+      if (lower.startsWith('package')) {
+        return 'Packaging deliverable runtime…';
+      }
+      return '$title…';
+    }
+    return 'Researching and planning…';
+  }
+
   @override
   Widget build(BuildContext context) {
     final workProvider = context.watch<WorkModeProvider>();
     if (!workProvider.isWorkMode) return const SizedBox.shrink();
 
     // Show only when there is an active/recent genuine work task or tool events
-    final hasWorkExecution = workProvider.planningEvent != null ||
+    final hasWorkExecution =
+        workProvider.planningEvent != null ||
         workProvider.deliverableEvent != null ||
         workProvider.codingEvents.isNotEmpty ||
         workProvider.terminalEvents.isNotEmpty ||
@@ -102,8 +153,10 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                   // Pulsing blue dot
                   if (isExecuting)
                     FadeTransition(
-                      opacity: Tween<double>(begin: 0.4, end: 1.0)
-                          .animate(_pulseController),
+                      opacity: Tween<double>(
+                        begin: 0.4,
+                        end: 1.0,
+                      ).animate(_pulseController),
                       child: Container(
                         width: 8,
                         height: 8,
@@ -124,7 +177,7 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                     ),
                   const SizedBox(width: 8),
 
-                  // Status text: "Working" or "Task Progress"
+                  // Status text: "Working" or "Task Progress" with natural-language action summaries
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,16 +191,15 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                             color: cs.onSurface,
                           ),
                         ),
-                        if (workProvider.activeStep != null)
-                          Text(
-                            workProvider.activeStep!.title,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: cs.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        Text(
+                          _getActionSummary(workProvider),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSurfaceVariant,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
@@ -155,7 +207,11 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                   // Open Deliverable button if ready
                   if (workProvider.hasActiveArtifact) ...[
                     IconButton(
-                      icon: Icon(Lucide.ExternalLink, size: 16, color: cs.primary),
+                      icon: Icon(
+                        Lucide.ExternalLink,
+                        size: 16,
+                        color: cs.primary,
+                      ),
                       tooltip: 'Open Deliverable',
                       onPressed: () {
                         Haptics.light();
@@ -173,11 +229,15 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                   if (steps.isNotEmpty)
                     IconButton(
                       icon: Icon(
-                        _expandedChecklist ? Lucide.ChevronDown : Lucide.ChevronRight,
+                        _expandedChecklist
+                            ? Lucide.ChevronDown
+                            : Lucide.ChevronRight,
                         size: 18,
                         color: cs.onSurfaceVariant,
                       ),
-                      tooltip: _expandedChecklist ? 'Collapse Checklist' : 'Expand Checklist',
+                      tooltip: _expandedChecklist
+                          ? 'Collapse Checklist'
+                          : 'Expand Checklist',
                       onPressed: () {
                         Haptics.light();
                         setState(() {
@@ -213,28 +273,42 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                       child: Row(
                         children: [
                           step.status == WorkPlanStepStatus.completed
-                              ? const Icon(Lucide.Check, size: 14, color: Color(0xFF10B981))
+                              ? const Icon(
+                                  Lucide.Check,
+                                  size: 14,
+                                  color: Color(0xFF10B981),
+                                )
                               : (step.status == WorkPlanStepStatus.inProgress
-                                  ? const Icon(Lucide.RefreshCw, size: 14, color: Color(0xFF3B82F6))
-                                  : Container(
-                                      width: 8,
-                                      height: 8,
-                                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: cs.onSurface.withValues(alpha: 0.25),
-                                      ),
-                                    )),
+                                    ? const Icon(
+                                        Lucide.RefreshCw,
+                                        size: 14,
+                                        color: Color(0xFF3B82F6),
+                                      )
+                                    : Container(
+                                        width: 8,
+                                        height: 8,
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: cs.onSurface.withValues(
+                                            alpha: 0.25,
+                                          ),
+                                        ),
+                                      )),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               step.title,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: step.status == WorkPlanStepStatus.completed
+                                color:
+                                    step.status == WorkPlanStepStatus.completed
                                     ? cs.onSurface
                                     : cs.onSurfaceVariant,
-                                decoration: step.status == WorkPlanStepStatus.completed
+                                decoration:
+                                    step.status == WorkPlanStepStatus.completed
                                     ? TextDecoration.none
                                     : null,
                               ),
@@ -281,11 +355,32 @@ class _MiniComputerThumbnail extends StatelessWidget {
           // Mini top window dots
           Row(
             children: [
-              Container(width: 3, height: 3, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFEF4444))),
+              Container(
+                width: 3,
+                height: 3,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFEF4444),
+                ),
+              ),
               const SizedBox(width: 2),
-              Container(width: 3, height: 3, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFF59E0B))),
+              Container(
+                width: 3,
+                height: 3,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFF59E0B),
+                ),
+              ),
               const SizedBox(width: 2),
-              Container(width: 3, height: 3, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF10B981))),
+              Container(
+                width: 3,
+                height: 3,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF10B981),
+                ),
+              ),
             ],
           ),
           // Mini code lines

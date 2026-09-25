@@ -20330,6 +20330,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide key'**
   String get buildXHideKey;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get authSignUp;
+
+  /// No description provided for @authLogIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get authLogIn;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get authConfirmPassword;
+
+  /// No description provided for @authDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get authDisplayName;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get authForgotPassword;
+
+  /// No description provided for @authResetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get authResetPassword;
+
+  /// No description provided for @authSendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get authSendResetLink;
+
+  /// No description provided for @authResetLinkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email for a password reset link.'**
+  String get authResetLinkSent;
+
+  /// No description provided for @authCheckYourEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get authCheckYourEmail;
+
+  /// No description provided for @authEmailConfirmationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a confirmation link to {email}. Please check your inbox.'**
+  String authEmailConfirmationSent(String email);
+
+  /// No description provided for @authSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get authSignOut;
+
+  /// No description provided for @authSignOutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get authSignOutConfirmTitle;
+
+  /// No description provided for @authSignOutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to sign out?'**
+  String get authSignOutConfirmMessage;
+
+  /// No description provided for @authCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get authCancel;
+
+  /// No description provided for @authAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get authAccount;
+
+  /// No description provided for @authNewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New Chat'**
+  String get authNewChat;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authCreateAccount;
+
+  /// No description provided for @authAlreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Log in'**
+  String get authAlreadyHaveAccount;
+
+  /// No description provided for @authDontHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? Sign up'**
+  String get authDontHaveAccount;
+
+  /// No description provided for @authBackToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get authBackToLogin;
+
+  /// No description provided for @authErrorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect email or password.'**
+  String get authErrorInvalidCredentials;
+
+  /// No description provided for @authErrorUserExists.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists.'**
+  String get authErrorUserExists;
+
+  /// No description provided for @authErrorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is too weak. Use at least 6 characters.'**
+  String get authErrorWeakPassword;
+
+  /// No description provided for @authErrorEmailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Please verify your email address first.'**
+  String get authErrorEmailNotConfirmed;
+
+  /// No description provided for @authErrorRateLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please try again later.'**
+  String get authErrorRateLimit;
+
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Please check your connection and try again.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get authErrorGeneric;
+
+  /// No description provided for @authErrorPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get authErrorPasswordMismatch;
 }
 
 class _AppLocalizationsDelegate

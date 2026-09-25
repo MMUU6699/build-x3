@@ -551,8 +551,10 @@ Finder _mainInputSurfaceFinder() {
     (widget) =>
         widget is Container &&
         widget.decoration is BoxDecoration &&
-        (widget.decoration! as BoxDecoration).borderRadius ==
-            BorderRadius.circular(20),
+        ((widget.decoration! as BoxDecoration).borderRadius ==
+                BorderRadius.circular(26) ||
+            (widget.decoration! as BoxDecoration).borderRadius ==
+                BorderRadius.circular(20)),
   );
 }
 

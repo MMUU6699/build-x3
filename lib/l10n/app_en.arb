@@ -5057,5 +5057,43 @@
   "buildXMemoryWhatIsNotStored": "Chat history and Mistral-hosted conversation history are separate from this memory list.",
   "buildXAdvanced": "Advanced",
   "buildXShowKey": "Show key",
-  "buildXHideKey": "Hide key"
+  "buildXHideKey": "Hide key",
+  "authContinueWithGoogle": "Continue with Google",
+  "authSignUp": "Sign up",
+  "authLogIn": "Log in",
+  "authEmail": "Email",
+  "authPassword": "Password",
+  "authConfirmPassword": "Confirm password",
+  "authDisplayName": "Display name",
+  "authForgotPassword": "Forgot password?",
+  "authResetPassword": "Reset password",
+  "authSendResetLink": "Send reset link",
+  "authResetLinkSent": "Check your email for a password reset link.",
+  "authCheckYourEmail": "Check your email",
+  "authEmailConfirmationSent": "We sent a confirmation link to {email}. Please check your inbox.",
+  "@authEmailConfirmationSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authSignOut": "Sign out",
+  "authSignOutConfirmTitle": "Sign out",
+  "authSignOutConfirmMessage": "Are you sure you want to sign out?",
+  "authCancel": "Cancel",
+  "authAccount": "Account",
+  "authNewChat": "New Chat",
+  "authCreateAccount": "Create account",
+  "authAlreadyHaveAccount": "Already have an account? Log in",
+  "authDontHaveAccount": "Don't have an account? Sign up",
+  "authBackToLogin": "Back to login",
+  "authErrorInvalidCredentials": "Incorrect email or password.",
+  "authErrorUserExists": "An account with this email already exists.",
+  "authErrorWeakPassword": "Password is too weak. Use at least 6 characters.",
+  "authErrorEmailNotConfirmed": "Please verify your email address first.",
+  "authErrorRateLimit": "Too many attempts. Please try again later.",
+  "authErrorNetwork": "Network error. Please check your connection and try again.",
+  "authErrorGeneric": "Something went wrong. Please try again.",
+  "authErrorPasswordMismatch": "Passwords do not match."
 }

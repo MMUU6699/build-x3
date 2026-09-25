@@ -43,6 +43,16 @@
 				<string>psyche.kelivo</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>buildx.login-callback</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>buildx</string>
+			</array>
+		</dict>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

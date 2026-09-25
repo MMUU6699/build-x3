@@ -74,6 +74,20 @@ void main() {
       expect(parsed.visibleContent, input);
       expect(parsed.thinkingTexts, isEmpty);
     });
+
+    test(
+      'extracts reasoning before orphan </think> and isolates visible answer',
+      () {
+        const input =
+            'The user said "اهلا". I should reply in Arabic.</think>!أهلاً بك كيف يمكنني مساعدتك؟';
+        final parsed = ThinkingTagParser.parseLegacyInlineBlocks(input);
+
+        expect(parsed.visibleContent, '!أهلاً بك كيف يمكنني مساعدتك؟');
+        expect(parsed.thinkingTexts, const [
+          'The user said "اهلا". I should reply in Arabic.',
+        ]);
+      },
+    );
   });
 
   group('ThinkingTagParser.parseWithRanges', () {

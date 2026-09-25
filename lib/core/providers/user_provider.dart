@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'dart:io';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../database/business_preferences.dart';
 import '../../utils/sandbox_path_resolver.dart';
 import '../../utils/avatar_cache.dart';
@@ -15,6 +17,10 @@ class UserProvider extends ChangeNotifier {
   String _name = 'User';
   String get name => _name;
   bool _hasSavedName = false;
+  bool get hasSavedName => _hasSavedName;
+  bool _hasAuthName = false;
+  bool _didHydrateFromAuth = false;
+  String? _authUserId;
 
   String? _avatarType; // 'emoji', 'url', 'file'
   String? _avatarValue;
@@ -27,6 +33,9 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> _load() async {
     await preferences.load();
+    // Auth hydration owns the visible profile once a session is active. Avoid
+    // a late legacy-preferences load overwriting the newly selected account.
+    if (_authUserId != null) return;
     final n = preferences.getString(_prefsUserNameKey);
     if (n != null && n.isNotEmpty) {
       _name = n;
@@ -54,7 +63,7 @@ class UserProvider extends ChangeNotifier {
 
   // Set localized default name if user hasn't saved a custom one
   void setDefaultNameIfUnset(String localizedDefaultName) {
-    if (_hasSavedName) return;
+    if (_hasSavedName || _hasAuthName) return;
     final v = localizedDefaultName.trim();
     if (v.isEmpty) return;
     if (_name != v) {
@@ -63,12 +72,91 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  /// Hydrate profile from authenticated Supabase user metadata.
+  /// Respects existing user-configured overrides.
+  void syncFromAuthUser({
+    required String authUserId,
+    String? authDisplayName,
+    String? authAvatarUrl,
+    String? authEmail,
+  }) {
+    if (_didHydrateFromAuth && _authUserId == authUserId) return;
+    _authUserId = authUserId;
+    _didHydrateFromAuth = true;
+
+    final savedName = preferences.getString(_scopedKey(_prefsUserNameKey));
+    _hasSavedName = savedName != null && savedName.trim().isNotEmpty;
+    final metadataName = authDisplayName?.trim().isNotEmpty == true
+        ? authDisplayName!.trim()
+        : (authEmail?.split('@').first.trim().isNotEmpty == true
+              ? authEmail!.split('@').first.trim()
+              : null);
+    _hasAuthName = !_hasSavedName && metadataName != null;
+    _name = _hasSavedName ? savedName!.trim() : (metadataName ?? 'User');
+
+    final savedAvatarType = preferences.getString(
+      _scopedKey(_prefsAvatarTypeKey),
+    );
+    final rawSavedAvatar = preferences.getString(
+      _scopedKey(_prefsAvatarValueKey),
+    );
+    final savedAvatarValue = rawSavedAvatar == null
+        ? null
+        : SandboxPathResolver.fix(rawSavedAvatar);
+    if (savedAvatarType != null &&
+        savedAvatarValue != null &&
+        savedAvatarValue.isNotEmpty) {
+      _avatarType = savedAvatarType;
+      _avatarValue = savedAvatarValue;
+    } else {
+      final remoteAvatar = authAvatarUrl?.trim();
+      _avatarType = remoteAvatar == null || remoteAvatar.isEmpty ? null : 'url';
+      _avatarValue = remoteAvatar == null || remoteAvatar.isEmpty
+          ? null
+          : remoteAvatar;
+      if (_avatarValue != null) {
+        unawaited(AvatarCache.getPath(_avatarValue!).catchError((_) => null));
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Clears account-owned state so another sign-in never inherits the
+  /// previous user's local display name or avatar.
+  void clearAuthUser() {
+    _authUserId = null;
+    _didHydrateFromAuth = false;
+    _hasSavedName = false;
+    _hasAuthName = false;
+    _name = 'User';
+    _avatarType = null;
+    _avatarValue = null;
+    notifyListeners();
+  }
+
+  String _scopedKey(String base) {
+    final userId = _authUserId;
+    return userId == null ? base : '$base.$userId';
+  }
+
   Future<void> setName(String name) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty || trimmed == _name) return;
     _name = trimmed;
+    _hasSavedName = true;
     notifyListeners();
-    await preferences.setString(_prefsUserNameKey, _name);
+    await preferences.setString(_scopedKey(_prefsUserNameKey), _name);
+
+    // Sync to Supabase user metadata if logged in
+    try {
+      if (Supabase.instance.client.auth.currentUser != null) {
+        unawaited(
+          Supabase.instance.client.auth.updateUser(
+            UserAttributes(data: {'display_name': _name}),
+          ),
+        );
+      }
+    } catch (_) {}
   }
 
   Future<void> setAvatarEmoji(String emoji) async {
@@ -77,8 +165,11 @@ class UserProvider extends ChangeNotifier {
     _avatarType = 'emoji';
     _avatarValue = e;
     notifyListeners();
-    await preferences.setString(_prefsAvatarTypeKey, _avatarType!);
-    await preferences.setString(_prefsAvatarValueKey, _avatarValue!);
+    await preferences.setString(_scopedKey(_prefsAvatarTypeKey), _avatarType!);
+    await preferences.setString(
+      _scopedKey(_prefsAvatarValueKey),
+      _avatarValue!,
+    );
   }
 
   Future<void> setAvatarUrl(String url) async {
@@ -87,11 +178,25 @@ class UserProvider extends ChangeNotifier {
     _avatarType = 'url';
     _avatarValue = u;
     notifyListeners();
-    await preferences.setString(_prefsAvatarTypeKey, _avatarType!);
-    await preferences.setString(_prefsAvatarValueKey, _avatarValue!);
+    await preferences.setString(_scopedKey(_prefsAvatarTypeKey), _avatarType!);
+    await preferences.setString(
+      _scopedKey(_prefsAvatarValueKey),
+      _avatarValue!,
+    );
     // Prefetch to enable offline display later
     try {
       await AvatarCache.getPath(u);
+    } catch (_) {}
+
+    // Sync to Supabase user metadata if logged in
+    try {
+      if (Supabase.instance.client.auth.currentUser != null) {
+        unawaited(
+          Supabase.instance.client.auth.updateUser(
+            UserAttributes(data: {'avatar_url': u}),
+          ),
+        );
+      }
     } catch (_) {}
   }
 
@@ -135,15 +240,27 @@ class UserProvider extends ChangeNotifier {
       _avatarType = 'file';
       _avatarValue = dest.path;
       notifyListeners();
-      await preferences.setString(_prefsAvatarTypeKey, _avatarType!);
-      await preferences.setString(_prefsAvatarValueKey, _avatarValue!);
+      await preferences.setString(
+        _scopedKey(_prefsAvatarTypeKey),
+        _avatarType!,
+      );
+      await preferences.setString(
+        _scopedKey(_prefsAvatarValueKey),
+        _avatarValue!,
+      );
     } catch (_) {
       // Fallback to original path if copy fails (may still be temporary)
       _avatarType = 'file';
       _avatarValue = fixedInput;
       notifyListeners();
-      await preferences.setString(_prefsAvatarTypeKey, _avatarType!);
-      await preferences.setString(_prefsAvatarValueKey, _avatarValue!);
+      await preferences.setString(
+        _scopedKey(_prefsAvatarTypeKey),
+        _avatarType!,
+      );
+      await preferences.setString(
+        _scopedKey(_prefsAvatarValueKey),
+        _avatarValue!,
+      );
     }
   }
 
@@ -151,7 +268,7 @@ class UserProvider extends ChangeNotifier {
     _avatarType = null;
     _avatarValue = null;
     notifyListeners();
-    await preferences.remove(_prefsAvatarTypeKey);
-    await preferences.remove(_prefsAvatarValueKey);
+    await preferences.remove(_scopedKey(_prefsAvatarTypeKey));
+    await preferences.remove(_scopedKey(_prefsAvatarValueKey));
   }
 }

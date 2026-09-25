@@ -8,9 +8,7 @@ abstract final class WorkModeConfig {
   /// The single consolidated model powering Work Mode and Chat Mode.
   static const modelNemotron = BuildXConfig.modelId;
 
-  static const List<String> availableModels = [
-    modelNemotron,
-  ];
+  static const List<String> availableModels = [modelNemotron];
 
   static const defaultModel = modelNemotron;
 

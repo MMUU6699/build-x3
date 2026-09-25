@@ -13,6 +13,8 @@ import '../../../core/providers/backup_reminder_provider.dart';
 import '../../../core/models/chat_item.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../settings/pages/settings_page.dart';
+import 'package:Kelivo/features/auth/services/auth_service.dart';
+import 'package:Kelivo/shared/widgets/glass_pill_button.dart';
 import '../../backup/pages/backup_page.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/update_provider.dart';
@@ -1668,8 +1670,15 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
 
     // Avatar renderer: emoji / url / file / default initial
     Widget avatarWidget(String name, UserProvider up, {double size = 40}) {
-      final type = up.avatarType;
-      final value = up.avatarValue;
+      final authUser = AuthService.currentUser;
+      final metadata = authUser?.userMetadata ?? const <String, dynamic>{};
+      final fallbackUrl = (metadata['avatar_url'] ?? metadata['picture'])
+          ?.toString();
+      final type =
+          up.avatarType ??
+          (fallbackUrl != null && fallbackUrl.isNotEmpty ? 'url' : null);
+      final value = up.avatarValue ?? fallbackUrl;
+
       if (type == 'emoji' && value != null && value.isNotEmpty) {
         return Container(
           width: size,
@@ -1707,23 +1716,34 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                 width: size,
                 height: size,
                 fit: BoxFit.cover,
-                errorBuilder: (c, e, s) => Container(
-                  width: size,
-                  height: size,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '?',
-                    style: TextStyle(
-                      color: cs.primary,
-                      fontSize: size * 0.42,
-                      fontWeight: AppFontWeights.emphasis,
+                errorBuilder: (c, e, s) {
+                  final letter = name.trim().isNotEmpty
+                      ? name.trim().characters.first.toUpperCase()
+                      : (authUser?.email?.trim().isNotEmpty == true
+                            ? authUser!.email!
+                                  .trim()
+                                  .characters
+                                  .first
+                                  .toUpperCase()
+                            : 'U');
+                  return Container(
+                    width: size,
+                    height: size,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: cs.primary.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
                     ),
-                  ),
-                ),
+                    child: Text(
+                      letter,
+                      style: TextStyle(
+                        color: cs.primary,
+                        fontSize: size * 0.42,
+                        fontWeight: AppFontWeights.emphasis,
+                      ),
+                    ),
+                  );
+                },
               ),
             );
           },
@@ -1744,7 +1764,11 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
         }
       }
       // default: initial
-      final letter = name.isNotEmpty ? name.characters.first : '?';
+      final letter = name.trim().isNotEmpty
+          ? name.trim().characters.first.toUpperCase()
+          : (authUser?.email?.trim().isNotEmpty == true
+                ? authUser!.email!.trim().characters.first.toUpperCase()
+                : 'U');
       return Container(
         width: size,
         height: size,
@@ -2796,7 +2820,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                           _deleteSelected();
                         },
                       )
-                    : (widget.showBottomBar && (!widget.embedded || !_isDesktop)
+                    : (widget.showBottomBar && !widget.desktopTopicsOnly
                           ? Container(
                               key: const ValueKey<String>('sidebar-user-bar'),
                               padding: const EdgeInsets.fromLTRB(
@@ -2815,71 +2839,104 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                                 children: [
                                   Row(
                                     children: [
-                                      const SizedBox(width: 6),
-                                      // 用户头像（可点击更换）—移除水波纹
-                                      GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onTap: () => _editAvatar(context),
-                                        child: avatarWidget(
-                                          widget.userName,
-                                          context.watch<UserProvider>(),
-                                          size: 40,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 20),
-                                      // 用户名称（可点击编辑，垂直居中）
+                                      // Account / Profile area (opens SettingsPage)
                                       Expanded(
                                         child: IosCardPress(
                                           borderRadius: BorderRadius.circular(
-                                            6,
+                                            10,
                                           ),
                                           baseColor: Colors.transparent,
-                                          onTap: () => _editUserName(context),
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const SettingsPage(),
+                                              ),
+                                            );
+                                          },
                                           padding: const EdgeInsets.symmetric(
-                                            horizontal: 0,
+                                            horizontal: 4,
+                                            vertical: 4,
                                           ),
-                                          child: SizedBox(
-                                            height: 45,
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
+                                          child: Row(
+                                            children: [
+                                              avatarWidget(
                                                 widget.userName,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: _isDesktop
-                                                      ? 14
-                                                      : 16,
-                                                  fontWeight:
-                                                      AppFontWeights.emphasis,
-                                                  color: textBase,
+                                                context.watch<UserProvider>(),
+                                                size: 40,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      widget.userName,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize: _isDesktop
+                                                            ? 14
+                                                            : 15,
+                                                        fontWeight:
+                                                            AppFontWeights
+                                                                .emphasis,
+                                                        color: textBase,
+                                                      ),
+                                                    ),
+                                                    if (AuthService
+                                                                .currentUser
+                                                                ?.email !=
+                                                            null &&
+                                                        AuthService
+                                                            .currentUser!
+                                                            .email!
+                                                            .isNotEmpty)
+                                                      Text(
+                                                        AuthService
+                                                            .currentUser!
+                                                            .email!,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontSize: 11,
+                                                          color: textBase
+                                                              .withValues(
+                                                                alpha: 0.5,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                  ],
                                                 ),
                                               ),
-                                            ),
+                                            ],
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      // 设置按钮（圆形，无水波纹）
-                                      SizedBox(
-                                        width: 45,
-                                        height: 45,
-                                        child: Center(
-                                          child: IosIconButton(
-                                            size: 22,
-                                            color: textBase,
-                                            icon: Lucide.Settings,
-                                            padding: const EdgeInsets.all(10),
-                                            onTap: () {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      const SettingsPage(),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
+                                      // New Chat glass pill button
+                                      GlassPillButton(
+                                        icon: Lucide.SquarePen,
+                                        label:
+                                            AppLocalizations.of(
+                                              context,
+                                            )?.authNewChat ??
+                                            'New Chat',
+                                        semanticLabel:
+                                            AppLocalizations.of(
+                                              context,
+                                            )?.authNewChat ??
+                                            'New Chat',
+                                        onTap: () {
+                                          widget.onNewConversation?.call(
+                                            closeDrawer: !_isDesktop,
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),
@@ -3057,6 +3114,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     );
   }
 
+  // ignore: unused_element
   Future<void> _editAvatar(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     await showModalBottomSheet(
@@ -3710,6 +3768,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     }
   }
 
+  // ignore: unused_element
   Future<void> _editUserName(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final userProvider = context.read<UserProvider>();

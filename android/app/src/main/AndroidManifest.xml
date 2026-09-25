@@ -85,6 +85,13 @@
                 <data android:scheme="file" />
                 <data android:mimeType="*/*" />
             </intent-filter>
+            <!-- Supabase auth deep link callback: buildx://login-callback -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="buildx" android:host="login-callback"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".OAuthCallbackActivity"

@@ -10846,6 +10846,101 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get buildXHideKey => '隐藏密钥';
+
+  @override
+  String get authContinueWithGoogle => '使用 Google 登录';
+
+  @override
+  String get authSignUp => '注册';
+
+  @override
+  String get authLogIn => '登录';
+
+  @override
+  String get authEmail => '邮箱';
+
+  @override
+  String get authPassword => '密码';
+
+  @override
+  String get authConfirmPassword => '确认密码';
+
+  @override
+  String get authDisplayName => '显示名称';
+
+  @override
+  String get authForgotPassword => '忘记密码？';
+
+  @override
+  String get authResetPassword => '重置密码';
+
+  @override
+  String get authSendResetLink => '发送重置链接';
+
+  @override
+  String get authResetLinkSent => '重置密码链接已发送至您的邮箱。';
+
+  @override
+  String get authCheckYourEmail => '请查收邮件';
+
+  @override
+  String authEmailConfirmationSent(String email) {
+    return '我们已将确认链接发送至 $email，请查收您的邮箱。';
+  }
+
+  @override
+  String get authSignOut => '退出登录';
+
+  @override
+  String get authSignOutConfirmTitle => '退出登录';
+
+  @override
+  String get authSignOutConfirmMessage => '确定要退出当前账号吗？';
+
+  @override
+  String get authCancel => '取消';
+
+  @override
+  String get authAccount => '账号';
+
+  @override
+  String get authNewChat => '新对话';
+
+  @override
+  String get authCreateAccount => '创建账号';
+
+  @override
+  String get authAlreadyHaveAccount => '已有账号？去登录';
+
+  @override
+  String get authDontHaveAccount => '还没有账号？去注册';
+
+  @override
+  String get authBackToLogin => '返回登录';
+
+  @override
+  String get authErrorInvalidCredentials => '邮箱或密码错误。';
+
+  @override
+  String get authErrorUserExists => '该邮箱已被注册。';
+
+  @override
+  String get authErrorWeakPassword => '密码强度不足，请至少输入 6 位字符。';
+
+  @override
+  String get authErrorEmailNotConfirmed => '请先验证您的邮箱地址。';
+
+  @override
+  String get authErrorRateLimit => '尝试次数过多，请稍后再试。';
+
+  @override
+  String get authErrorNetwork => '网络连接失败，请检查网络后重试。';
+
+  @override
+  String get authErrorGeneric => '出现未知错误，请稍后重试。';
+
+  @override
+  String get authErrorPasswordMismatch => '两次输入的密码不一致。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -21616,6 +21711,101 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get buildXHideKey => '隐藏密钥';
+
+  @override
+  String get authContinueWithGoogle => '使用 Google 登录';
+
+  @override
+  String get authSignUp => '注册';
+
+  @override
+  String get authLogIn => '登录';
+
+  @override
+  String get authEmail => '邮箱';
+
+  @override
+  String get authPassword => '密码';
+
+  @override
+  String get authConfirmPassword => '确认密码';
+
+  @override
+  String get authDisplayName => '显示名称';
+
+  @override
+  String get authForgotPassword => '忘记密码？';
+
+  @override
+  String get authResetPassword => '重置密码';
+
+  @override
+  String get authSendResetLink => '发送重置链接';
+
+  @override
+  String get authResetLinkSent => '重置密码链接已发送至您的邮箱。';
+
+  @override
+  String get authCheckYourEmail => '请查收邮件';
+
+  @override
+  String authEmailConfirmationSent(String email) {
+    return '我们已将确认链接发送至 $email，请查收您的邮箱。';
+  }
+
+  @override
+  String get authSignOut => '退出登录';
+
+  @override
+  String get authSignOutConfirmTitle => '退出登录';
+
+  @override
+  String get authSignOutConfirmMessage => '确定要退出当前账号吗？';
+
+  @override
+  String get authCancel => '取消';
+
+  @override
+  String get authAccount => '账号';
+
+  @override
+  String get authNewChat => '新对话';
+
+  @override
+  String get authCreateAccount => '创建账号';
+
+  @override
+  String get authAlreadyHaveAccount => '已有账号？去登录';
+
+  @override
+  String get authDontHaveAccount => '还没有账号？去注册';
+
+  @override
+  String get authBackToLogin => '返回登录';
+
+  @override
+  String get authErrorInvalidCredentials => '邮箱或密码错误。';
+
+  @override
+  String get authErrorUserExists => '该邮箱已被注册。';
+
+  @override
+  String get authErrorWeakPassword => '密码强度不足，请至少输入 6 位字符。';
+
+  @override
+  String get authErrorEmailNotConfirmed => '请先验证您的邮箱地址。';
+
+  @override
+  String get authErrorRateLimit => '尝试次数过多，请稍后再试。';
+
+  @override
+  String get authErrorNetwork => '网络连接失败，请检查网络后重试。';
+
+  @override
+  String get authErrorGeneric => '出现未知错误，请稍后重试。';
+
+  @override
+  String get authErrorPasswordMismatch => '两次输入的密码不一致。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -32465,4 +32655,99 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get buildXHideKey => '隱藏金鑰';
+
+  @override
+  String get authContinueWithGoogle => '使用 Google 登入';
+
+  @override
+  String get authSignUp => '註冊';
+
+  @override
+  String get authLogIn => '登入';
+
+  @override
+  String get authEmail => '電子郵件';
+
+  @override
+  String get authPassword => '密碼';
+
+  @override
+  String get authConfirmPassword => '確認密碼';
+
+  @override
+  String get authDisplayName => '顯示名稱';
+
+  @override
+  String get authForgotPassword => '忘記密碼？';
+
+  @override
+  String get authResetPassword => '重設密碼';
+
+  @override
+  String get authSendResetLink => '傳送重設連結';
+
+  @override
+  String get authResetLinkSent => '重設密碼連結已傳送至您的電子郵件信箱。';
+
+  @override
+  String get authCheckYourEmail => '請查收電子郵件';
+
+  @override
+  String authEmailConfirmationSent(String email) {
+    return '我們已將確認連結傳送至 $email，請查收您的電子郵件信箱。';
+  }
+
+  @override
+  String get authSignOut => '登出';
+
+  @override
+  String get authSignOutConfirmTitle => '登出';
+
+  @override
+  String get authSignOutConfirmMessage => '確定要登出目前帳號嗎？';
+
+  @override
+  String get authCancel => '取消';
+
+  @override
+  String get authAccount => '帳號';
+
+  @override
+  String get authNewChat => '新對話';
+
+  @override
+  String get authCreateAccount => '建立帳號';
+
+  @override
+  String get authAlreadyHaveAccount => '已有帳號？前往登入';
+
+  @override
+  String get authDontHaveAccount => '還沒有帳號？前往註冊';
+
+  @override
+  String get authBackToLogin => '返回登入';
+
+  @override
+  String get authErrorInvalidCredentials => '電子郵件或密碼錯誤。';
+
+  @override
+  String get authErrorUserExists => '該電子郵件已被註冊。';
+
+  @override
+  String get authErrorWeakPassword => '密碼強度不足，請至少輸入 6 位字元。';
+
+  @override
+  String get authErrorEmailNotConfirmed => '請先驗證您的電子郵件地址。';
+
+  @override
+  String get authErrorRateLimit => '嘗試次數過多，請稍後再試。';
+
+  @override
+  String get authErrorNetwork => '網路連線失敗，請檢查網路後重試。';
+
+  @override
+  String get authErrorGeneric => '發生未預期的錯誤，請稍後重試。';
+
+  @override
+  String get authErrorPasswordMismatch => '兩次輸入的密碼不一致。';
 }

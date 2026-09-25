@@ -27,7 +27,7 @@ class ModelRegistry {
   );
   // Tool-using models
   static final RegExp tool = RegExp(
-    (r'(gpt-4o|gpt-4\.1|gpt-oss|gpt-5(?!-chat)|gpt-6|o\d|'
+    (r'(nemotron|gpt-4o|gpt-4\.1|gpt-oss|gpt-5(?!-chat)|gpt-6|o\d|'
             r'gemini|claude|'
             r'qwen-?3|doubao.+(?:1([-.])(?:6|8)|seed-2|seed-evolving)|grok-4|kimi-k2|'
             r'kimi-k3(?:$|[/_:@.-])|muse-spark-1(?:$|[/_:@.-])|'
@@ -42,7 +42,7 @@ class ModelRegistry {
     caseSensitive: false,
   );
   static final RegExp reasoning = RegExp(
-    (r'(gpt-oss|gpt-5(?!-chat)|gpt-6|o\d|'
+    (r'(nemotron|gpt-oss|gpt-5(?!-chat)|gpt-6|o\d|'
             r'gemini-(?:2\.5|3).*|gemini-(?:flash-latest|pro-latest)|'
             r'gemini-3-pro-image-preview|'
             r'gemma[-_]?4|'

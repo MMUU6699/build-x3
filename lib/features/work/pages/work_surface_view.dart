@@ -12,10 +12,7 @@ import '../widgets/work_thinking_card.dart';
 
 /// The active workspace canvas for Build X Work Mode.
 class WorkSurfaceView extends StatelessWidget {
-  const WorkSurfaceView({
-    super.key,
-    this.onSelectPrompt,
-  });
+  const WorkSurfaceView({super.key, this.onSelectPrompt});
 
   final ValueChanged<String>? onSelectPrompt;
 
@@ -24,7 +21,8 @@ class WorkSurfaceView extends StatelessWidget {
     final workProvider = context.watch<WorkModeProvider>();
     final cs = Theme.of(context).colorScheme;
 
-    final hasSessionContent = workProvider.currentTask.isNotEmpty ||
+    final hasSessionContent =
+        workProvider.currentTask.isNotEmpty ||
         workProvider.isExecuting ||
         workProvider.deliverableEvent != null ||
         workProvider.responseText.isNotEmpty ||
@@ -46,7 +44,10 @@ class WorkSurfaceView extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 580),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: cs.onSurface.withAlpha(15),
                   borderRadius: BorderRadius.circular(16),
@@ -85,12 +86,19 @@ class WorkSurfaceView extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Lucide.AlertTriangle, size: 18, color: Colors.redAccent),
+                const Icon(
+                  Lucide.AlertTriangle,
+                  size: 18,
+                  color: Colors.redAccent,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     workProvider.error!,
-                    style: const TextStyle(fontSize: 13, color: Colors.redAccent),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.redAccent,
+                    ),
                   ),
                 ),
               ],
@@ -105,7 +113,8 @@ class WorkSurfaceView extends StatelessWidget {
         if (workProvider.thinkingEvent != null)
           WorkThinkingCard(
             thinkingEvent: workProvider.thinkingEvent!,
-            isStreaming: workProvider.isExecuting && workProvider.codingEvents.isEmpty,
+            isStreaming:
+                workProvider.isExecuting && workProvider.codingEvents.isEmpty,
           ),
 
         // 3. Browsing State Card
@@ -117,14 +126,18 @@ class WorkSurfaceView extends StatelessWidget {
           WorkCodingCard(codingEvent: coding),
 
         // Conversational / Direct Response text
-        if (workProvider.responseText.isNotEmpty && workProvider.deliverableEvent == null)
+        if (workProvider.responseText.isNotEmpty &&
+            workProvider.deliverableEvent == null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 720),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(16),

@@ -2417,18 +2417,23 @@ class HomePageController extends ChangeNotifier {
     } catch (_) {}
   }
 
+  Timer? _measureInputBarDebounce;
+
   void measureInputBar() {
-    try {
-      final ctx = _inputBarKey.currentContext;
-      if (ctx == null) return;
-      final box = ctx.findRenderObject() as RenderBox?;
-      if (box == null) return;
-      final h = box.size.height;
-      if ((_inputBarHeight - h).abs() > 1.0) {
-        _inputBarHeight = h;
-        notifyListeners();
-      }
-    } catch (_) {}
+    _measureInputBarDebounce?.cancel();
+    _measureInputBarDebounce = Timer(const Duration(milliseconds: 260), () {
+      try {
+        final ctx = _inputBarKey.currentContext;
+        if (ctx == null) return;
+        final box = ctx.findRenderObject() as RenderBox?;
+        if (box == null) return;
+        final h = box.size.height;
+        if ((_inputBarHeight - h).abs() > 1.0) {
+          _inputBarHeight = h;
+          notifyListeners();
+        }
+      } catch (_) {}
+    });
   }
 
   // ============================================================================
@@ -2952,6 +2957,7 @@ class HomePageController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _measureInputBarDebounce?.cancel();
     if (_scheduledExecutor case final executor?) {
       ScheduledTasksService.instance.detach(executor);
     }

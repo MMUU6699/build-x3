@@ -54,7 +54,6 @@ import '../widgets/mini_map_sheet.dart';
 import '../widgets/instruction_injection_sheet.dart';
 import '../widgets/world_book_sheet.dart';
 import '../widgets/learning_prompt_sheet.dart';
-import '../widgets/scroll_nav_buttons.dart';
 import '../widgets/message_list_view.dart';
 import '../widgets/chat_input_section.dart';
 import '../widgets/conversation_system_prompt_button.dart';
@@ -70,7 +69,6 @@ import '../controllers/scroll_controller.dart' as scroll_ctrl;
 import 'home_mobile_layout.dart';
 import 'home_desktop_layout.dart';
 import '../../../core/providers/work_mode_provider.dart';
-import '../../work/pages/work_surface_view.dart';
 import '../../work/widgets/work_sticky_status_panel.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 
@@ -695,7 +693,6 @@ class _HomePageState extends State<HomePage>
   final GlobalKey _inputBarKey = GlobalKey();
   final GlobalKey _selectionMiniMapKey = GlobalKey();
   final GlobalKey _selectionActionBarKey = GlobalKey();
-  bool _scrollNavHovering = false;
   double _lastViewInsetBottom = 0;
   StreamSubscription<String>? _processTextSub;
   IncomingShareService? _incomingShares;
@@ -1066,12 +1063,6 @@ class _HomePageState extends State<HomePage>
       backgroundImageActive: backgroundImageActive,
       content: Builder(
         builder: (context) {
-          final workProvider = context.watch<WorkModeProvider?>();
-          if (workProvider?.isWorkMode ?? false) {
-            return WorkSurfaceView(
-              onSelectPrompt: (p) => _inputController.text = p,
-            );
-          }
           final content = KeyedSubtree(
             key: ValueKey<String>(
               _controller.currentConversation?.id ?? 'none',
@@ -1267,12 +1258,6 @@ class _HomePageState extends State<HomePage>
       backgroundImageActive: backgroundImageActive,
       content: Builder(
         builder: (context) {
-          final workProvider = context.watch<WorkModeProvider?>();
-          if (workProvider?.isWorkMode ?? false) {
-            return WorkSurfaceView(
-              onSelectPrompt: (p) => _inputController.text = p,
-            );
-          }
           return FadeTransition(
             opacity: _controller.convoFade,
             child: _wrapMessageJumpTransition(
@@ -1596,6 +1581,11 @@ class _HomePageState extends State<HomePage>
       onSend: (data) async {
         final workProvider = context.read<WorkModeProvider>();
         if (workProvider.isWorkMode) {
+          if (data.text.trim().isEmpty) {
+            return ChatInputSubmissionResult.rejected;
+          }
+          // Work Mode has its own authenticated execution pipeline and event
+          // stream. Do not also send the task through the normal Chat path.
           unawaited(workProvider.runTask(data.text));
           if (PlatformUtils.isMobile) {
             _controller.dismissKeyboard();
@@ -1647,74 +1637,14 @@ class _HomePageState extends State<HomePage>
     if (isWorkMode) {
       return Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          const WorkStickyStatusPanel(),
-          inputSection,
-        ],
+        children: [const WorkStickyStatusPanel(), inputSection],
       );
     }
     return inputSection;
   }
 
   Widget _buildScrollButtons() {
-    return Builder(
-      builder: (context) {
-        final settings = context.watch<SettingsProvider>();
-        if (_controller.selecting) return const SizedBox.shrink();
-        if (_controller.messages.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        var visible = _controller.scrollCtrl.showNavButtons;
-        var hoverEnabled = false;
-        if (_controller.isDesktopPlatform) {
-          switch (settings.desktopMessageNavButtonsMode) {
-            case DesktopMessageNavButtonsMode.always:
-              visible = true;
-              break;
-            case DesktopMessageNavButtonsMode.scroll:
-              visible = _controller.scrollCtrl.showNavButtons;
-              break;
-            case DesktopMessageNavButtonsMode.hover:
-              visible = _scrollNavHovering;
-              hoverEnabled = true;
-              break;
-            case DesktopMessageNavButtonsMode.scrollAndHover:
-              visible =
-                  _controller.scrollCtrl.showNavButtons || _scrollNavHovering;
-              hoverEnabled = true;
-              break;
-            case DesktopMessageNavButtonsMode.never:
-              return const SizedBox.shrink();
-          }
-        } else {
-          switch (settings.mobileMessageNavButtonsMode) {
-            case MobileMessageNavButtonsMode.always:
-              visible = true;
-              break;
-            case MobileMessageNavButtonsMode.scroll:
-              visible = _controller.scrollCtrl.showNavButtons;
-              break;
-            case MobileMessageNavButtonsMode.never:
-              return const SizedBox.shrink();
-          }
-        }
-        return ScrollNavButtonsPanel(
-          visible: visible,
-          hoverEnabled: hoverEnabled,
-          onHoverChanged: hoverEnabled
-              ? (hovering) {
-                  if (_scrollNavHovering == hovering) return;
-                  setState(() => _scrollNavHovering = hovering);
-                }
-              : null,
-          bottomOffset: _controller.inputBarHeight + 12,
-          onScrollToTop: () => _controller.scrollToTop(animate: false),
-          onPreviousMessage: _controller.jumpToPreviousQuestion,
-          onNextMessage: _controller.jumpToNextQuestion,
-          onScrollToBottom: _controller.forceScrollToBottom,
-        );
-      },
-    );
+    return const SizedBox.shrink();
   }
 
   Widget _buildForegroundOverlay(BuildContext context) {
@@ -2023,22 +1953,25 @@ class _HomePageState extends State<HomePage>
                       model.providerKey != null &&
                       model.modelId != null &&
                       pCfg != null) {
-                    final overrides =
-                        Map<String, dynamic>.from(pCfg.modelOverrides);
+                    final overrides = Map<String, dynamic>.from(
+                      pCfg.modelOverrides,
+                    );
                     final rawMo = overrides[model.modelId!];
                     final baseMo = rawMo is Map ? rawMo : null;
                     final mo = Map<String, dynamic>.from(
                       baseMo?.map((k, val) => MapEntry(k.toString(), val)) ??
                           const <String, dynamic>{},
                     );
-                    final builtIns =
-                        BuiltInToolNames.parseAndNormalize(mo['builtInTools']);
+                    final builtIns = BuiltInToolNames.parseAndNormalize(
+                      mo['builtInTools'],
+                    );
                     builtIns.remove(BuiltInToolNames.search);
                     if (builtIns.isEmpty) {
                       mo.remove('builtInTools');
                     } else {
-                      mo['builtInTools'] =
-                          BuiltInToolNames.orderedForStorage(builtIns);
+                      mo['builtInTools'] = BuiltInToolNames.orderedForStorage(
+                        builtIns,
+                      );
                     }
                     overrides[model.modelId!] = mo;
                     await settings.setProviderConfig(

@@ -38,7 +38,9 @@ class WorkPlanStep {
 
   factory WorkPlanStep.fromJson(Map<String, dynamic> json) {
     return WorkPlanStep(
-      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}') ?? 0,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse('${json['id']}') ?? 0,
       title: json['title'] as String? ?? '',
       status: WorkPlanStepStatus.fromString(json['status'] as String?),
     );
@@ -49,6 +51,14 @@ class WorkPlanStep {
     'title': title,
     'status': status.name,
   };
+
+  WorkPlanStep copyWith({int? id, String? title, WorkPlanStepStatus? status}) {
+    return WorkPlanStep(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      status: status ?? this.status,
+    );
+  }
 }
 
 /// Base sealed class for all Work Mode Agent events.
@@ -106,10 +116,7 @@ class WorkCodingEvent extends WorkAgentEvent {
 
 /// Terminal Tool Event: command execution output.
 class WorkTerminalEvent extends WorkAgentEvent {
-  const WorkTerminalEvent({
-    required this.command,
-    required this.output,
-  });
+  const WorkTerminalEvent({required this.command, required this.output});
   final String command;
   final String output;
 }
@@ -193,14 +200,19 @@ abstract final class WorkAgentEventParser {
             title: json['title'] as String? ?? 'Deliverable Artifact',
             type: json['type'] as String? ?? 'web_app',
             entrypoint: json['entrypoint'] as String? ?? 'index.html',
-            files: (json['files'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? ['index.html'],
+            files:
+                (json['files'] as List<dynamic>?)
+                    ?.map((e) => e.toString())
+                    .toList() ??
+                ['index.html'],
             previewHtml: json['previewHtml'] as String? ?? '',
             summary: json['summary'] as String? ?? '',
           );
 
         case 'message':
           return WorkMessageEvent(
-            content: json['content'] as String? ?? json['text'] as String? ?? '',
+            content:
+                json['content'] as String? ?? json['text'] as String? ?? '',
           );
 
         case 'done':

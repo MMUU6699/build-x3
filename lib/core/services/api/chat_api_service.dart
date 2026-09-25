@@ -82,11 +82,12 @@ class ChatApiService {
         messages: messages,
         localConversationId: conversationId,
         persistConversation: persistConversation,
-        apiKeyOverride:
-            config.apiKey.trim().isNotEmpty ? config.apiKey.trim() : null,
+        apiKeyOverride: config.apiKey.trim().isNotEmpty
+            ? config.apiKey.trim()
+            : null,
         tools: tools,
         onToolCall: onToolCall,
-        suppressReasoning: true,
+        suppressReasoning: thinkingBudget == 0,
       );
     } finally {
       if (id.isNotEmpty && identical(_activeClients[id], client)) {

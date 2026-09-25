@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../scheduled_tasks/pages/scheduled_tasks_page.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,12 @@ import '../../../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../core/providers/settings_provider.dart';
-import 'mistral_connection_page.dart';
+import '../../../core/providers/user_provider.dart';
+import '../../auth/services/auth_service.dart';
+import 'user_profile_page.dart';
+import '../../../shared/widgets/emoji_text.dart';
+import '../../../utils/avatar_cache.dart';
+import '../../../utils/sandbox_path_resolver.dart';
 import 'display_settings_page.dart';
 import 'settings_search_page.dart';
 import '../widgets/settings_search_entry.dart';
@@ -163,8 +169,106 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
 
+          // 账号设置 (Account Section)
+          header(l10n.authAccount, first: true),
+          SectionCard(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    _buildAccountAvatar(context, size: 48),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            context.watch<UserProvider>().name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: AppFontWeights.emphasis,
+                              color: cs.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (AuthService.currentUser?.email != null &&
+                              AuthService.currentUser!.email!.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              AuthService.currentUser!.email!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: cs.onSurface.withValues(alpha: 0.6),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _iosDivider(context),
+              _iosNavRow(
+                context,
+                icon: Lucide.User,
+                label: l10n.userProfilePageTitle,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const UserProfilePage()),
+                  );
+                },
+              ),
+              if (AuthService.currentUser != null) ...[
+                _iosDivider(context),
+                _iosNavRow(
+                  context,
+                  icon: Lucide.LogOut,
+                  label: l10n.authSignOut,
+                  customColor: cs.error,
+                  onTap: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog.adaptive(
+                        title: Text(l10n.authSignOutConfirmTitle),
+                        content: Text(l10n.authSignOutConfirmMessage),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(false),
+                            child: Text(l10n.authCancel),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            child: Text(
+                              l10n.authSignOut,
+                              style: TextStyle(color: cs.error),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      await AuthService.signOut();
+                      if (context.mounted) {
+                        Navigator.of(context).popUntil((r) => r.isFirst);
+                      }
+                    }
+                  },
+                ),
+              ],
+            ],
+          ),
+
           // 通用设置：使用iOS风格分组卡片，黑色（中性）图标与标题，无描述
-          header(l10n.settingsPageGeneralSection, first: true),
+          header(l10n.settingsPageGeneralSection),
           SectionCard(
             children: [
               _iosNavRow(
@@ -207,19 +311,6 @@ class SettingsPage extends StatelessWidget {
           header(l10n.settingsPageModelsServicesSection),
           SectionCard(
             children: [
-              _iosNavRow(
-                context,
-                icon: Lucide.KeyRound,
-                label: 'Build X Connection (NVIDIA NIM)',
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const MistralConnectionPage(),
-                    ),
-                  );
-                },
-              ),
-              _iosDivider(context),
               _iosNavRow(
                 context,
                 icon: Lucide.Earth,
@@ -581,6 +672,118 @@ class _ChatStorageSummaryState extends State<_ChatStorageSummary> {
   }
 }
 
+Widget _buildAccountAvatar(BuildContext context, {double size = 48}) {
+  final cs = Theme.of(context).colorScheme;
+  final up = context.watch<UserProvider>();
+  final authUser = AuthService.currentUser;
+  final metadata = authUser?.userMetadata ?? const <String, dynamic>{};
+  final fallbackUrl = (metadata['avatar_url'] ?? metadata['picture'])
+      ?.toString();
+  final type =
+      up.avatarType ??
+      (fallbackUrl != null && fallbackUrl.isNotEmpty ? 'url' : null);
+  final value = up.avatarValue ?? fallbackUrl;
+
+  if (type == 'emoji' && value != null && value.isNotEmpty) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: EmojiText(value, fontSize: size * 0.5, optimizeEmojiAlign: true),
+    );
+  }
+  if (type == 'url' && value != null && value.isNotEmpty) {
+    return FutureBuilder<String?>(
+      future: AvatarCache.getPath(value),
+      builder: (ctx, snap) {
+        final p = snap.data;
+        if (p != null && File(p).existsSync()) {
+          return ClipOval(
+            child: Image(
+              image: FileImage(File(p)),
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+            ),
+          );
+        }
+        return ClipOval(
+          child: Image.network(
+            value,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (c, e, s) => Container(
+              width: size,
+              height: size,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                up.name.trim().isNotEmpty
+                    ? up.name.trim().characters.first.toUpperCase()
+                    : (authUser?.email?.trim().isNotEmpty == true
+                          ? authUser!.email!
+                                .trim()
+                                .characters
+                                .first
+                                .toUpperCase()
+                          : 'U'),
+                style: TextStyle(
+                  color: cs.primary,
+                  fontSize: size * 0.42,
+                  fontWeight: AppFontWeights.emphasis,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+  if (type == 'file' && value != null && value.isNotEmpty && !kIsWeb) {
+    final fixed = SandboxPathResolver.fix(value);
+    final f = File(fixed);
+    if (f.existsSync()) {
+      return ClipOval(
+        child: Image(
+          image: FileImage(f),
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+  }
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: cs.primary.withValues(alpha: 0.15),
+      shape: BoxShape.circle,
+    ),
+    alignment: Alignment.center,
+    child: Text(
+      up.name.trim().isNotEmpty
+          ? up.name.trim().characters.first.toUpperCase()
+          : (authUser?.email?.trim().isNotEmpty == true
+                ? authUser!.email!.trim().characters.first.toUpperCase()
+                : 'U'),
+      style: TextStyle(
+        color: cs.primary,
+        fontSize: size * 0.42,
+        fontWeight: AppFontWeights.emphasis,
+      ),
+    ),
+  );
+}
+
 Widget _iosNavRow(
   BuildContext context, {
   required IconData icon,
@@ -588,6 +791,7 @@ Widget _iosNavRow(
   VoidCallback? onTap,
   String? detailText,
   Widget Function(BuildContext ctx)? detailBuilder,
+  Color? customColor,
 }) {
   final cs = Theme.of(context).colorScheme;
   final interactive = onTap != null;
@@ -596,7 +800,7 @@ Widget _iosNavRow(
     pressedScale: 1.00,
     haptics: false,
     builder: (pressed) {
-      final baseColor = cs.onSurface.withValues(alpha: 0.9);
+      final baseColor = customColor ?? cs.onSurface.withValues(alpha: 0.9);
       return _AnimatedPressColor(
         pressed: pressed,
         base: baseColor,

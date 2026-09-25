@@ -5,10 +5,7 @@ import '../../../theme/app_font_weights.dart';
 
 /// 1. Planning State Card: Renders the agent's task breakdown and step progress.
 class WorkPlanningCard extends StatefulWidget {
-  const WorkPlanningCard({
-    super.key,
-    required this.planningEvent,
-  });
+  const WorkPlanningCard({super.key, required this.planningEvent});
 
   final WorkPlanningEvent planningEvent;
 
@@ -17,30 +14,29 @@ class WorkPlanningCard extends StatefulWidget {
 }
 
 class _WorkPlanningCardState extends State<WorkPlanningCard> {
-  bool _expanded = true;
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final steps = widget.planningEvent.steps;
-    final completedCount = steps.where((s) => s.status == WorkPlanStepStatus.completed).length;
+    final completedCount = steps
+        .where((s) => s.status == WorkPlanStepStatus.completed)
+        .length;
     final totalCount = steps.length;
     final allCompleted = totalCount > 0 && completedCount == totalCount;
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
         color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: cs.outline.withAlpha(50),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.outline.withAlpha(50), width: 0.8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(20),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withAlpha(15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -48,46 +44,57 @@ class _WorkPlanningCardState extends State<WorkPlanningCard> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             onTap: () => setState(() => _expanded = !_expanded),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               child: Row(
                 children: [
                   Icon(
                     allCompleted ? Lucide.CheckCircle2 : Lucide.ListTodo,
-                    size: 18,
-                    color: cs.onSurface,
+                    size: 16,
+                    color: allCompleted
+                        ? const Color(0xFF10B981)
+                        : cs.onSurface,
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Plan & Execution Steps',
+                    allCompleted
+                        ? 'Plan completed ($totalCount steps)'
+                        : 'Plan: $completedCount of $totalCount completed',
                     style: TextStyle(
-                      fontWeight: AppFontWeights.semiBold,
-                      fontSize: 14,
+                      fontWeight: AppFontWeights.medium,
+                      fontSize: 13,
                       color: cs.onSurface,
                     ),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2.5,
+                    ),
                     decoration: BoxDecoration(
-                      color: cs.surfaceContainerHighest.withAlpha(120),
-                      borderRadius: BorderRadius.circular(12),
+                      color: allCompleted
+                          ? const Color(0xFF10B981).withAlpha(30)
+                          : cs.surfaceContainerHighest.withAlpha(120),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '$completedCount / $totalCount',
                       style: TextStyle(
                         fontSize: 11,
-                        fontWeight: AppFontWeights.medium,
-                        color: cs.onSurfaceVariant,
+                        fontWeight: AppFontWeights.semiBold,
+                        color: allCompleted
+                            ? const Color(0xFF10B981)
+                            : cs.onSurfaceVariant,
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Icon(
                     _expanded ? Lucide.ChevronUp : Lucide.ChevronDown,
-                    size: 16,
+                    size: 15,
                     color: cs.onSurfaceVariant,
                   ),
                 ],
@@ -100,7 +107,9 @@ class _WorkPlanningCardState extends State<WorkPlanningCard> {
               padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: steps.map((step) => _buildStepRow(context, step)).toList(),
+                children: steps
+                    .map((step) => _buildStepRow(context, step))
+                    .toList(),
               ),
             ),
           ],
@@ -117,11 +126,7 @@ class _WorkPlanningCardState extends State<WorkPlanningCard> {
 
     switch (step.status) {
       case WorkPlanStepStatus.completed:
-        indicator = Icon(
-          Lucide.CheckCircle2,
-          size: 16,
-          color: cs.onSurface,
-        );
+        indicator = Icon(Lucide.CheckCircle2, size: 16, color: cs.onSurface);
         titleStyle = TextStyle(
           fontSize: 13,
           color: cs.onSurfaceVariant,
@@ -144,15 +149,8 @@ class _WorkPlanningCardState extends State<WorkPlanningCard> {
         );
         break;
       case WorkPlanStepStatus.failed:
-        indicator = Icon(
-          Lucide.AlertCircle,
-          size: 16,
-          color: Colors.redAccent,
-        );
-        titleStyle = TextStyle(
-          fontSize: 13,
-          color: Colors.redAccent,
-        );
+        indicator = Icon(Lucide.AlertCircle, size: 16, color: Colors.redAccent);
+        titleStyle = TextStyle(fontSize: 13, color: Colors.redAccent);
         break;
       case WorkPlanStepStatus.pending:
         indicator = Container(
@@ -175,17 +173,9 @@ class _WorkPlanningCardState extends State<WorkPlanningCard> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: indicator,
-          ),
+          Padding(padding: const EdgeInsets.only(top: 2), child: indicator),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              step.title,
-              style: titleStyle,
-            ),
-          ),
+          Expanded(child: Text(step.title, style: titleStyle)),
         ],
       ),
     );

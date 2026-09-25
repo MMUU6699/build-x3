@@ -87,7 +87,11 @@ class _CerebrasConnectionPageState extends State<CerebrasConnectionPage> {
               ),
             Text(
               'Configure your NVIDIA API key (nvapi-...) to power autonomous Work mode and Chat mode with nvidia/nemotron-3-ultra-550b-a55b.',
-              style: TextStyle(fontSize: 13, height: 1.5, color: cs.onSurfaceVariant),
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: cs.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 24),
             TextField(

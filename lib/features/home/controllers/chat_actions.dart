@@ -1,4 +1,5 @@
 import '../../../core/services/auth/provider_oauth_service.dart';
+import '../../../core/services/api/build_x_api_exception.dart';
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/widgets.dart';
@@ -2724,7 +2725,33 @@ class ChatActions {
     final oauthFailure =
         e is ProviderOAuthException &&
         e.kind == ProviderOAuthFailure.loginRequired;
-    final errorText = oauthFailure ? '' : e.toString();
+    final String errorText;
+    if (oauthFailure) {
+      errorText = '';
+    } else if (e is BuildXApiException) {
+      errorText = e.userMessage;
+    } else {
+      final str = e.toString();
+      if (str.contains('401') ||
+          str.contains('Unauthorized') ||
+          str.contains('Authentication failed')) {
+        errorText =
+            'تعذر تسجيل الدخول إلى NVIDIA. تحقق من مفتاح API في الإعدادات.';
+      } else if (str.contains('429') || str.contains('rate limit')) {
+        errorText = 'تم الوصول إلى حد الطلبات مؤقتًا. حاول بعد قليل.';
+      } else if (str.contains('500') ||
+          str.contains('502') ||
+          str.contains('503') ||
+          str.contains('504')) {
+        errorText = 'خدمة NVIDIA غير متاحة مؤقتًا.';
+      } else if (str.contains('SocketException') ||
+          str.contains('Timeout') ||
+          str.contains('Failed to connect')) {
+        errorText = 'تعذر الاتصال بخدمة NVIDIA.';
+      } else {
+        errorText = str.startsWith('Bad state: ') ? str.substring(11) : str;
+      }
+    }
 
     // Reset file processing state on error, scoped to this message so a
     // background conversation's indicator survives.

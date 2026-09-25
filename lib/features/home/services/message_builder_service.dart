@@ -19,6 +19,7 @@ import '../../../core/providers/memory_provider.dart';
 import '../../../core/providers/environment_provider.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/user_provider.dart';
+import '../../../core/providers/work_mode_provider.dart';
 import '../../../core/services/chat/chat_service.dart';
 import '../../../core/services/chat/document_text_extractor.dart';
 import '../../../utils/mcp_structured_image.dart';
@@ -1644,6 +1645,31 @@ class MessageBuilderService {
         );
       }
       apiMessages.insert(0, sysMessage);
+    }
+    final isWorkMode = () {
+      try {
+        return contextProvider.read<WorkModeProvider?>()?.isWorkMode ?? false;
+      } catch (_) {
+        return false;
+      }
+    }();
+    if (isWorkMode) {
+      const workModeInstruction =
+          'You are Build X Work Mode, an autonomous software engineering and problem-solving assistant powered by NVIDIA Nemotron. '
+          'First analyze requirements and think step-by-step. '
+          'When asked to build, implement, or create software, write clean, complete, standalone code (HTML/CSS/JS or the requested language) ready for execution.';
+      final existingSystemIdx = apiMessages.indexWhere(
+        (m) => m['role'] == 'system',
+      );
+      if (existingSystemIdx >= 0) {
+        apiMessages[existingSystemIdx]['content'] =
+            '${apiMessages[existingSystemIdx]['content']}\n\n$workModeInstruction';
+      } else {
+        apiMessages.insert(0, {
+          'role': 'system',
+          'content': workModeInstruction,
+        });
+      }
     }
   }
 

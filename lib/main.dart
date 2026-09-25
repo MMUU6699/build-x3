@@ -21,11 +21,13 @@ import 'desktop/desktop_tray_controller.dart';
 import 'theme/theme_factory.dart';
 import 'theme/palettes.dart';
 import 'theme/custom_theme.dart';
-import 'theme/build_x_monochrome.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'core/providers/user_provider.dart';
+import 'features/auth/providers/auth_provider.dart';
+import 'features/auth/auth_gate.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/providers/settings_provider.dart';
 import 'core/providers/mcp_provider.dart';
 import 'core/providers/tts_provider.dart';
@@ -154,6 +156,20 @@ Future<void> main() async {
   await runZoned(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+      const supabasePublishableKey = String.fromEnvironment(
+        'SUPABASE_PUBLISHABLE_KEY',
+      );
+      if (supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty) {
+        try {
+          await Supabase.initialize(
+            url: supabaseUrl,
+            publishableKey: supabasePublishableKey,
+          );
+        } catch (e) {
+          debugPrint('[Supabase] Initialization error: $e');
+        }
+      }
       // Register notification tap handling for every Android launch. This is
       // independent of the current background-chat mode: an older completion
       // notification can still launch the app after the mode has changed.
@@ -525,8 +541,7 @@ class _RestoreProgressApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: buildLightThemeForScheme(palette.light),
       darkTheme: buildDarkThemeForScheme(palette.dark),
-      builder: (context, child) =>
-          BuildXMonochrome(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => child ?? const SizedBox.shrink(),
       home: RestoreProgressScreen(stage: stage),
     );
   }
@@ -553,8 +568,7 @@ class _RestoreFailureApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: buildLightThemeForScheme(palette.light),
       darkTheme: buildDarkThemeForScheme(palette.dark),
-      builder: (context, child) =>
-          BuildXMonochrome(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => child ?? const SizedBox.shrink(),
       home: report.diagnosticCode == 'database_schema_too_new'
           ? UpdateRequiredScreen(diagnosticCode: report.diagnosticCode)
           : RestoreFailureScreen(
@@ -640,9 +654,8 @@ class MigrationApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: buildLightThemeForScheme(palette.light),
       darkTheme: buildDarkThemeForScheme(palette.dark),
-      builder: (context, child) => BuildXMonochrome(
-        child: AppSnackBarOverlay(child: child ?? const SizedBox.shrink()),
-      ),
+      builder: (context, child) =>
+          AppSnackBarOverlay(child: child ?? const SizedBox.shrink()),
       home: RestoreOutcomeNotice(
         outcome: restoreOutcome,
         child: HiveToSqliteMigrationPage(service: service),
@@ -690,6 +703,9 @@ class MyApp extends StatelessWidget {
         Provider<BusinessPreferences>.value(value: businessPreferences),
         ChangeNotifierProvider(
           create: (_) => UserProvider(preferences: businessPreferences),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => AuthProvider(userProvider: ctx.read<UserProvider>()),
         ),
         ChangeNotifierProvider(
           create: (_) {
@@ -1059,7 +1075,7 @@ class MyApp extends StatelessWidget {
                 navigatorObservers: <NavigatorObserver>[routeObserver],
                 home: RestoreOutcomeNotice(
                   outcome: restoreOutcome,
-                  child: _selectHome(),
+                  child: AuthGate(authenticatedChild: _selectHome()),
                 ),
                 builder: (ctx, child) {
                   final bright = Theme.of(ctx).brightness;
@@ -1177,14 +1193,12 @@ class MyApp extends StatelessWidget {
                   // Enforce app font as a default across the tree for Texts without explicit family
                   return AnnotatedRegion<SystemUiOverlayStyle>(
                     value: overlay,
-                    child: BuildXMonochrome(
-                      child: effectiveAppFont == null
-                          ? appWithOverlays
-                          : DefaultTextStyle.merge(
-                              style: TextStyle(fontFamily: effectiveAppFont),
-                              child: appWithOverlays,
-                            ),
-                    ),
+                    child: effectiveAppFont == null
+                        ? appWithOverlays
+                        : DefaultTextStyle.merge(
+                            style: TextStyle(fontFamily: effectiveAppFont),
+                            child: appWithOverlays,
+                          ),
                   );
                 },
               );

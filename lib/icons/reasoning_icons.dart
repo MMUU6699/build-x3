@@ -29,6 +29,18 @@ class ReasoningIcons {
     return maxAsset;
   }
 
+  static String labelForBudget(int? budget) {
+    if (budget == null || budget == autoBudget) return 'Auto';
+    if (budget == offBudget) return 'Off';
+    if (budget <= lightBudget) return 'Low';
+    if (budget <= mediumBudget) return 'Medium';
+    if (budget <= heavyBudget) return 'High';
+    if (budget <= xhighBudget) return '64k';
+    if (budget <= maxBudget) return '128k';
+    if (budget >= 1000) return '${(budget / 1000).round()}k';
+    return '$budget';
+  }
+
   static Widget budgetIcon(
     int? budget, {
     required double size,

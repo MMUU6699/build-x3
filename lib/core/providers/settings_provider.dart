@@ -556,8 +556,12 @@ class SettingsProvider extends ChangeNotifier {
   // Returns a config for the given key without mutating internal state when missing.
   // This avoids implicitly creating providers during read paths (e.g., rendering old chats).
   ProviderConfig getProviderConfig(String key, {String? defaultName}) {
-    if (key == BuildXConfig.providerKey || key == BuildXConfig.legacyProviderKey) {
-      return ProviderConfig.defaultsFor(key, displayName: 'NVIDIA NIM').copyWith(
+    if (key == BuildXConfig.providerKey ||
+        key == BuildXConfig.legacyProviderKey) {
+      return ProviderConfig.defaultsFor(
+        key,
+        displayName: 'NVIDIA NIM',
+      ).copyWith(
         enabled: true,
         name: 'NVIDIA NIM',
         baseUrl: BuildXConfig.apiBase,

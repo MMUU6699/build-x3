@@ -51,6 +51,11 @@ final _legacyThinkOpenTagRe = RegExp(
   caseSensitive: false,
 );
 
+final _legacyThinkCloseTagRe = RegExp(
+  r'</(think|thinking|thought)>|<channel\|>',
+  caseSensitive: false,
+);
+
 class ThinkingTagParser {
   /// Test hook: number of [parseLegacyInlineBlocks] executions.
   static int debugParseCount = 0;
@@ -69,11 +74,32 @@ class ThinkingTagParser {
     var cursor = 0;
 
     while (cursor < input.length) {
-      final openMatch = _legacyThinkOpenTagRe.firstMatch(
-        input.substring(cursor),
-      );
+      final substring = input.substring(cursor);
+      final openMatch = _legacyThinkOpenTagRe.firstMatch(substring);
+      final closeMatch = _legacyThinkCloseTagRe.firstMatch(substring);
+
+      // Orphan close tag appearing before any opening tag:
+      // text before it is thinking, tag itself is hidden.
+      if (closeMatch != null &&
+          (openMatch == null || closeMatch.start < openMatch.start)) {
+        final closeStart = cursor + closeMatch.start;
+        final closeEnd = cursor + closeMatch.end;
+        hiddenRanges.add(
+          ThinkingTagHiddenRange(
+            start: cursor,
+            end: closeEnd,
+            bodyStart: cursor,
+            bodyEnd: closeStart,
+          ),
+        );
+        final thinking = input.substring(cursor, closeStart);
+        if (thinking.isNotEmpty) thinkingTexts.add(thinking);
+        cursor = closeEnd;
+        continue;
+      }
+
       if (openMatch == null) {
-        visible.write(input.substring(cursor));
+        visible.write(substring);
         break;
       }
 
@@ -222,11 +248,26 @@ class ThinkingTagParser {
     var cursor = 0;
 
     while (cursor < input.length) {
-      final openMatch = _legacyThinkOpenTagRe.firstMatch(
-        input.substring(cursor),
-      );
+      final substring = input.substring(cursor);
+      final openMatch = _legacyThinkOpenTagRe.firstMatch(substring);
+      final closeMatch = _legacyThinkCloseTagRe.firstMatch(substring);
+
+      // Orphan close tag appearing before any opening tag:
+      // text before it is thinking, visible continues after it.
+      if (closeMatch != null &&
+          (openMatch == null || closeMatch.start < openMatch.start)) {
+        final closeStart = cursor + closeMatch.start;
+        final closeEnd = cursor + closeMatch.end;
+        final thinking = input.substring(cursor, closeStart).trim();
+        if (thinking.isNotEmpty) {
+          thinkingTexts.add(thinking);
+        }
+        cursor = closeEnd;
+        continue;
+      }
+
       if (openMatch == null) {
-        visible.write(input.substring(cursor));
+        visible.write(substring);
         break;
       }
 

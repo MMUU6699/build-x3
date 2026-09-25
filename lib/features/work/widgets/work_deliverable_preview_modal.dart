@@ -6,10 +6,7 @@ import '../../../theme/app_font_weights.dart';
 
 /// Modal dialog allowing client-side interactive WebContainer / WebView preview of the deliverable.
 class WorkDeliverablePreviewModal extends StatefulWidget {
-  const WorkDeliverablePreviewModal({
-    super.key,
-    required this.deliverable,
-  });
+  const WorkDeliverablePreviewModal({super.key, required this.deliverable});
 
   final WorkDeliverableEvent deliverable;
 
@@ -26,10 +23,12 @@ class WorkDeliverablePreviewModal extends StatefulWidget {
   }
 
   @override
-  State<WorkDeliverablePreviewModal> createState() => _WorkDeliverablePreviewModalState();
+  State<WorkDeliverablePreviewModal> createState() =>
+      _WorkDeliverablePreviewModalState();
 }
 
-class _WorkDeliverablePreviewModalState extends State<WorkDeliverablePreviewModal> {
+class _WorkDeliverablePreviewModalState
+    extends State<WorkDeliverablePreviewModal> {
   WebViewController? _controller;
   bool _showSource = false;
   bool _loading = true;
@@ -120,7 +119,10 @@ class _WorkDeliverablePreviewModalState extends State<WorkDeliverablePreviewModa
                       borderRadius: BorderRadius.circular(8),
                       onTap: () => setState(() => _showSource = false),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: !_showSource ? cs.surface : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
@@ -145,7 +147,10 @@ class _WorkDeliverablePreviewModalState extends State<WorkDeliverablePreviewModa
                       borderRadius: BorderRadius.circular(8),
                       onTap: () => setState(() => _showSource = true),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: _showSource ? cs.surface : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
@@ -172,7 +177,9 @@ class _WorkDeliverablePreviewModalState extends State<WorkDeliverablePreviewModa
               const SizedBox(width: 8),
             ],
           ),
-          body: _showSource ? _buildSourceView(context) : _buildWebView(context),
+          body: _showSource
+              ? _buildSourceView(context)
+              : _buildWebView(context),
         ),
       ),
     );

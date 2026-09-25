@@ -11346,4 +11346,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get buildXHideKey => 'Hide key';
+
+  @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authSignUp => 'Sign up';
+
+  @override
+  String get authLogIn => 'Log in';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authConfirmPassword => 'Confirm password';
+
+  @override
+  String get authDisplayName => 'Display name';
+
+  @override
+  String get authForgotPassword => 'Forgot password?';
+
+  @override
+  String get authResetPassword => 'Reset password';
+
+  @override
+  String get authSendResetLink => 'Send reset link';
+
+  @override
+  String get authResetLinkSent => 'Check your email for a password reset link.';
+
+  @override
+  String get authCheckYourEmail => 'Check your email';
+
+  @override
+  String authEmailConfirmationSent(String email) {
+    return 'We sent a confirmation link to $email. Please check your inbox.';
+  }
+
+  @override
+  String get authSignOut => 'Sign out';
+
+  @override
+  String get authSignOutConfirmTitle => 'Sign out';
+
+  @override
+  String get authSignOutConfirmMessage => 'Are you sure you want to sign out?';
+
+  @override
+  String get authCancel => 'Cancel';
+
+  @override
+  String get authAccount => 'Account';
+
+  @override
+  String get authNewChat => 'New Chat';
+
+  @override
+  String get authCreateAccount => 'Create account';
+
+  @override
+  String get authAlreadyHaveAccount => 'Already have an account? Log in';
+
+  @override
+  String get authDontHaveAccount => 'Don\'t have an account? Sign up';
+
+  @override
+  String get authBackToLogin => 'Back to login';
+
+  @override
+  String get authErrorInvalidCredentials => 'Incorrect email or password.';
+
+  @override
+  String get authErrorUserExists =>
+      'An account with this email already exists.';
+
+  @override
+  String get authErrorWeakPassword =>
+      'Password is too weak. Use at least 6 characters.';
+
+  @override
+  String get authErrorEmailNotConfirmed =>
+      'Please verify your email address first.';
+
+  @override
+  String get authErrorRateLimit => 'Too many attempts. Please try again later.';
+
+  @override
+  String get authErrorNetwork =>
+      'Network error. Please check your connection and try again.';
+
+  @override
+  String get authErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get authErrorPasswordMismatch => 'Passwords do not match.';
 }

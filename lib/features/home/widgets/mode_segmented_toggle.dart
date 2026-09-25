@@ -30,11 +30,11 @@ class ModeSegmentedToggle extends StatelessWidget {
 
     return Center(
       child: Container(
-        height: 44,
+        height: 42,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(21),
           border: Border.all(color: border, width: 0.8),
           boxShadow: [
             BoxShadow(
@@ -91,17 +91,17 @@ class ModeSegmentedToggle extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeInOut,
-        height: 38,
+        height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: selected ? selectedBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(19),
+          borderRadius: BorderRadius.circular(18),
         ),
         alignment: Alignment.center,
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 13.5,
             fontWeight: selected
                 ? AppFontWeights.semibold
                 : AppFontWeights.regular,

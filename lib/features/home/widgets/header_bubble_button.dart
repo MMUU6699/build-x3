@@ -62,7 +62,9 @@ class _HeaderBubbleButtonState extends State<HeaderBubbleButton> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: bg,
-            border: widget.isDashed ? null : Border.all(color: border, width: 0.8),
+            border: widget.isDashed
+                ? null
+                : Border.all(color: border, width: 0.8),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),

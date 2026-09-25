@@ -7,8 +7,14 @@ import 'package:Kelivo/core/services/work/work_agent_service.dart';
 void main() {
   group('WorkModeConfig', () {
     test('availableModels contains consolidated Nemotron model', () {
-      expect(WorkModeConfig.availableModels, contains('nvidia/nemotron-3-ultra-550b-a55b'));
-      expect(WorkModeConfig.defaultModel, equals('nvidia/nemotron-3-ultra-550b-a55b'));
+      expect(
+        WorkModeConfig.availableModels,
+        contains('nvidia/nemotron-3-ultra-550b-a55b'),
+      );
+      expect(
+        WorkModeConfig.defaultModel,
+        equals('nvidia/nemotron-3-ultra-550b-a55b'),
+      );
     });
 
     test('modelDisplayName and modelSubtitle format expected descriptions', () {
@@ -34,13 +40,34 @@ void main() {
 
   group('WorkReasoningEffort', () {
     test('parses from valid and case-insensitive strings', () {
-      expect(WorkReasoningEffort.fromString('low'), equals(WorkReasoningEffort.low));
-      expect(WorkReasoningEffort.fromString('LOW'), equals(WorkReasoningEffort.low));
-      expect(WorkReasoningEffort.fromString('medium'), equals(WorkReasoningEffort.medium));
-      expect(WorkReasoningEffort.fromString('high'), equals(WorkReasoningEffort.high));
-      expect(WorkReasoningEffort.fromString('HIGH'), equals(WorkReasoningEffort.high));
-      expect(WorkReasoningEffort.fromString(null), equals(WorkReasoningEffort.medium));
-      expect(WorkReasoningEffort.fromString('unknown'), equals(WorkReasoningEffort.medium));
+      expect(
+        WorkReasoningEffort.fromString('low'),
+        equals(WorkReasoningEffort.low),
+      );
+      expect(
+        WorkReasoningEffort.fromString('LOW'),
+        equals(WorkReasoningEffort.low),
+      );
+      expect(
+        WorkReasoningEffort.fromString('medium'),
+        equals(WorkReasoningEffort.medium),
+      );
+      expect(
+        WorkReasoningEffort.fromString('high'),
+        equals(WorkReasoningEffort.high),
+      );
+      expect(
+        WorkReasoningEffort.fromString('HIGH'),
+        equals(WorkReasoningEffort.high),
+      );
+      expect(
+        WorkReasoningEffort.fromString(null),
+        equals(WorkReasoningEffort.medium),
+      );
+      expect(
+        WorkReasoningEffort.fromString('unknown'),
+        equals(WorkReasoningEffort.medium),
+      );
     });
 
     test('holds valid api values for chat completions', () {
@@ -52,13 +79,34 @@ void main() {
 
   group('WorkPlanStep & Status', () {
     test('parses status correctly', () {
-      expect(WorkPlanStepStatus.fromString('in_progress'), equals(WorkPlanStepStatus.inProgress));
-      expect(WorkPlanStepStatus.fromString('inprogress'), equals(WorkPlanStepStatus.inProgress));
-      expect(WorkPlanStepStatus.fromString('completed'), equals(WorkPlanStepStatus.completed));
-      expect(WorkPlanStepStatus.fromString('done'), equals(WorkPlanStepStatus.completed));
-      expect(WorkPlanStepStatus.fromString('failed'), equals(WorkPlanStepStatus.failed));
-      expect(WorkPlanStepStatus.fromString('pending'), equals(WorkPlanStepStatus.pending));
-      expect(WorkPlanStepStatus.fromString(null), equals(WorkPlanStepStatus.pending));
+      expect(
+        WorkPlanStepStatus.fromString('in_progress'),
+        equals(WorkPlanStepStatus.inProgress),
+      );
+      expect(
+        WorkPlanStepStatus.fromString('inprogress'),
+        equals(WorkPlanStepStatus.inProgress),
+      );
+      expect(
+        WorkPlanStepStatus.fromString('completed'),
+        equals(WorkPlanStepStatus.completed),
+      );
+      expect(
+        WorkPlanStepStatus.fromString('done'),
+        equals(WorkPlanStepStatus.completed),
+      );
+      expect(
+        WorkPlanStepStatus.fromString('failed'),
+        equals(WorkPlanStepStatus.failed),
+      );
+      expect(
+        WorkPlanStepStatus.fromString('pending'),
+        equals(WorkPlanStepStatus.pending),
+      );
+      expect(
+        WorkPlanStepStatus.fromString(null),
+        equals(WorkPlanStepStatus.pending),
+      );
     });
 
     test('serializes and deserializes step JSON', () {
@@ -82,7 +130,7 @@ void main() {
         'steps': [
           {'id': 1, 'title': 'Design UI', 'status': 'completed'},
           {'id': 2, 'title': 'Build layout', 'status': 'in_progress'},
-        ]
+        ],
       });
       final event = WorkAgentEventParser.parseEvent('planning', data);
       expect(event, isA<WorkPlanningEvent>());
@@ -176,13 +224,19 @@ void main() {
       final data = jsonEncode({'content': 'Hello! How can I help you today?'});
       final event = WorkAgentEventParser.parseEvent('message', data);
       expect(event, isA<WorkMessageEvent>());
-      expect((event as WorkMessageEvent).content, equals('Hello! How can I help you today?'));
+      expect(
+        (event as WorkMessageEvent).content,
+        equals('Hello! How can I help you today?'),
+      );
     });
 
     test('returns null on invalid or empty event', () {
       expect(WorkAgentEventParser.parseEvent('unknown', '{}'), isNull);
       expect(WorkAgentEventParser.parseEvent('planning', ''), isNull);
-      expect(WorkAgentEventParser.parseEvent('planning', '{broken json'), isNull);
+      expect(
+        WorkAgentEventParser.parseEvent('planning', '{broken json'),
+        isNull,
+      );
     });
   });
 
@@ -197,15 +251,42 @@ void main() {
 
     test('identifies simple queries as conversational', () {
       expect(WorkAgentService.isConversationalPrompt('who are you'), isTrue);
-      expect(WorkAgentService.isConversationalPrompt('how are you today?'), isTrue);
-      expect(WorkAgentService.isConversationalPrompt('ما هو الطقس اليوم؟'), isTrue);
+      expect(
+        WorkAgentService.isConversationalPrompt('how are you today?'),
+        isTrue,
+      );
+      expect(
+        WorkAgentService.isConversationalPrompt('ما هو الطقس اليوم؟'),
+        isTrue,
+      );
     });
 
-    test('identifies build and code tasks as non-conversational genuine tasks', () {
-      expect(WorkAgentService.isConversationalPrompt('build a pomodoro timer app with sound'), isFalse);
-      expect(WorkAgentService.isConversationalPrompt('create a modern portfolio website with html and css'), isFalse);
-      expect(WorkAgentService.isConversationalPrompt('ابن لي تطبيق حاسبة تفاعلي'), isFalse);
-      expect(WorkAgentService.isConversationalPrompt('اصنع لعبة xo بالـ javascript'), isFalse);
-    });
+    test(
+      'identifies build and code tasks as non-conversational genuine tasks',
+      () {
+        expect(
+          WorkAgentService.isConversationalPrompt(
+            'build a pomodoro timer app with sound',
+          ),
+          isFalse,
+        );
+        expect(
+          WorkAgentService.isConversationalPrompt(
+            'create a modern portfolio website with html and css',
+          ),
+          isFalse,
+        );
+        expect(
+          WorkAgentService.isConversationalPrompt('ابن لي تطبيق حاسبة تفاعلي'),
+          isFalse,
+        );
+        expect(
+          WorkAgentService.isConversationalPrompt(
+            'اصنع لعبة xo بالـ javascript',
+          ),
+          isFalse,
+        );
+      },
+    );
   });
 }

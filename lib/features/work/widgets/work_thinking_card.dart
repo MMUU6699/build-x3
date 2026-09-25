@@ -3,7 +3,8 @@ import '../../../core/services/work/work_agent_event.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../theme/app_font_weights.dart';
 
-/// 2. Thinking State Card: Collapsible reasoning trace block matching Claude/ChatGPT extended thinking.
+/// Minimal single-line Thinking state matching Manus parity.
+/// Shows a clean plain line: "Build X is thinking…" with an optional collapsed affordance.
 class WorkThinkingCard extends StatefulWidget {
   const WorkThinkingCard({
     super.key,
@@ -18,94 +19,123 @@ class WorkThinkingCard extends StatefulWidget {
   State<WorkThinkingCard> createState() => _WorkThinkingCardState();
 }
 
-class _WorkThinkingCardState extends State<WorkThinkingCard> {
+class _WorkThinkingCardState extends State<WorkThinkingCard>
+    with SingleTickerProviderStateMixin {
   bool _expanded = false;
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final seconds = widget.thinkingEvent.elapsedSeconds;
-    final effort = widget.thinkingEvent.effort;
-    final label = widget.isStreaming
-        ? 'Thinking ($effort effort, ${seconds}s)...'
-        : 'Thought for ${seconds}s ($effort effort)';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasReasoningContent = widget.thinkingEvent.content.trim().isNotEmpty;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLowest.withAlpha(200),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: cs.outline.withAlpha(40),
-          width: 1,
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: () => setState(() => _expanded = !_expanded),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              child: Row(
-                children: [
-                  Icon(
-                    Lucide.Brain,
-                    size: 16,
-                    color: cs.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontSize: 13,
-                      fontWeight: AppFontWeights.medium,
-                      color: cs.onSurfaceVariant,
+          // Single plain line: "Build X is thinking…" (Manus parity)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.isStreaming)
+                FadeTransition(
+                  opacity: Tween<double>(
+                    begin: 0.35,
+                    end: 1.0,
+                  ).animate(_pulseController),
+                  child: Container(
+                    width: 7,
+                    height: 7,
+                    margin: const EdgeInsetsDirectional.only(end: 8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isDark ? Colors.white70 : Colors.black87,
                     ),
                   ),
-                  if (widget.isStreaming) ...[
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 10,
-                      height: 10,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.5,
-                        valueColor: AlwaysStoppedAnimation<Color>(cs.onSurfaceVariant),
-                      ),
-                    ),
-                  ],
-                  const Spacer(),
-                  Icon(
-                    _expanded ? Lucide.ChevronUp : Lucide.ChevronDown,
-                    size: 15,
-                    color: cs.onSurfaceVariant,
-                  ),
-                ],
+                ),
+              Text(
+                widget.isStreaming
+                    ? 'Build X is thinking…'
+                    : 'Thought for ${widget.thinkingEvent.elapsedSeconds}s',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: AppFontWeights.regular,
+                  color: cs.onSurface.withValues(alpha: isDark ? 0.65 : 0.55),
+                ),
               ),
-            ),
+              if (hasReasoningContent) ...[
+                const SizedBox(width: 8),
+                InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => setState(() => _expanded = !_expanded),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _expanded ? 'hide' : 'view reasoning',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSurface.withValues(alpha: 0.40),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          _expanded ? Lucide.ChevronUp : Lucide.ChevronDown,
+                          size: 11,
+                          color: cs.onSurface.withValues(alpha: 0.40),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-          if (_expanded) ...[
-            Divider(height: 1, color: cs.outline.withAlpha(25)),
+          // Collapsed-by-default reasoning stream (only if user explicitly opens it)
+          if (_expanded && hasReasoningContent)
             Container(
-              padding: const EdgeInsets.all(14),
-              constraints: const BoxConstraints(maxHeight: 280),
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.all(12),
+              constraints: const BoxConstraints(maxHeight: 220),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.30),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+              ),
               child: SingleChildScrollView(
                 child: SelectableText(
-                  widget.thinkingEvent.content.trim().isEmpty
-                      ? 'Analyzing and structuring autonomous solution...'
-                      : widget.thinkingEvent.content,
+                  widget.thinkingEvent.content,
                   style: TextStyle(
                     fontFamily: 'monospace',
-                    fontSize: 12,
-                    height: 1.5,
-                    color: cs.onSurface.withAlpha(200),
+                    fontSize: 11,
+                    height: 1.45,
+                    color: cs.onSurface.withValues(alpha: 0.75),
                   ),
                 ),
               ),
             ),
-          ],
         ],
       ),
     );

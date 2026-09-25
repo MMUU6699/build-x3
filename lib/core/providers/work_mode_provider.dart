@@ -8,7 +8,7 @@ import '../work_mode_config.dart';
 /// Manages state for Build X Work Mode vs Chat Mode.
 class WorkModeProvider extends ChangeNotifier {
   WorkModeProvider({WorkAgentService? service})
-      : _service = service ?? WorkAgentService();
+    : _service = service ?? WorkAgentService();
 
   final WorkAgentService _service;
 
@@ -45,7 +45,8 @@ class WorkModeProvider extends ChangeNotifier {
   WorkThinkingEvent? get thinkingEvent => _thinkingEvent;
   WorkBrowsingEvent? get browsingEvent => _browsingEvent;
   List<WorkCodingEvent> get codingEvents => List.unmodifiable(_codingEvents);
-  List<WorkTerminalEvent> get terminalEvents => List.unmodifiable(_terminalEvents);
+  List<WorkTerminalEvent> get terminalEvents =>
+      List.unmodifiable(_terminalEvents);
   WorkDeliverableEvent? get deliverableEvent => _deliverableEvent;
 
   bool get hasActiveArtifact => _deliverableEvent != null;
@@ -101,6 +102,85 @@ class WorkModeProvider extends ChangeNotifier {
   void cancelTask() {
     _service.cancel();
     _isExecuting = false;
+    notifyListeners();
+  }
+
+  void startTask(String prompt) {
+    clearSession();
+    _isExecuting = true;
+    _currentTask = prompt.trim();
+    final taskTitle = prompt.trim().length > 30
+        ? '${prompt.trim().substring(0, 30)}…'
+        : prompt.trim();
+    final plan = [
+      WorkPlanStep(
+        id: 1,
+        title: 'Analyze requirements: $taskTitle',
+        status: WorkPlanStepStatus.inProgress,
+      ),
+      const WorkPlanStep(
+        id: 2,
+        title: 'Research & architectural design',
+        status: WorkPlanStepStatus.pending,
+      ),
+      const WorkPlanStep(
+        id: 3,
+        title: 'Generate solution & code',
+        status: WorkPlanStepStatus.pending,
+      ),
+      const WorkPlanStep(
+        id: 4,
+        title: 'Finalize & verify deliverable',
+        status: WorkPlanStepStatus.pending,
+      ),
+    ];
+    _planningEvent = WorkPlanningEvent(steps: List.unmodifiable(plan));
+    notifyListeners();
+  }
+
+  void updateTaskProgress({
+    int? currentStepId,
+    String? statusSummary,
+    String? streamingContent,
+  }) {
+    if (_planningEvent != null && currentStepId != null) {
+      final updatedSteps = <WorkPlanStep>[];
+      for (final s in _planningEvent!.steps) {
+        if (s.id < currentStepId) {
+          updatedSteps.add(s.copyWith(status: WorkPlanStepStatus.completed));
+        } else if (s.id == currentStepId) {
+          updatedSteps.add(s.copyWith(status: WorkPlanStepStatus.inProgress));
+        } else {
+          updatedSteps.add(s.copyWith(status: WorkPlanStepStatus.pending));
+        }
+      }
+      _planningEvent = WorkPlanningEvent(
+        steps: List.unmodifiable(updatedSteps),
+      );
+    }
+    if (streamingContent != null) {
+      _responseText = streamingContent;
+    }
+    notifyListeners();
+  }
+
+  void completeTask({String? finalContent, WorkDeliverableEvent? deliverable}) {
+    _isExecuting = false;
+    if (_planningEvent != null) {
+      final completedSteps = [
+        for (final s in _planningEvent!.steps)
+          s.copyWith(status: WorkPlanStepStatus.completed),
+      ];
+      _planningEvent = WorkPlanningEvent(
+        steps: List.unmodifiable(completedSteps),
+      );
+    }
+    if (finalContent != null && finalContent.isNotEmpty) {
+      _responseText = finalContent;
+    }
+    if (deliverable != null) {
+      _deliverableEvent = deliverable;
+    }
     notifyListeners();
   }
 

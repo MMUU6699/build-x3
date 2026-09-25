@@ -253,4 +253,8 @@ class Lucide {
   static const IconData AlertTriangle = lucide.LucideIcons.triangleAlert;
   static const IconData AlertCircle = lucide.LucideIcons.circleAlert;
   static const IconData CheckCircle2 = lucide.LucideIcons.circleCheck;
+  static const IconData UserPlus = lucide.LucideIcons.userPlus;
+  static const IconData LogIn = lucide.LucideIcons.logIn;
+  static const IconData LogOut = lucide.LucideIcons.logOut;
+  static const IconData Mail = lucide.LucideIcons.mail;
 }

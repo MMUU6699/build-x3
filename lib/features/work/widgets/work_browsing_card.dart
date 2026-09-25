@@ -5,10 +5,7 @@ import '../../../theme/app_font_weights.dart';
 
 /// 3. Browsing State Card: Shows live embedded browser view or page snapshot inline.
 class WorkBrowsingCard extends StatefulWidget {
-  const WorkBrowsingCard({
-    super.key,
-    required this.browsingEvent,
-  });
+  const WorkBrowsingCard({super.key, required this.browsingEvent});
 
   final WorkBrowsingEvent browsingEvent;
 
@@ -29,10 +26,7 @@ class _WorkBrowsingCardState extends State<WorkBrowsingCard> {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: cs.outline.withAlpha(50),
-          width: 1,
-        ),
+        border: Border.all(color: cs.outline.withAlpha(50), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(20),
@@ -49,7 +43,9 @@ class _WorkBrowsingCardState extends State<WorkBrowsingCard> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest.withAlpha(80),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Row(
               children: [
@@ -84,7 +80,10 @@ class _WorkBrowsingCardState extends State<WorkBrowsingCard> {
                 // URL Pill
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: cs.surface,
                       borderRadius: BorderRadius.circular(20),
@@ -120,7 +119,10 @@ class _WorkBrowsingCardState extends State<WorkBrowsingCard> {
                 const SizedBox(width: 8),
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints: const BoxConstraints(
+                    minWidth: 28,
+                    minHeight: 28,
+                  ),
                   icon: Icon(
                     _expanded ? Lucide.ChevronUp : Lucide.ChevronDown,
                     size: 16,
@@ -147,7 +149,9 @@ class _WorkBrowsingCardState extends State<WorkBrowsingCard> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          event.title.isNotEmpty ? event.title : 'Live Browser Navigation',
+                          event.title.isNotEmpty
+                              ? event.title
+                              : 'Live Browser Navigation',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: AppFontWeights.semiBold,

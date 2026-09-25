@@ -6,10 +6,7 @@ import '../../../theme/app_font_weights.dart';
 
 /// 4. Coding State Card: Real code panel with header, path, syntax/line view, and diff support.
 class WorkCodingCard extends StatefulWidget {
-  const WorkCodingCard({
-    super.key,
-    required this.codingEvent,
-  });
+  const WorkCodingCard({super.key, required this.codingEvent});
 
   final WorkCodingEvent codingEvent;
 
@@ -22,9 +19,7 @@ class _WorkCodingCardState extends State<WorkCodingCard> {
   bool _expanded = true;
 
   Future<void> _copyCode() async {
-    await Clipboard.setData(
-      ClipboardData(text: widget.codingEvent.newContent),
-    );
+    await Clipboard.setData(ClipboardData(text: widget.codingEvent.newContent));
     if (!mounted) return;
     setState(() => _copied = true);
     Future.delayed(const Duration(seconds: 2), () {
@@ -42,10 +37,7 @@ class _WorkCodingCardState extends State<WorkCodingCard> {
       decoration: BoxDecoration(
         color: const Color(0xFF141416), // Dark monochromatic code editor tone
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withAlpha(25),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withAlpha(25), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(40),
@@ -62,21 +54,16 @@ class _WorkCodingCardState extends State<WorkCodingCard> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(12),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
               border: Border(
-                bottom: BorderSide(
-                  color: Colors.white.withAlpha(20),
-                  width: 1,
-                ),
+                bottom: BorderSide(color: Colors.white.withAlpha(20), width: 1),
               ),
             ),
             child: Row(
               children: [
-                const Icon(
-                  Lucide.FileCode,
-                  size: 15,
-                  color: Color(0xFFD4D4D8),
-                ),
+                const Icon(Lucide.FileCode, size: 15, color: Color(0xFFD4D4D8)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -90,7 +77,10 @@ class _WorkCodingCardState extends State<WorkCodingCard> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: isNew
                         ? Colors.white.withAlpha(20)
@@ -110,7 +100,10 @@ class _WorkCodingCardState extends State<WorkCodingCard> {
                 const SizedBox(width: 8),
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints: const BoxConstraints(
+                    minWidth: 28,
+                    minHeight: 28,
+                  ),
                   tooltip: _copied ? 'Copied!' : 'Copy Code',
                   icon: Icon(
                     _copied ? Lucide.Check : Lucide.Copy,
@@ -121,7 +114,10 @@ class _WorkCodingCardState extends State<WorkCodingCard> {
                 ),
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints: const BoxConstraints(
+                    minWidth: 28,
+                    minHeight: 28,
+                  ),
                   icon: Icon(
                     _expanded ? Lucide.ChevronUp : Lucide.ChevronDown,
                     size: 15,

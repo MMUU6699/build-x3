@@ -39,11 +39,30 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
   }
 
   String _getActionSummary(WorkModeProvider workProvider) {
+    final steps = workProvider.planningEvent?.steps ?? const <WorkPlanStep>[];
+    final allDone = steps.isNotEmpty &&
+        steps.every((s) => s.status == WorkPlanStepStatus.completed);
+
+    if (workProvider.hasActiveArtifact) {
+      return 'Deliverable ready for preview';
+    }
+
     if (!workProvider.isExecuting) {
-      if (workProvider.hasActiveArtifact) {
-        return 'Deliverable ready for preview';
+      if (allDone) {
+        return 'Task completed';
       }
-      return 'Task completed';
+      if (workProvider.activeStep != null) {
+        return 'Standing by: ${workProvider.activeStep!.title}';
+      }
+      if (steps.isNotEmpty) {
+        final nextPending = steps
+            .where((s) => s.status != WorkPlanStepStatus.completed)
+            .firstOrNull;
+        if (nextPending != null) {
+          return 'Standing by: ${nextPending.title}';
+        }
+      }
+      return 'Standing by for instructions';
     }
 
     if (workProvider.codingEvents.isNotEmpty &&
@@ -150,57 +169,74 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                   const _MiniComputerThumbnail(),
                   const SizedBox(width: 12),
 
-                  // Pulsing blue dot
-                  if (isExecuting)
-                    FadeTransition(
-                      opacity: Tween<double>(
-                        begin: 0.4,
-                        end: 1.0,
-                      ).animate(_pulseController),
-                      child: Container(
+                  // Status indicator dot
+                  Builder(
+                    builder: (context) {
+                      final allDone = steps.isNotEmpty &&
+                          steps.every((s) => s.status == WorkPlanStepStatus.completed);
+                      if (isExecuting) {
+                        return FadeTransition(
+                          opacity: Tween<double>(
+                            begin: 0.4,
+                            end: 1.0,
+                          ).animate(_pulseController),
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFF3B82F6),
+                            ),
+                          ),
+                        );
+                      }
+                      return Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFF3B82F6),
+                          color: allDone
+                              ? const Color(0xFF10B981)
+                              : cs.onSurface.withValues(alpha: 0.35),
                         ),
-                      ),
-                    )
-                  else
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF10B981),
-                      ),
-                    ),
+                      );
+                    },
+                  ),
                   const SizedBox(width: 8),
 
-                  // Status text: "Working" or "Task Progress" with natural-language action summaries
+                  // Status text: "Working" / "Standing by" / "Completed" with natural-language action summaries
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          isExecuting ? 'Working' : 'Task Progress',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: AppFontWeights.semiBold,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                        Text(
-                          _getActionSummary(workProvider),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: cs.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                    child: Builder(
+                      builder: (context) {
+                        final allDone = steps.isNotEmpty &&
+                            steps.every((s) => s.status == WorkPlanStepStatus.completed);
+                        final agentStatus = isExecuting
+                            ? 'Working'
+                            : (allDone ? 'Completed' : 'Standing by');
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              agentStatus,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: AppFontWeights.semiBold,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                            Text(
+                              _getActionSummary(workProvider),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: cs.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
 

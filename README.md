@@ -15,17 +15,23 @@ Search settings can store a skill and a browser account for future use. Browser 
 ## Supabase authentication
 
 Authentication is fail-closed: the app does not open the workspace when its
-Supabase configuration is missing or cannot be initialized. Supply the project
-URL and publishable key at compile time without committing either value:
+Supabase configuration is missing or cannot be initialized. The public Build X
+project URL and publishable key live in `config/buildx.public.json`; neither is
+a privileged server credential.
 
 ```bash
-flutter run \
-  --dart-define=SUPABASE_URL=<your-project-url> \
-  --dart-define=SUPABASE_PUBLISHABLE_KEY=<your-publishable-key>
+./tool/run_dev.sh
+# Windows PowerShell:
+./tool/run_dev.ps1
 ```
 
-Use the same two `--dart-define` arguments for release builds. Configure
-`buildx://login-callback` as an allowed redirect URL in Supabase Auth and in the
-Google provider configuration.
+Create release Android artifacts with `./tool/build_android.sh apk` or
+`./tool/build_android.ps1 apk`. Pass `appbundle` instead of `apk` for a Play
+Store AAB. GitHub Actions uses the same committed public configuration file.
+Private NVIDIA, Google OAuth, Daytona, and service-role credentials remain
+server-side only.
+
+Configure `buildx://login-callback` as an allowed redirect URL in Supabase Auth.
+The Google OAuth web client callback is the project-specific Supabase callback.
 
 The Dart package identifier and existing on-disk data format retain their original identifiers for compatibility. This project is based on the [upstream source](https://github.com/Chevey339/kelivo); its license is in [LICENSE](LICENSE).

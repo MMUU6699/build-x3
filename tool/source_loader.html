@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Local source loader</title>
+<pre id="source">Loading…</pre>
+<script>
+  const file = new URLSearchParams(location.search).get('file');
+  fetch(file)
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.text();
+    })
+    .then((text) => { document.querySelector('#source').textContent = text; })
+    .catch((error) => { document.querySelector('#source').textContent = String(error); });
+</script>

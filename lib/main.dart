@@ -157,9 +157,10 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-      const supabasePublishableKey = String.fromEnvironment(
-        'SUPABASE_PUBLISHABLE_KEY',
-      );
+      const rawPublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+      const rawAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+      final supabasePublishableKey =
+          rawPublishableKey.isNotEmpty ? rawPublishableKey : rawAnonKey;
       if (supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty) {
         try {
           await Supabase.initialize(
@@ -1072,6 +1073,9 @@ class MyApp extends StatelessWidget {
                 theme: themedLight,
                 darkTheme: themedDark,
                 themeMode: settings.themeMode,
+                scrollBehavior: const MaterialScrollBehavior().copyWith(
+                  scrollbars: false,
+                ),
                 navigatorObservers: <NavigatorObserver>[routeObserver],
                 home: RestoreOutcomeNotice(
                   outcome: restoreOutcome,

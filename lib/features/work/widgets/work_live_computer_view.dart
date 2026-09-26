@@ -587,17 +587,31 @@ class _WorkLiveComputerViewState extends State<WorkLiveComputerView> {
     int currentStepIndex,
     List<WorkPlanStep> steps,
   ) {
-    if (!workProvider.isExecuting) {
-      if (workProvider.hasActiveArtifact) {
-        return 'Deliverable ready for preview';
-      }
-      return 'Task completed';
-    }
+    final allDone = steps.isNotEmpty &&
+        steps.every((s) => s.status == WorkPlanStepStatus.completed);
 
     if (workProvider.hasActiveArtifact &&
         (currentStepIndex >= (workProvider.totalSteps - 1))) {
       return 'Serving interactive deliverable…';
     }
+
+    if (!workProvider.isExecuting) {
+      if (workProvider.hasActiveArtifact) {
+        return 'Deliverable ready for preview';
+      }
+      if (allDone) {
+        return 'Task completed';
+      }
+      if (steps.isNotEmpty && currentStepIndex < steps.length) {
+        final step = steps[currentStepIndex];
+        if (step.status == WorkPlanStepStatus.completed) {
+          return 'Completed: ${step.title}';
+        }
+        return 'Standing by: ${step.title}';
+      }
+      return 'Standing by for instructions';
+    }
+
     if (workProvider.terminalEvents.isNotEmpty && currentStepIndex >= 2) {
       return 'Packaging web application bundle…';
     }

@@ -1793,6 +1793,34 @@ class _MessageListViewState extends State<MessageListView> {
                       ),
                     ),
                   ),
+                if (_effectiveRenderModels.isEmpty && !widget.isLoadingWindow)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            32,
+                            widget.topContentPadding,
+                            32,
+                            widget.bottomContentPadding + 40,
+                          ),
+                          child: Text(
+                            'What can I help with today?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.45),
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (widget.isPinnedIndicatorActive &&
                     widget.buildPinnedStreamingIndicator != null)
                   widget.buildPinnedStreamingIndicator!(),

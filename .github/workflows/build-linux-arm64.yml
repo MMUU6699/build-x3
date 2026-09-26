@@ -54,14 +54,6 @@ jobs:
           channel: stable
           cache: true
 
-      - name: 📝 Inject fallback
-        shell: bash
-        run: |
-          mkdir -p lib/secrets
-          cat > lib/secrets/fallback.dart <<'EOF'
-          const String siliconflowFallbackKey = '${{ secrets.SILICONFLOW_KEY }}';
-          EOF
-
       - name: 📝 获取版本号
         run: |
           RAW_VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
@@ -75,7 +67,7 @@ jobs:
           echo "版本号: $VERSION"
 
       - name: 🏗️ 构建 Linux ARM64
-        run: flutter build linux --release
+        run: flutter build linux --release --dart-define-from-file=config/buildx.public.json
 
       - name: 📦 打包 tar.gz
         run: |

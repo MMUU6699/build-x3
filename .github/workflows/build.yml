@@ -80,14 +80,6 @@ jobs:
           channel: master
           cache: true
 
-      - name: 📝 Inject fallback
-        shell: bash
-        run: |
-          mkdir -p lib/secrets
-          cat > lib/secrets/fallback.dart <<'EOF'
-          const String siliconflowFallbackKey = '${{ secrets.SILICONFLOW_KEY }}';
-          EOF
-
       - name: 📝 获取版本号
         id: version
         run: |
@@ -109,7 +101,7 @@ jobs:
           echo "✅ 签名配置已写入"
 
       - name: 🏗️ 构建 APK
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --dart-define-from-file=config/buildx.public.json
 
       - name: 📦 重命名 APK
         run: |
@@ -164,14 +156,6 @@ jobs:
           channel: master
           cache: true
 
-      - name: 📝 Inject fallback
-        shell: bash
-        run: |
-          mkdir -p lib/secrets
-          cat > lib/secrets/fallback.dart <<'EOF'
-          const String siliconflowFallbackKey = '${{ secrets.SILICONFLOW_KEY }}';
-          EOF
-
       - name: 📝 获取版本号
         id: version
         run: |
@@ -195,7 +179,7 @@ jobs:
 
       - name: 🏗️ 构建 iOS (无签名)
         run: |
-          flutter build ios --release --no-codesign
+          flutter build ios --release --no-codesign --dart-define-from-file=config/buildx.public.json
           cd build/ios/iphoneos
           mkdir Payload
           cp -r Runner.app Payload/
@@ -234,21 +218,13 @@ jobs:
           channel: master
           cache: true
 
-      - name: 📝 Inject fallback
-        shell: bash
-        run: |
-          mkdir -p lib/secrets
-          cat > lib/secrets/fallback.dart <<'EOF'
-          const String siliconflowFallbackKey = '${{ secrets.SILICONFLOW_KEY }}';
-          EOF
-
       - name: 📝 获取版本号
         run: |
           VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: 🏗️ 构建 macOS
-        run: flutter build macos --release
+        run: flutter build macos --release --dart-define-from-file=config/buildx.public.json
 
       - name: 📦 创建 DMG
         run: |
@@ -302,14 +278,6 @@ jobs:
           channel: master
           cache: true
 
-      - name: 📝 Inject fallback
-        shell: bash
-        run: |
-          mkdir -p lib/secrets
-          cat > lib/secrets/fallback.dart <<'EOF'
-          const String siliconflowFallbackKey = '${{ secrets.SILICONFLOW_KEY }}';
-          EOF
-
       - name: 🔧 获取依赖
         run: flutter pub get
 
@@ -329,7 +297,7 @@ jobs:
           Write-Host "版本号: $version"
 
       - name: 🏗️ 构建 Windows
-        run: flutter build windows --release
+        run: flutter build windows --release --dart-define-from-file=config/buildx.public.json
 
       - name: 📦 打包 ZIP
         shell: pwsh
@@ -479,14 +447,6 @@ jobs:
           channel: master
           cache: true
 
-      - name: 📝 Inject fallback
-        shell: bash
-        run: |
-          mkdir -p lib/secrets
-          cat > lib/secrets/fallback.dart <<'EOF'
-          const String siliconflowFallbackKey = '${{ secrets.SILICONFLOW_KEY }}';
-          EOF
-
       - name: 📝 获取版本号
         run: |
           VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
@@ -494,7 +454,7 @@ jobs:
           echo "VERSION_NUMBER=$(echo $VERSION | cut -d'+' -f1)" >> $GITHUB_ENV
 
       - name: 🏗️ 构建 Linux
-        run: flutter build linux --release
+        run: flutter build linux --release --dart-define-from-file=config/buildx.public.json
 
       - name: 📦 打包 tar.gz
         run: |

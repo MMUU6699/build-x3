@@ -70,6 +70,7 @@ import 'home_mobile_layout.dart';
 import 'home_desktop_layout.dart';
 import '../../../core/providers/work_mode_provider.dart';
 import '../../work/widgets/work_sticky_status_panel.dart';
+import '../../work/pages/work_surface_view.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 
 class HomePage extends StatefulWidget {
@@ -1063,23 +1064,43 @@ class _HomePageState extends State<HomePage>
       backgroundImageActive: backgroundImageActive,
       content: Builder(
         builder: (context) {
-          final content = KeyedSubtree(
-            key: ValueKey<String>(
-              _controller.currentConversation?.id ?? 'none',
-            ),
-            child: _buildMessageListView(
-              context,
-              topContentPadding: topContentPadding,
-              bottomContentPadding: bottomContentPadding,
-              dividerPadding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: AppSpacing.md,
+          final isWork = context.watch<WorkModeProvider>().isWorkMode;
+          final Widget surfaceChild = isWork
+              ? WorkSurfaceView(
+                  onSelectPrompt: (prompt) {
+                    _inputController.text = prompt;
+                    _inputFocus.requestFocus();
+                  },
+                )
+              : KeyedSubtree(
+                  key: ValueKey<String>(
+                    _controller.currentConversation?.id ?? 'none',
+                  ),
+                  child: _buildMessageListView(
+                    context,
+                    topContentPadding: topContentPadding,
+                    bottomContentPadding: bottomContentPadding,
+                    dividerPadding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: AppSpacing.md,
+                    ),
+                  ),
+                );
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: KeyedSubtree(
+              key: ValueKey<String>(
+                isWork
+                    ? 'work_surface'
+                    : (_controller.currentConversation?.id ?? 'none'),
+              ),
+              child: FadeTransition(
+                opacity: _controller.convoFade,
+                child: _wrapMessageJumpTransition(surfaceChild),
               ),
             ),
-          );
-          return FadeTransition(
-            opacity: _controller.convoFade,
-            child: _wrapMessageJumpTransition(content),
           );
         },
       ),
@@ -1258,22 +1279,41 @@ class _HomePageState extends State<HomePage>
       backgroundImageActive: backgroundImageActive,
       content: Builder(
         builder: (context) {
-          return FadeTransition(
-            opacity: _controller.convoFade,
-            child: _wrapMessageJumpTransition(
-              KeyedSubtree(
-                key: ValueKey<String>(
-                  _controller.currentConversation?.id ?? 'none',
-                ),
-                child: _buildMessageListView(
-                  context,
-                  topContentPadding: topContentPadding,
-                  bottomContentPadding: bottomContentPadding,
-                  dividerPadding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
+          final isWork = context.watch<WorkModeProvider>().isWorkMode;
+          final Widget surfaceChild = isWork
+              ? WorkSurfaceView(
+                  onSelectPrompt: (prompt) {
+                    _inputController.text = prompt;
+                    _inputFocus.requestFocus();
+                  },
+                )
+              : KeyedSubtree(
+                  key: ValueKey<String>(
+                    _controller.currentConversation?.id ?? 'none',
                   ),
-                ),
+                  child: _buildMessageListView(
+                    context,
+                    topContentPadding: topContentPadding,
+                    bottomContentPadding: bottomContentPadding,
+                    dividerPadding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
+                  ),
+                );
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: KeyedSubtree(
+              key: ValueKey<String>(
+                isWork
+                    ? 'work_surface'
+                    : (_controller.currentConversation?.id ?? 'none'),
+              ),
+              child: FadeTransition(
+                opacity: _controller.convoFade,
+                child: _wrapMessageJumpTransition(surfaceChild),
               ),
             ),
           );

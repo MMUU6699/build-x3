@@ -66,9 +66,10 @@ class AuthProvider extends ChangeNotifier {
 
   void _init() {
     const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-    const supabasePublishableKey = String.fromEnvironment(
-      'SUPABASE_PUBLISHABLE_KEY',
-    );
+    const rawPublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+    const rawAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+    final supabasePublishableKey =
+        rawPublishableKey.isNotEmpty ? rawPublishableKey : rawAnonKey;
     if (supabaseUrl.isEmpty || supabasePublishableKey.isEmpty) {
       _status = AuthStatus.unconfigured;
       _configurationError =

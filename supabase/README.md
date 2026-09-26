@@ -31,13 +31,13 @@ explicit comma-separated allowlist in production.
 Build the Flutter app with its public project values:
 
 ```sh
-flutter run \
-  --dart-define=SUPABASE_URL=https://YOUR_PROJECT.supabase.co \
-  --dart-define=SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_PUBLISHABLE_KEY
+./tool/run_dev.sh
+./tool/build_android.sh apk
 ```
 
-The publishable key is intended for clients. NVIDIA, Daytona, and service-role
-keys are server-only secrets.
+Both commands read `config/buildx.public.json`. The publishable key is intended
+for clients. NVIDIA, Daytona, Google OAuth client secrets, and service-role keys
+are server-only secrets.
 
 ## Calling the functions
 

@@ -340,6 +340,36 @@ class _LocalToolsGroup extends StatelessWidget {
     final enabled = assistant.localToolIds.toSet();
     final enabledCount = ids.where(enabled.contains).length;
 
+    final categories = <String, List<String>>{
+      'Device': [],
+      'System': [],
+      'Workspace': [],
+      'Utilities': [],
+    };
+
+    for (final id in ids) {
+      if (id == LocalToolNames.currentLocation ||
+          id == LocalToolNames.screenTime ||
+          id == LocalToolNames.healthSummary ||
+          id == LocalToolNames.weather) {
+        categories['Device']!.add(id);
+      } else if (id == LocalToolNames.timeInfo ||
+          id == LocalToolNames.clipboard ||
+          id == LocalToolNames.textToSpeech) {
+        categories['System']!.add(id);
+      } else if (id == LocalToolNames.calendarQuery ||
+          id == LocalToolNames.calendarCreate ||
+          id == LocalToolNames.remindersQuery ||
+          id == LocalToolNames.remindersCreate ||
+          id == LocalToolNames.remindersComplete) {
+        categories['Workspace']!.add(id);
+      } else {
+        categories['Utilities']!.add(id);
+      }
+    }
+
+    final cs = Theme.of(context).colorScheme;
+
     return _ToolsGroup(
       key: ChatToolsSheet.localGroupKey,
       isFirst: true,
@@ -348,33 +378,49 @@ class _LocalToolsGroup extends StatelessWidget {
       expanded: expanded,
       onToggle: onToggle,
       children: [
-        for (final id in ids)
-          ToolsSheetRow(
-            key: ChatToolsSheet.localToolKey(id),
-            icon: localToolIcon(id),
-            label: localToolTitle(l10n, id),
-            selected: enabled.contains(id),
-            onTap: () => unawaited(
-              setLocalToolEnabled(
-                context,
-                assistant: assistant,
-                toolId: id,
-                value: !enabled.contains(id),
-              ),
-            ),
-            trailing: IosSwitch(
-              value: enabled.contains(id),
-              semanticLabel: localToolTitle(l10n, id),
-              onChanged: (value) => unawaited(
-                setLocalToolEnabled(
-                  context,
-                  assistant: assistant,
-                  toolId: id,
-                  value: value,
+        for (final entry in categories.entries)
+          if (entry.value.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 10, bottom: 4),
+              child: Text(
+                entry.key.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: AppFontWeights.semibold,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.65),
+                  letterSpacing: 0.8,
                 ),
               ),
             ),
-          ),
+            for (final id in entry.value)
+              ToolsSheetRow(
+                key: ChatToolsSheet.localToolKey(id),
+                icon: localToolIcon(id),
+                label: localToolTitle(l10n, id),
+                selected: enabled.contains(id),
+                onTap: () => unawaited(
+                  setLocalToolEnabled(
+                    context,
+                    assistant: assistant,
+                    toolId: id,
+                    value: !enabled.contains(id),
+                  ),
+                ),
+                trailing: IosSwitch(
+                  value: enabled.contains(id),
+                  semanticLabel: localToolTitle(l10n, id),
+                  onChanged: (value) => unawaited(
+                    setLocalToolEnabled(
+                      context,
+                      assistant: assistant,
+                      toolId: id,
+                      value: value,
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 6),
+          ],
       ],
     );
   }

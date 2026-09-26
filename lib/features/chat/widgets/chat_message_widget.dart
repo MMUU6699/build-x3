@@ -1241,14 +1241,6 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
   }
 
   ThinkingTagParseResult _legacyInlineThinkingFor(ChatMessageWidget widget) {
-    if ((widget.reasoningText?.isNotEmpty ?? false) ||
-        widget.reasoningLoading ||
-        (widget.reasoningSegments?.isNotEmpty ?? false)) {
-      return ThinkingTagParseResult(
-        visibleContent: widget.message.content,
-        thinkingTexts: const <String>[],
-      );
-    }
     final source = widget.message.content;
     final memo = _inlineThinkMemoResult;
     if (memo != null && _inlineThinkMemoSource == source) return memo;
@@ -2725,9 +2717,16 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                     ),
                   ),
                   if (widget.message.isStreaming && visualContent.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4, top: 4),
-                      child: _streamingIndicator(),
+                    _assistantBlockWidth(
+                      context,
+                      child: _buildAssistantBubbleContainer(
+                        context: context,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: 1,
+                          child: _streamingIndicator(),
+                        ),
+                      ),
                     ),
                 ];
               }
@@ -2797,9 +2796,16 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
               if (widget.message.isStreaming &&
                   (visualContent.isNotEmpty || widget.retryStatus != null)) {
                 widgets.add(
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, top: 4),
-                    child: _streamingIndicator(),
+                  _assistantBlockWidth(
+                    context,
+                    child: _buildAssistantBubbleContainer(
+                      context: context,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: 1,
+                        child: _streamingIndicator(),
+                      ),
+                    ),
                   ),
                 );
               }
@@ -4563,7 +4569,15 @@ class _ChainOfThoughtReasoningStepState
   }
 
   String _sanitize(String s) {
-    return s.replaceAll('\r', '').trim();
+    var cleaned = s.replaceAll('\r', '').trim();
+    cleaned = cleaned.replaceAll(
+      RegExp(
+        r'</?(think|thinking|thought)>|<\|channel>thought|<channel\|>',
+        caseSensitive: false,
+      ),
+      '',
+    );
+    return cleaned.trim();
   }
 
   String _elapsed() {
@@ -4638,6 +4652,13 @@ class _ChainOfThoughtReasoningStepState
     );
     final state = _stepState;
     final display = _sanitize(widget.step.text);
+    final String statusLabel = widget.step.loading
+        ? (display.toLowerCase().contains('plan')
+            ? 'Planning…'
+            : (display.toLowerCase().contains('analyz')
+                ? 'Analyzing request…'
+                : l10n.chatMessageWidgetDeepThinking))
+        : l10n.chatMessageWidgetDeepThinking;
     final label = ThinkingSheen(
       enabled: widget.step.loading,
       color: fg.strong,
@@ -4645,7 +4666,7 @@ class _ChainOfThoughtReasoningStepState
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            l10n.chatMessageWidgetDeepThinking,
+            statusLabel,
             style: TextStyle(
               fontSize: 13,
               fontWeight: AppFontWeights.semibold,

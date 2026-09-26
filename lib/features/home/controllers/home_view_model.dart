@@ -1570,7 +1570,7 @@ class HomeViewModel extends ChangeNotifier {
         .replaceAll('{content}', content);
 
     try {
-      final title = (await ChatApiService.generateText(
+      final generated = (await ChatApiService.generateText(
         conversationId: convo.id,
         config: cfg,
         modelId: mdlId,
@@ -1578,7 +1578,16 @@ class HomeViewModel extends ChangeNotifier {
         thinkingBudget: budget,
         skipImageParsing: true,
       )).trim();
-      if (title.isNotEmpty) {
+      String title = generated;
+      if (title.isEmpty) {
+        final snippet = content.trim().split('\n').first;
+        if (snippet.isNotEmpty) {
+          title = snippet.length > 30 ? '${snippet.substring(0, 30)}...' : snippet;
+        } else {
+          title = 'New Chat';
+        }
+      }
+      if (title.isNotEmpty && convo.title != title) {
         await _chatService.renameConversation(convo.id, title);
         if (currentConversation?.id == convo.id) {
           _chatController.updateCurrentConversation(
@@ -1586,15 +1595,27 @@ class HomeViewModel extends ChangeNotifier {
           );
           notifyListeners();
         }
-      } else {
-        onBackgroundTaskError?.call(BackgroundTaskKind.title, 'empty_response');
       }
     } catch (e) {
       FlutterLogger.log(
-        '[TitleGen] Generation failed: $e',
+        '[TitleGen] Generation failed: $e, falling back to snippet',
         tag: 'HomeViewModel',
       );
-      onBackgroundTaskError?.call(BackgroundTaskKind.title, e);
+      try {
+        final snippet = content.trim().split('\n').first;
+        if (snippet.isNotEmpty) {
+          final fallbackTitle = snippet.length > 30 ? '${snippet.substring(0, 30)}...' : snippet;
+          if (fallbackTitle.isNotEmpty && convo.title != fallbackTitle) {
+            await _chatService.renameConversation(convo.id, fallbackTitle);
+            if (currentConversation?.id == convo.id) {
+              _chatController.updateCurrentConversation(
+                _chatService.getConversation(convo.id),
+              );
+              notifyListeners();
+            }
+          }
+        }
+      } catch (_) {}
     }
   }
 

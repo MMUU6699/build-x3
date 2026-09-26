@@ -2652,58 +2652,18 @@ class _ChatInputBarState extends State<ChatInputBar>
                           curve: Curves.easeInOutCubic,
                           alignment: Alignment.bottomCenter,
                           clipBehavior: Clip.hardEdge,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            switchInCurve: Curves.easeInOutCubic,
-                            switchOutCurve: Curves.easeInOutCubic,
-                            layoutBuilder: (currentChild, previousChildren) {
-                              return Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: <Widget>[
-                                  for (final child in previousChildren)
-                                    Positioned(
-                                      bottom: 0,
-                                      left: 0,
-                                      right: 0,
-                                      child: child,
-                                    ),
-                                  if (currentChild != null) currentChild,
-                                ],
-                              );
-                            },
-                            transitionBuilder: (child, animation) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
-                            },
-                            child: KeyedSubtree(
-                              key: ValueKey<bool>(_isInputExpanded),
-                              child: _isInputExpanded
-                                  ? _buildExpandedInput(
-                                      context: context,
-                                      theme: theme,
-                                      isDark: isDark,
-                                      showVoiceInput: showVoiceInput,
-                                      hasText: hasText,
-                                      hasImages: hasImages,
-                                      hasDocs: hasDocs,
-                                      isMobileLayout: isMobileLayout,
-                                      textFieldConstraints:
-                                          textFieldConstraints,
-                                      ap: ap,
-                                      settings: settings,
-                                    )
-                                  : _buildCollapsedInput(
-                                      context: context,
-                                      theme: theme,
-                                      isDark: isDark,
-                                      showVoiceInput: showVoiceInput,
-                                      hasText: hasText,
-                                      hasImages: hasImages,
-                                      hasDocs: hasDocs,
-                                    ),
-                            ),
+                          child: _buildUnifiedInputContent(
+                            context: context,
+                            theme: theme,
+                            isDark: isDark,
+                            showVoiceInput: showVoiceInput,
+                            hasText: hasText,
+                            hasImages: hasImages,
+                            hasDocs: hasDocs,
+                            isMobileLayout: isMobileLayout,
+                            textFieldConstraints: textFieldConstraints,
+                            ap: ap,
+                            settings: settings,
                           ),
                         ),
                       ),
@@ -2740,6 +2700,27 @@ class _ChatInputBarState extends State<ChatInputBar>
     );
   }
 
+  TextDirection _getTextDirection(String text) {
+    if (text.isEmpty) {
+      if (mounted) return Directionality.of(context);
+      return TextDirection.ltr;
+    }
+    for (final rune in text.runes) {
+      if ((rune >= 0x0590 && rune <= 0x08FF) ||
+          (rune >= 0xFB50 && rune <= 0xFDFF) ||
+          (rune >= 0xFE70 && rune <= 0xFEFF)) {
+        return TextDirection.rtl;
+      }
+      if ((rune >= 0x0041 && rune <= 0x005A) ||
+          (rune >= 0x0061 && rune <= 0x007A) ||
+          (rune >= 0x00C0 && rune <= 0x024F)) {
+        return TextDirection.ltr;
+      }
+    }
+    if (mounted) return Directionality.of(context);
+    return TextDirection.ltr;
+  }
+
   Widget _buildTextFieldWidget(
     BuildContext context,
     ThemeData theme,
@@ -2748,15 +2729,14 @@ class _ChatInputBarState extends State<ChatInputBar>
     required BoxConstraints constraints,
   }) {
     final enterToSend = context.watch<SettingsProvider>().enterToSendOnMobile;
-    final activeFocusNode = isCollapsed
-        ? (_isInputExpanded ? null : widget.focusNode)
-        : (_isInputExpanded ? widget.focusNode : null);
     return Focus(
       onKeyEvent: _handleKeyEvent,
       child: TextField(
         controller: _controller,
-        focusNode: activeFocusNode,
+        focusNode: widget.focusNode,
         onChanged: _onTextChanged,
+        textDirection: _getTextDirection(_controller.text),
+        textAlign: TextAlign.start,
         contentInsertionConfiguration: ContentInsertionConfiguration(
           onContentInserted: _handleInsertedContent,
           allowedMimeTypes: const [
@@ -2769,10 +2749,8 @@ class _ChatInputBarState extends State<ChatInputBar>
         ),
         readOnly: _composerLocked || _ownsVoiceSession,
         minLines: 1,
-        maxLines: isCollapsed ? 1 : 7,
-        keyboardType: isCollapsed
-            ? TextInputType.text
-            : TextInputType.multiline,
+        maxLines: isCollapsed ? 1 : (_isExpanded ? 14 : 7),
+        keyboardType: TextInputType.multiline,
         textInputAction: enterToSend
             ? TextInputAction.send
             : TextInputAction.newline,
@@ -2813,76 +2791,7 @@ class _ChatInputBarState extends State<ChatInputBar>
     );
   }
 
-  Widget _buildCollapsedInput({
-    required BuildContext context,
-    required ThemeData theme,
-    required bool isDark,
-    required bool showVoiceInput,
-    required bool hasText,
-    required bool hasImages,
-    required bool hasDocs,
-  }) {
-    final l10n = AppLocalizations.of(context)!;
-    return SizedBox(
-      height: 52,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(width: 8),
-          if (widget.showMoreButton) ...[
-            _CompactIconButton(
-              tooltip: l10n.chatInputBarMoreTooltip,
-              icon: Lucide.Plus,
-              active: widget.moreOpen,
-              onTap: _composerLocked ? null : widget.onMore,
-            ),
-            const SizedBox(width: 4),
-          ],
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                widget.focusNode?.requestFocus();
-              },
-              child: _buildTextFieldWidget(
-                context,
-                theme,
-                isDark,
-                isCollapsed: true,
-                constraints: const BoxConstraints(),
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          if (showVoiceInput) ...[
-            _CompactIconButton(
-              tooltip: l10n.chatInputBarVoiceInputTooltip,
-              icon: Lucide.Mic,
-              onTap: _composerLocked || widget.loading
-                  ? null
-                  : () => unawaited(_startVoiceInput()),
-            ),
-            const SizedBox(width: 6),
-          ],
-          _CompactSendButton(
-            enabled:
-                (hasText || hasImages || hasDocs) &&
-                !_hasUnreadyImages &&
-                !widget.loading,
-            loading: widget.loading,
-            onSend: _handleSend,
-            onStop: widget.loading ? widget.onStop : null,
-            color: isDark ? Colors.white : Colors.black,
-            icon: Lucide.ArrowUp,
-            tooltip: widget.sendButtonTooltip,
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpandedInput({
+  Widget _buildUnifiedInputContent({
     required BuildContext context,
     required ThemeData theme,
     required bool isDark,
@@ -2896,6 +2805,7 @@ class _ChatInputBarState extends State<ChatInputBar>
     required SettingsProvider settings,
   }) {
     final l10n = AppLocalizations.of(context)!;
+    final isExpanded = _isInputExpanded;
     final toolsState = BuiltInToolsHelper.getActiveTools(
       cfg: (widget.chatModelProviderKey != null)
           ? settings.getProviderConfig(widget.chatModelProviderKey!)
@@ -2978,128 +2888,185 @@ class _ChatInputBarState extends State<ChatInputBar>
           curve: Curves.easeInOutCubic,
           alignment: AlignmentDirectional.centerStart,
           clipBehavior: Clip.hardEdge,
-          child: isWebSearchActive
+          child: (isWebSearchActive && isExpanded)
               ? _buildWebSearchChip(context, theme, isDark, ap, settings)
               : const SizedBox.shrink(),
         ),
-        // Top section: multiline text field
-        Stack(
+        // Persistent TextField row
+        Row(
+          crossAxisAlignment:
+              isExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-              child: ConstrainedBox(
-                constraints: textFieldConstraints,
-                child: _buildTextFieldWidget(
-                  context,
-                  theme,
-                  isDark,
-                  isCollapsed: false,
-                  constraints: textFieldConstraints,
+            if (!isExpanded) ...[
+              const SizedBox(width: 8),
+              if (widget.showMoreButton) ...[
+                _CompactIconButton(
+                  tooltip: l10n.chatInputBarMoreTooltip,
+                  icon: Lucide.Plus,
+                  active: widget.moreOpen,
+                  onTap: _composerLocked ? null : widget.onMore,
                 ),
+                const SizedBox(width: 4),
+              ],
+            ],
+            Expanded(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      isExpanded ? 16 : 4,
+                      isExpanded ? 12 : 6,
+                      isExpanded ? 16 : 4,
+                      isExpanded ? 6 : 6,
+                    ),
+                    child: ConstrainedBox(
+                      constraints: isExpanded
+                          ? textFieldConstraints
+                          : const BoxConstraints(),
+                      child: _buildTextFieldWidget(
+                        context,
+                        theme,
+                        isDark,
+                        isCollapsed: !isExpanded,
+                        constraints: isExpanded
+                            ? textFieldConstraints
+                            : const BoxConstraints(),
+                      ),
+                    ),
+                  ),
+                  if (isExpanded && _showExpandButton)
+                    Positioned(
+                      top: 10,
+                      right: 12,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() => _isExpanded = !_isExpanded);
+                          _ensureCaretVisible();
+                        },
+                        child: Icon(
+                          _isExpanded
+                              ? Lucide.ChevronsDownUp
+                              : Lucide.ChevronsUpDown,
+                          size: 16,
+                          color:
+                              theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-            if (_showExpandButton)
-              Positioned(
-                top: 10,
-                right: 12,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _isExpanded = !_isExpanded);
-                    _ensureCaretVisible();
-                  },
-                  child: Icon(
-                    _isExpanded ? Lucide.ChevronsDownUp : Lucide.ChevronsUpDown,
-                    size: 16,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-                  ),
+            if (!isExpanded) ...[
+              const SizedBox(width: 6),
+              if (showVoiceInput) ...[
+                _CompactIconButton(
+                  tooltip: l10n.chatInputBarVoiceInputTooltip,
+                  icon: Lucide.Mic,
+                  onTap: _composerLocked || widget.loading
+                      ? null
+                      : () => unawaited(_startVoiceInput()),
                 ),
+                const SizedBox(width: 6),
+              ],
+              _CompactSendButton(
+                enabled:
+                    (hasText || hasImages || hasDocs) &&
+                    !_hasUnreadyImages &&
+                    !widget.loading,
+                loading: widget.loading,
+                onSend: _handleSend,
+                onStop: widget.loading ? widget.onStop : null,
+                color: isDark ? Colors.white : Colors.black,
+                icon: Lucide.ArrowUp,
+                tooltip: widget.sendButtonTooltip,
               ),
+              const SizedBox(width: 8),
+            ],
           ],
         ),
-        // Bottom section: actions row
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: _ownsVoiceSession
-                ? _buildVoiceRecordingRow(context, theme)
-                : Row(
-                    key: const ValueKey('expanded-actions'),
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Left actions: (+) button and left controls
-                      Expanded(
-                        child: Row(
-                          children: [
-                            if (widget.showMoreButton) ...[
-                              _CompactIconButton(
-                                tooltip: l10n.chatInputBarMoreTooltip,
-                                icon: Lucide.Plus,
-                                active: widget.moreOpen,
-                                onTap: _composerLocked ? null : widget.onMore,
-                                childBuilder: (c) => AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  transitionBuilder: (child, anim) =>
-                                      RotationTransition(
-                                        turns: Tween<double>(
-                                          begin: 0.85,
-                                          end: 1,
-                                        ).animate(anim),
-                                        child: FadeTransition(
-                                          opacity: anim,
-                                          child: child,
+        // Expanded bottom actions row
+        if (isExpanded)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: _ownsVoiceSession
+                  ? _buildVoiceRecordingRow(context, theme)
+                  : Row(
+                      key: const ValueKey('expanded-actions'),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              if (widget.showMoreButton) ...[
+                                _CompactIconButton(
+                                  tooltip: l10n.chatInputBarMoreTooltip,
+                                  icon: Lucide.Plus,
+                                  active: widget.moreOpen,
+                                  onTap: _composerLocked ? null : widget.onMore,
+                                  childBuilder: (c) => AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+                                    transitionBuilder: (child, anim) =>
+                                        RotationTransition(
+                                          turns: Tween<double>(
+                                            begin: 0.85,
+                                            end: 1,
+                                          ).animate(anim),
+                                          child: FadeTransition(
+                                            opacity: anim,
+                                            child: child,
+                                          ),
                                         ),
+                                    child: Icon(
+                                      widget.moreOpen ? Lucide.X : Lucide.Plus,
+                                      key: ValueKey(
+                                        widget.moreOpen ? 'close' : 'add',
                                       ),
-                                  child: Icon(
-                                    widget.moreOpen ? Lucide.X : Lucide.Plus,
-                                    key: ValueKey(
-                                      widget.moreOpen ? 'close' : 'add',
+                                      size: 20,
+                                      color: c,
                                     ),
-                                    size: 20,
-                                    color: c,
                                   ),
                                 ),
+                                const SizedBox(width: 4),
+                              ],
+                              Expanded(
+                                child: _buildResponsiveLeftActions(context),
                               ),
-                              const SizedBox(width: 4),
                             ],
-                            Expanded(
-                              child: _buildResponsiveLeftActions(context),
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (showVoiceInput) ...[
+                              _CompactIconButton(
+                                tooltip: l10n.chatInputBarVoiceInputTooltip,
+                                icon: Lucide.Mic,
+                                onTap: _composerLocked || widget.loading
+                                    ? null
+                                    : () => unawaited(_startVoiceInput()),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            _CompactSendButton(
+                              enabled:
+                                  (hasText || hasImages || hasDocs) &&
+                                  !_hasUnreadyImages &&
+                                  !widget.loading,
+                              loading: widget.loading,
+                              onSend: _handleSend,
+                              onStop: widget.loading ? widget.onStop : null,
+                              color: isDark ? Colors.white : Colors.black,
+                              icon: Lucide.ArrowUp,
+                              tooltip: widget.sendButtonTooltip,
                             ),
                           ],
                         ),
-                      ),
-                      // Right actions: mic + send
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (showVoiceInput) ...[
-                            _CompactIconButton(
-                              tooltip: l10n.chatInputBarVoiceInputTooltip,
-                              icon: Lucide.Mic,
-                              onTap: _composerLocked || widget.loading
-                                  ? null
-                                  : () => unawaited(_startVoiceInput()),
-                            ),
-                            const SizedBox(width: 6),
-                          ],
-                          _CompactSendButton(
-                            enabled:
-                                (hasText || hasImages || hasDocs) &&
-                                !_hasUnreadyImages &&
-                                !widget.loading,
-                            loading: widget.loading,
-                            onSend: _handleSend,
-                            onStop: widget.loading ? widget.onStop : null,
-                            color: isDark ? Colors.white : Colors.black,
-                            icon: Lucide.ArrowUp,
-                            tooltip: widget.sendButtonTooltip,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+            ),
           ),
-        ),
       ],
     );
   }

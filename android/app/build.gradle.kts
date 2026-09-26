@@ -1,4 +1,6 @@
 import java.util.Properties
+import java.util.Base64
+import java.nio.charset.StandardCharsets
 
 plugins {
     id("com.android.application")
@@ -120,6 +122,69 @@ tasks.whenTaskAdded {
     }
 }
 tasks.findByName("preBuild")?.dependsOn("fetchProot")
+
+tasks.register("validateReleaseDartDefines") {
+    doLast {
+        val dartDefinesProp = project.findProperty("dart-defines") as? String
+        var supabaseUrl = ""
+        var supabaseKey = ""
+
+        if (!dartDefinesProp.isNullOrBlank()) {
+            val decodedEntries = dartDefinesProp.split(",").mapNotNull { entry ->
+                try {
+                    String(Base64.getDecoder().decode(entry.trim()), Charsets.UTF_8)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            for (entry in decodedEntries) {
+                val parts = entry.split("=", limit = 2)
+                if (parts.size == 2) {
+                    val k = parts[0].trim()
+                    val v = parts[1].trim()
+                    if (k == "SUPABASE_URL") supabaseUrl = v
+                    if (k == "SUPABASE_PUBLISHABLE_KEY" || k == "SUPABASE_ANON_KEY") {
+                        if (supabaseKey.isBlank() || k == "SUPABASE_PUBLISHABLE_KEY") {
+                            supabaseKey = v
+                        }
+                    }
+                }
+            }
+        }
+
+        if (supabaseUrl.isBlank() || supabaseKey.isBlank()) {
+            throw GradleException(
+                """
+                |========================================================================
+                | RELEASE BUILD FAILED: Missing Required Supabase Configuration!
+                |
+                | Release builds MUST be provided with SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY
+                | (or SUPABASE_ANON_KEY).
+                |
+                | Current status:
+                |   SUPABASE_URL = ${if (supabaseUrl.isBlank()) "<MISSING>" else supabaseUrl}
+                |   SUPABASE_KEY = ${if (supabaseKey.isBlank()) "<MISSING>" else "<CONFIGURED>"}
+                |
+                | How to fix:
+                |   1. Build with the config file:
+                |      flutter build apk --release --dart-define-from-file=config/buildx.public.json
+                |   2. Or use the official build script:
+                |      ./tool/build_android.ps1  (Windows)
+                |      ./tool/build_android.sh   (Linux / macOS)
+                |========================================================================
+                """.trimMargin()
+            )
+        }
+    }
+}
+
+android.applicationVariants.all {
+    if (buildType.name == "release") {
+        preBuildProvider.configure {
+            dependsOn("validateReleaseDartDefines")
+        }
+    }
+}
 
 dependencies {
     implementation("androidx.browser:browser:1.9.0")

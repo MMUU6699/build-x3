@@ -18,29 +18,28 @@ class ModeSegmentedToggle extends StatelessWidget {
     final workProvider = context.watch<WorkModeProvider>();
     final isWork = workProvider.isWorkMode;
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final bg = isDark
-        ? cs.surface.withValues(alpha: 0.90)
-        : cs.surface.withValues(alpha: 0.98);
-    final border = isDark
-        ? cs.outline.withValues(alpha: 0.20)
-        : cs.outline.withValues(alpha: 0.12);
+    final trackBg = isDark
+        ? const Color(0xFF18181B)
+        : const Color(0xFFE4E4E7);
+    final trackBorder = isDark
+        ? const Color(0xFF27272A)
+        : const Color(0xFFD4D4D8);
 
     return Center(
       child: Container(
-        height: 42,
+        height: 40,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(21),
-          border: Border.all(color: border, width: 0.8),
+          color: trackBg,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: trackBorder, width: 0.8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.06),
+              blurRadius: 6,
+              offset: const Offset(0, 1.5),
             ),
           ],
         ),
@@ -78,12 +77,14 @@ class ModeSegmentedToggle extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
     final selectedBg = isDark
-        ? cs.onSurface.withValues(alpha: 0.14)
-        : cs.onSurface.withValues(alpha: 0.08);
+        ? const Color(0xFF27272A)
+        : Colors.white;
+    final selectedBorder = isDark
+        ? const Color(0xFF3F3F46)
+        : const Color(0xFFD4D4D8);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -91,11 +92,23 @@ class ModeSegmentedToggle extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeInOut,
-        height: 36,
+        height: 34,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: selected ? selectedBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(17),
+          border: selected
+              ? Border.all(color: selectedBorder, width: 0.8)
+              : null,
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ]
+              : null,
         ),
         alignment: Alignment.center,
         child: Text(
@@ -104,10 +117,12 @@ class ModeSegmentedToggle extends StatelessWidget {
             fontSize: 13.5,
             fontWeight: selected
                 ? AppFontWeights.semibold
-                : AppFontWeights.regular,
+                : AppFontWeights.medium,
             color: selected
-                ? cs.onSurface
-                : cs.onSurfaceVariant.withValues(alpha: 0.75),
+                ? (isDark ? Colors.white : Colors.black)
+                : (isDark
+                    ? const Color(0xFFA1A1AA)
+                    : const Color(0xFF71717A)),
           ),
         ),
       ),

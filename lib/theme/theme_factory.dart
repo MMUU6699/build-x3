@@ -92,6 +92,15 @@ PopupMenuThemeData _popupMenuTheme(
   return PopupMenuThemeData(color: colors.overlaySurface(scheme));
 }
 
+ScrollbarThemeData _scrollbarTheme() {
+  return const ScrollbarThemeData(
+    thumbVisibility: WidgetStatePropertyAll<bool>(false),
+    trackVisibility: WidgetStatePropertyAll<bool>(false),
+    interactive: false,
+    thickness: WidgetStatePropertyAll<double>(0),
+  );
+}
+
 TextTheme _withFontFallback(TextTheme base, List<String> fallback) {
   TextStyle? f(TextStyle? s) => s?.copyWith(fontFamilyFallback: fallback);
   return base.copyWith(
@@ -226,6 +235,7 @@ ThemeData buildLightTheme(ColorScheme? dynamicScheme) {
     colorScheme: scheme,
     scaffoldBackgroundColor: scheme.surface,
     extensions: <ThemeExtension<dynamic>>[colors],
+    scrollbarTheme: _scrollbarTheme(),
     dialogTheme: _dialogTheme(colors, scheme),
     bottomSheetTheme: _bottomSheetTheme(colors, scheme),
     popupMenuTheme: _popupMenuTheme(colors, scheme),
@@ -318,6 +328,7 @@ ThemeData buildLightThemeForScheme(
       disabledActionTextColor: scheme.onInverseSurface.withValues(alpha: 0.5),
     ),
     dialogTheme: _dialogTheme(colors, scheme),
+    scrollbarTheme: _scrollbarTheme(),
     bottomSheetTheme: _bottomSheetTheme(colors, scheme),
     popupMenuTheme: _popupMenuTheme(colors, scheme),
     appBarTheme: AppBarTheme(
@@ -395,6 +406,7 @@ ThemeData buildDarkTheme(ColorScheme? dynamicScheme) {
     scaffoldBackgroundColor: scheme.surface,
     extensions: <ThemeExtension<dynamic>>[colors],
     dialogTheme: _dialogTheme(colors, scheme),
+    scrollbarTheme: _scrollbarTheme(),
     bottomSheetTheme: _bottomSheetTheme(colors, scheme),
     popupMenuTheme: _popupMenuTheme(colors, scheme),
     snackBarTheme: SnackBarThemeData(
@@ -479,6 +491,7 @@ ThemeData buildDarkThemeForScheme(
       disabledActionTextColor: scheme.onInverseSurface.withValues(alpha: 0.6),
     ),
     dialogTheme: _dialogTheme(colors, scheme),
+    scrollbarTheme: _scrollbarTheme(),
     bottomSheetTheme: _bottomSheetTheme(colors, scheme),
     popupMenuTheme: _popupMenuTheme(colors, scheme),
     appBarTheme: AppBarTheme(

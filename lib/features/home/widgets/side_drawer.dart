@@ -19,7 +19,6 @@ import '../../backup/pages/backup_page.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/update_provider.dart';
 import '../../../core/models/assistant.dart';
-import '../../chat/pages/chat_history_page.dart';
 import '../pages/images_gallery_page.dart';
 import '../pages/sidebar_placeholder_page.dart';
 import '../../../desktop/chat_history_dialog.dart';
@@ -159,16 +158,14 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
       defaultTargetPlatform == TargetPlatform.linux;
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  bool _isSearchExpanded = false;
   final GlobalKey _assistantTileKey = GlobalKey();
   OverlayEntry? _assistantPickerEntry;
   ValueNotifier<int>? _closeTicker;
   bool _assistantsExpanded = false;
   final ScrollController _listController = ScrollController();
   bool _assistantHeaderHovered = false;
-  double _mobileSearchSwipeDx = 0;
-  bool _mobileSearchSwipeHandled = false;
   final FocusNode _mobileSearchFocusNode = FocusNode();
-  bool _showMobileSearchTip = false;
   TabController? _tabController; // desktop tabs
   StreamSubscription<int>? _tabBusSub;
 
@@ -202,13 +199,6 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
         _debugRequestConversationListHostRebuild;
     SideDrawer.debugEnterSelectionMode = _enterSelectionMode;
     _attachCloseTicker(widget.closePickerTicker);
-    _mobileSearchFocusNode.addListener(() {
-      if (_isDesktop) return;
-      final visible = _mobileSearchFocusNode.hasFocus;
-      if (_showMobileSearchTip != visible) {
-        setState(() => _showMobileSearchTip = visible);
-      }
-    });
     _searchController.addListener(() {
       final next = _searchController.text;
       if (_query == next) return;
@@ -1118,16 +1108,6 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     }
   }
 
-  void _submitMobileGlobalSearch() {
-    if (!widget.globalSearchMode) return;
-    widget.onGlobalSearchQueryChanged?.call(_searchController.text);
-    _runGlobalSearch();
-    if (_showMobileSearchTip) {
-      setState(() => _showMobileSearchTip = false);
-    }
-    FocusScope.of(context).unfocus();
-  }
-
   void _clearGlobalSearchState({bool clearText = false}) {
     _globalSearchRequestId++;
     if (clearText && _searchController.text.isNotEmpty) {
@@ -1144,37 +1124,11 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     });
   }
 
-  void _toggleGlobalSearchMode() {
-    if (widget.globalSearchMode) {
-      _clearGlobalSearchState(clearText: true);
-      widget.onExitGlobalSearch?.call();
-      return;
-    }
-    _clearGlobalSearchState(clearText: true);
-    widget.onEnterGlobalSearch?.call();
-  }
-
-  String _mobileModeTip() {
-    final l10n = AppLocalizations.of(context)!;
-    return widget.globalSearchMode
-        ? l10n.sideDrawerSearchModeSwipeToTopicHint
-        : l10n.sideDrawerSearchModeSwipeToGlobalHint;
-  }
-
   String _mobileSearchHint() {
     final l10n = AppLocalizations.of(context)!;
     return widget.globalSearchMode
         ? l10n.sideDrawerGlobalSearchHint
         : l10n.sideDrawerSearchHint;
-  }
-
-  Widget _mobileModeSearchIcon(Color color, {Key? key}) {
-    return Icon(
-      widget.globalSearchMode ? Lucide.Database : Lucide.botMessageSquare,
-      key: key,
-      size: 16,
-      color: color,
-    );
   }
 
   Widget _buildGlobalSearchResultsList(BuildContext context) {
@@ -1440,7 +1394,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     final rest = <ChatItem>[];
     // Single pass: filter assistant + query, split pinned/rest via ChatItem.isPinned.
     for (final c in chatService.getAllConversations()) {
-      if (c.assistantId != assistantId && c.assistantId != null) continue;
+      if (_isDesktop && c.assistantId != assistantId && c.assistantId != null) continue;
       final title = c.title;
       if (q.isNotEmpty && !title.toLowerCase().contains(q)) continue;
       final item = ChatItem(
@@ -2167,384 +2121,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     )
-                                  : Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Builder(
-                                                builder: (context) {
-                                                  final canSwipeSwitch =
-                                                      _searchController.text
-                                                          .trim()
-                                                          .isEmpty;
-                                                  final centerCaption =
-                                                      _searchController.text
-                                                          .trim()
-                                                          .isEmpty;
-                                                  return GestureDetector(
-                                                    behavior: HitTestBehavior
-                                                        .translucent,
-                                                    onHorizontalDragStart:
-                                                        canSwipeSwitch
-                                                        ? (_) {
-                                                            _mobileSearchSwipeDx =
-                                                                0;
-                                                            _mobileSearchSwipeHandled =
-                                                                false;
-                                                          }
-                                                        : null,
-                                                    onHorizontalDragUpdate:
-                                                        canSwipeSwitch
-                                                        ? (details) {
-                                                            if (_mobileSearchSwipeHandled) {
-                                                              return;
-                                                            }
-                                                            _mobileSearchSwipeDx +=
-                                                                details
-                                                                    .delta
-                                                                    .dx;
-                                                            if (_mobileSearchSwipeDx
-                                                                    .abs() >=
-                                                                18) {
-                                                              _mobileSearchSwipeDx =
-                                                                  0;
-                                                              _mobileSearchSwipeHandled =
-                                                                  true;
-                                                              _toggleGlobalSearchMode();
-                                                              Haptics.light();
-                                                            }
-                                                          }
-                                                        : null,
-                                                    onHorizontalDragEnd:
-                                                        canSwipeSwitch
-                                                        ? (_) {
-                                                            _mobileSearchSwipeDx =
-                                                                0;
-                                                            _mobileSearchSwipeHandled =
-                                                                false;
-                                                          }
-                                                        : null,
-                                                    child: Stack(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      children: [
-                                                        TextField(
-                                                          focusNode:
-                                                              _mobileSearchFocusNode,
-                                                          controller:
-                                                              _searchController,
-                                                          textInputAction:
-                                                              widget
-                                                                  .globalSearchMode
-                                                              ? TextInputAction
-                                                                    .search
-                                                              : TextInputAction
-                                                                    .done,
-                                                          onSubmitted:
-                                                              widget
-                                                                  .globalSearchMode
-                                                              ? (_) =>
-                                                                    _submitMobileGlobalSearch()
-                                                              : null,
-                                                          decoration: InputDecoration(
-                                                            hintText:
-                                                                centerCaption
-                                                                ? ''
-                                                                : _mobileSearchHint(),
-                                                            filled: true,
-                                                            fillColor: context
-                                                                .appColors
-                                                                .surfaceFill
-                                                                .withValues(
-                                                                  alpha: 0.80,
-                                                                ),
-                                                            isDense: true,
-                                                            isCollapsed: true,
-                                                            prefixIcon: Padding(
-                                                              padding:
-                                                                  const EdgeInsets.only(
-                                                                    left: 6,
-                                                                    right: 2,
-                                                                  ),
-                                                              child: GestureDetector(
-                                                                behavior:
-                                                                    HitTestBehavior
-                                                                        .opaque,
-                                                                onTap: () {
-                                                                  _toggleGlobalSearchMode();
-                                                                  Haptics.light();
-                                                                },
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        6,
-                                                                      ),
-                                                                  child: AnimatedSwitcher(
-                                                                    duration: const Duration(
-                                                                      milliseconds:
-                                                                          210,
-                                                                    ),
-                                                                    switchInCurve:
-                                                                        Curves
-                                                                            .easeOutBack,
-                                                                    switchOutCurve:
-                                                                        Curves
-                                                                            .easeIn,
-                                                                    transitionBuilder:
-                                                                        (
-                                                                          child,
-                                                                          animation,
-                                                                        ) {
-                                                                          return FadeTransition(
-                                                                            opacity:
-                                                                                animation,
-                                                                            child: ScaleTransition(
-                                                                              scale: animation,
-                                                                              child: child,
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                    child: _mobileModeSearchIcon(
-                                                                      textBase.withValues(
-                                                                        alpha:
-                                                                            0.72,
-                                                                      ),
-                                                                      key:
-                                                                          ValueKey<
-                                                                            bool
-                                                                          >(
-                                                                            widget.globalSearchMode,
-                                                                          ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            prefixIconConstraints:
-                                                                const BoxConstraints(
-                                                                  minWidth: 0,
-                                                                  minHeight: 0,
-                                                                ),
-                                                            suffixIcon:
-                                                                _searchController
-                                                                    .text
-                                                                    .isNotEmpty
-                                                                ? Padding(
-                                                                    padding:
-                                                                        const EdgeInsets.only(
-                                                                          right:
-                                                                              6,
-                                                                        ),
-                                                                    child: Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
-                                                                        if (widget
-                                                                            .globalSearchMode)
-                                                                          GestureDetector(
-                                                                            behavior:
-                                                                                HitTestBehavior.opaque,
-                                                                            onTap: () {
-                                                                              Haptics.light();
-                                                                              _submitMobileGlobalSearch();
-                                                                            },
-                                                                            child: Padding(
-                                                                              padding: const EdgeInsets.all(
-                                                                                4,
-                                                                              ),
-                                                                              child: Icon(
-                                                                                Lucide.Search,
-                                                                                size: 16,
-                                                                                color: textBase.withValues(
-                                                                                  alpha: 0.75,
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                      ],
-                                                                    ),
-                                                                  )
-                                                                : null,
-                                                            suffixIconConstraints:
-                                                                const BoxConstraints(
-                                                                  minWidth: 0,
-                                                                  minHeight: 0,
-                                                                ),
-                                                            contentPadding:
-                                                                const EdgeInsets.symmetric(
-                                                                  horizontal:
-                                                                      14,
-                                                                  vertical: 10,
-                                                                ),
-                                                            border: OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
-                                                              borderSide:
-                                                                  const BorderSide(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                  ),
-                                                            ),
-                                                            enabledBorder: OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
-                                                              borderSide:
-                                                                  const BorderSide(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                  ),
-                                                            ),
-                                                            focusedBorder: OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
-                                                              borderSide:
-                                                                  const BorderSide(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                          textAlignVertical:
-                                                              TextAlignVertical
-                                                                  .center,
-                                                          style: TextStyle(
-                                                            color: textBase,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                        if (centerCaption)
-                                                          IgnorePointer(
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets.symmetric(
-                                                                    horizontal:
-                                                                        40,
-                                                                  ),
-                                                              child: Text(
-                                                                _mobileSearchHint(),
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style: TextStyle(
-                                                                  color: textBase
-                                                                      .withValues(
-                                                                        alpha:
-                                                                            0.55,
-                                                                      ),
-                                                                  fontSize: 14,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            // 历史按钮（圆形，无水波纹）
-                                            SizedBox(
-                                              width: 44,
-                                              height: 44,
-                                              child: Center(
-                                                child: IosIconButton(
-                                                  size: 20,
-                                                  color: textBase,
-                                                  icon: Lucide.History,
-                                                  padding: const EdgeInsets.all(
-                                                    8,
-                                                  ),
-                                                  onTap: () async {
-                                                    final selectedId =
-                                                        await Navigator.of(
-                                                          context,
-                                                        ).push<String>(
-                                                          MaterialPageRoute(
-                                                            builder: (_) =>
-                                                                ChatHistoryPage(
-                                                                  assistantId:
-                                                                      currentAssistantId,
-                                                                ),
-                                                          ),
-                                                        );
-                                                    if (selectedId != null &&
-                                                        selectedId.isNotEmpty) {
-                                                      if (!context.mounted) {
-                                                        return;
-                                                      }
-                                                      final closeDrawer = !context
-                                                          .read<
-                                                            SettingsProvider
-                                                          >()
-                                                          .keepSidebarOpenOnTopicTap;
-                                                      widget
-                                                          .onSelectConversation
-                                                          ?.call(
-                                                            selectedId,
-                                                            closeDrawer:
-                                                                closeDrawer,
-                                                          );
-                                                    }
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 6),
-                                        AnimatedSize(
-                                          duration: const Duration(
-                                            milliseconds: 140,
-                                          ),
-                                          curve: Curves.easeOutCubic,
-                                          child: _showMobileSearchTip
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 4,
-                                                        right: 4,
-                                                      ),
-                                                  child: SizedBox(
-                                                    width: double.infinity,
-                                                    child: Text(
-                                                      _mobileModeTip(),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontSize: 11.5,
-                                                        fontWeight:
-                                                            AppFontWeights
-                                                                .medium,
-                                                        color: textBase
-                                                            .withValues(
-                                                              alpha: 0.52,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              : const SizedBox.shrink(),
-                                        ),
-                                      ],
-                                    ),
+                                  : _buildMobileSearchHeader(textBase, cs),
                             ),
                     ),
 
@@ -2557,7 +2134,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                           textColor: textBase,
                           controller: _tabController!,
                         )
-                      else if (!assistOnly && !topicsOnly)
+                      else if (_isDesktop && !assistOnly && !topicsOnly)
                         // 当前助手区域（固定）
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -2842,6 +2419,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                                     children: [
                                       // New Chat glass pill button
                                       GlassPillButton(
+                                        primary: true,
                                         icon: Lucide.SquarePen,
                                         label:
                                             AppLocalizations.of(
@@ -2952,10 +2530,141 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
       );
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final drawerWidth = _isDesktop
+        ? (widget.embeddedWidth ?? 300.0)
+        : math.min(MediaQuery.sizeOf(context).width * 0.82, 340.0);
+
     return Drawer(
-      backgroundColor: cs.surface,
-      width: MediaQuery.sizeOf(context).width,
-      child: inner,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      width: drawerWidth,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.horizontal(right: Radius.circular(24)),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF161618).withValues(alpha: 0.88)
+                  : Colors.white.withValues(alpha: 0.88),
+              border: Border(
+                right: BorderSide(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.10)
+                      : Colors.black.withValues(alpha: 0.08),
+                  width: 1,
+                ),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.12),
+                  blurRadius: 30,
+                  offset: const Offset(4, 0),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: inner,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileSearchHeader(Color textBase, ColorScheme cs) {
+    if (!_isSearchExpanded && _query.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            HeaderBubbleButton(
+              size: 42,
+              onTap: () {
+                setState(() {
+                  _isSearchExpanded = true;
+                });
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _mobileSearchFocusNode.requestFocus();
+                });
+              },
+              child: Icon(
+                Lucide.Search,
+                size: 19,
+                color: textBase,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      child: Container(
+        height: 42,
+        decoration: BoxDecoration(
+          color: context.appColors.surfaceFill.withValues(alpha: 0.85),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: cs.outline.withValues(alpha: 0.15),
+            width: 0.8,
+          ),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 12),
+            Icon(
+              Lucide.Search,
+              size: 17,
+              color: textBase.withValues(alpha: 0.6),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                focusNode: _mobileSearchFocusNode,
+                controller: _searchController,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: _mobileSearchHint(),
+                  hintStyle: TextStyle(
+                    color: textBase.withValues(alpha: 0.45),
+                    fontSize: 14,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                style: TextStyle(
+                  color: textBase,
+                  fontSize: 14,
+                ),
+                onChanged: (val) {
+                  setState(() => _query = val);
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(
+                Lucide.X,
+                size: 18,
+                color: textBase.withValues(alpha: 0.7),
+              ),
+              onPressed: () {
+                _searchController.clear();
+                setState(() {
+                  _query = '';
+                  _isSearchExpanded = false;
+                });
+                _mobileSearchFocusNode.unfocus();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -4241,33 +3950,58 @@ class _SidebarAppEntries extends StatelessWidget {
     ('Library', Lucide.Library),
     ('Projects', Lucide.Folder),
     ('Remote', Lucide.Monitor),
-    ('Scheduled', Lucide.Calendar),
+    ('Scheduled', Lucide.Clock),
     ('Plugins', Lucide.Boxes),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final color = cs.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 4, 16, 6),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final entry in _entries)
-            SizedBox(
-              height: 42,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 3),
+              child: IosCardPress(
+                baseColor: Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+                haptics: true,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                 onTap: () => onSelected(entry.$1),
                 child: Row(
                   children: [
-                    Icon(entry.$2, size: 21, color: color),
-                    const SizedBox(width: 18),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : Colors.black.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(9),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.black.withValues(alpha: 0.04),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(entry.$2, size: 18, color: color),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
                     Text(
                       entry.$1,
                       style: TextStyle(
                         color: color,
-                        fontSize: 15,
+                        fontSize: 15.5,
                         fontWeight: AppFontWeights.medium,
                       ),
                     ),

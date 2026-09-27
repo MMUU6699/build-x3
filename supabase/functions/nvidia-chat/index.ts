@@ -181,7 +181,7 @@ Deno.serve(async (req: Request) => {
           "Accept": stream ? "text/event-stream" : "application/json",
         },
         body: JSON.stringify(activePayload),
-        signal: AbortSignal.timeout(activeModel === MODEL_GLM ? 10000 : 120000),
+        signal: AbortSignal.timeout(activeModel === MODEL_GLM ? 30000 : 120000),
       });
 
       if (!response.ok && activeModel === MODEL_GLM && (response.status >= 500 || response.status === 404)) {

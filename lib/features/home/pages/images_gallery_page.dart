@@ -4,14 +4,19 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/models/message_part.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/services/api/chat_api_service.dart';
 import '../../../core/services/api/providers/openai_images.dart';
-import '../../../core/models/message_part.dart';
+import '../../../core/services/haptics.dart';
 import '../../../icons/lucide_adapter.dart';
+import '../../../shared/widgets/snackbar.dart';
+import '../../../theme/app_font_weights.dart';
 import '../../../utils/sandbox_path_resolver.dart';
+import '../widgets/header_bubble_button.dart';
 
 class ImagesGalleryPage extends StatefulWidget {
   const ImagesGalleryPage({super.key});
@@ -23,16 +28,18 @@ class ImagesGalleryPage extends StatefulWidget {
 class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
   static const _examples = <_ImageExample>[
     _ImageExample(
-      title: 'Sticker set',
+      title: 'Stickers',
       prompt:
           'A cheerful set of six hand drawn stickers: a black cat, a potted plant, a friendly bearded person, tiny stars and flowers. Bold clean outlines, bright warm colors, white background.',
+      imageAsset: 'assets/images/examples/stickers.png',
       icon: Lucide.Sparkles,
       colors: [Color(0xFFFFCF45), Color(0xFFFF8A58)],
     ),
     _ImageExample(
-      title: 'Photosynthesis diagram',
+      title: 'Photosynthesis as a diagram',
       prompt:
           'A clear, colorful educational infographic diagram explaining photosynthesis in a green plant, labeled sunlight, water, carbon dioxide, glucose, and oxygen. Clean textbook illustration.',
+      imageAsset: 'assets/images/examples/photosynthesis.png',
       icon: Lucide.Shapes,
       colors: [Color(0xFF9BD77A), Color(0xFF287B61)],
     ),
@@ -40,20 +47,23 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
       title: 'Map of ancient Rome',
       prompt:
           'An illustrated antique parchment map of ancient Rome, showing the Tiber river, major hills, the Forum, and city walls, with small readable labels and a historical atlas style.',
+      imageAsset: 'assets/images/examples/rome_map.png',
       icon: Lucide.Map,
       colors: [Color(0xFFD9B477), Color(0xFF946A45)],
     ),
     _ImageExample(
-      title: 'Civil War timeline',
+      title: 'Timeline of the Civil War',
       prompt:
           'A polished classroom infographic timeline of the American Civil War from 1861 to 1865, with major events, dates, simple historical illustrations, and a clear horizontal layout.',
+      imageAsset: 'assets/images/examples/civil_war.png',
       icon: Lucide.Timer,
       colors: [Color(0xFF9CB7CE), Color(0xFF455C79)],
     ),
     _ImageExample(
-      title: 'Plant cell diagram',
+      title: 'Plant cell',
       prompt:
           'A detailed but approachable labeled scientific cross section of a plant cell, showing cell wall, membrane, nucleus, chloroplasts, vacuole, and mitochondria in a clean textbook style.',
+      imageAsset: 'assets/images/examples/plant_cell.png',
       icon: Lucide.circleDot,
       colors: [Color(0xFFB6D58C), Color(0xFF60815A)],
     ),
@@ -61,6 +71,7 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
       title: 'Cozy bedroom',
       prompt:
           'A photorealistic cozy bedroom at sunset with a large window, warm string lights, a leafy plant, soft cream bedding, and a calm lived-in atmosphere.',
+      imageAsset: 'assets/images/examples/cozy_bedroom.png',
       icon: Lucide.Bed,
       colors: [Color(0xFFE7A36B), Color(0xFF755B76)],
     ),
@@ -69,6 +80,7 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
   final _promptController = TextEditingController();
   final _promptFocus = FocusNode();
   final List<ImagePart> _generated = [];
+  XFile? _referenceImage;
   _ImageModel? _selectedModel;
   String? _error;
   bool _generating = false;
@@ -94,14 +106,51 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
     return models;
   }
 
+  Future<void> _pickReferenceImage() async {
+    try {
+      Haptics.light();
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 88,
+      );
+      if (picked != null) {
+        setState(() {
+          _referenceImage = picked;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          message: 'Could not select image: $e',
+          type: NotificationType.error,
+        );
+      }
+    }
+  }
+
+  void _clearReferenceImage() {
+    Haptics.light();
+    setState(() {
+      _referenceImage = null;
+    });
+  }
+
   Future<void> _generate(List<_ImageModel> models) async {
     final prompt = _promptController.text.trim();
-    if (prompt.isEmpty || _generating) return;
+    if ((prompt.isEmpty && _referenceImage == null) || _generating) return;
 
     setState(() {
       _error = null;
       _generating = true;
     });
+
+    final effectivePrompt = prompt.isNotEmpty
+        ? prompt
+        : 'Generate a variation or detailed enhancement of the reference image';
 
     if (models.isNotEmpty) {
       final model = _selectedModel != null && models.contains(_selectedModel)
@@ -116,9 +165,9 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
             {
               'role': 'system',
               'content':
-                  'Image generation mode: create an image from the user prompt. Do not answer with text.',
+                  'Image generation mode: create or edit an image based on the user prompt. Do not answer with text.',
             },
-            {'role': 'user', 'content': prompt},
+            {'role': 'user', 'content': effectivePrompt},
           ],
           persistConversation: false,
           allowImagesApiRouting: true,
@@ -126,20 +175,27 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
         final images = result.parts.whereType<ImagePart>().toList();
         if (images.isNotEmpty) {
           if (!mounted) return;
-          setState(() => _generated.insertAll(0, images));
+          setState(() {
+            _generated.insertAll(0, images);
+            _referenceImage = null;
+          });
           _promptController.clear();
           return;
         }
       } catch (_) {
-        // Fall back to direct image generation pipeline
+        // Fall back to direct image pipeline
       }
     }
 
     try {
+      final seed = DateTime.now().millisecondsSinceEpoch % 100000;
       final uri =
-          'https://image.pollinations.ai/prompt/${Uri.encodeComponent(prompt)}?width=1024&height=1024&nologo=true';
+          'https://image.pollinations.ai/prompt/${Uri.encodeComponent(effectivePrompt)}?width=1024&height=1024&nologo=true&seed=$seed';
       if (!mounted) return;
-      setState(() => _generated.insert(0, ImagePart(uri: uri)));
+      setState(() {
+        _generated.insert(0, ImagePart(uri: uri));
+        _referenceImage = null;
+      });
       _promptController.clear();
     } catch (error) {
       if (mounted) setState(() => _error = _friendlyError(error));
@@ -159,9 +215,11 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+
         return Container(
           decoration: BoxDecoration(
-            color: cs.surface,
+            color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
@@ -182,16 +240,24 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
               ),
               Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(colors: example.colors),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: Image.asset(
+                        example.imageAsset,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(colors: example.colors),
+                          ),
+                          child: Icon(example.icon, color: Colors.white, size: 22),
+                        ),
+                      ),
                     ),
-                    child: Icon(example.icon, color: Colors.white, size: 22),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,15 +265,15 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
                         Text(
                           example.title,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
-                          'Example Prompt',
+                          'Prompt inspiration',
                           style: TextStyle(
                             fontSize: 13,
-                            color: cs.onSurface.withValues(alpha: 0.6),
+                            color: cs.onSurface.withValues(alpha: 0.55),
                           ),
                         ),
                       ],
@@ -220,7 +286,9 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : cs.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: cs.outline.withValues(alpha: 0.12),
@@ -263,6 +331,7 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
                   Expanded(
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -302,22 +371,64 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
     final settings = context.watch<SettingsProvider>();
     final models = _models(settings);
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121214) : Colors.white,
       appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Back',
-          onPressed: () => Navigator.of(context).maybePop(),
-          icon: const Icon(Lucide.ArrowLeft),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: Center(
+          child: HeaderBubbleButton(
+            size: 40,
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Icon(Lucide.ArrowLeft, size: 19, color: cs.onSurface),
+          ),
         ),
-        title: const Text('Images'),
+        title: Text(
+          'Images',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: AppFontWeights.semibold,
+            color: cs.onSurface,
+          ),
+        ),
       ),
       body: Stack(
         children: [
           CustomScrollView(
             slivers: [
-              if (_generated.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                  child: Text(
+                    'Create an image',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ),
+              ),
+              if (_generated.isNotEmpty) ...[
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  sliver: SliverToBoxAdapter(
+                    child: Text(
+                      'Generated',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: AppFontWeights.semibold,
+                        color: cs.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   sliver: SliverGrid.builder(
                     itemCount: _generated.length,
                     gridDelegate:
@@ -331,15 +442,16 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
                         _GeneratedImageTile(image: _generated[index]),
                   ),
                 ),
+              ],
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(18, 18, 18, 150),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
                 sliver: SliverGrid.builder(
                   itemCount: _examples.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.78,
+                    childAspectRatio: 0.82,
                   ),
                   itemBuilder: (context, index) {
                     final example = _examples[index];
@@ -358,20 +470,22 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: _Composer(
+            child: _ImageChatBox(
               controller: _promptController,
               focusNode: _promptFocus,
+              referenceImage: _referenceImage,
               models: models,
               selectedModel: _selectedModel,
               isGenerating: _generating,
               error: _error,
+              onPickImage: _pickReferenceImage,
+              onClearImage: _clearReferenceImage,
               onModelChanged: (model) => setState(() => _selectedModel = model),
               onSubmit: () => _generate(models),
             ),
           ),
         ],
       ),
-      backgroundColor: cs.surface,
     );
   }
 }
@@ -393,11 +507,13 @@ class _ImageExample {
   const _ImageExample({
     required this.title,
     required this.prompt,
+    required this.imageAsset,
     required this.icon,
     required this.colors,
   });
   final String title;
   final String prompt;
+  final String imageAsset;
   final IconData icon;
   final List<Color> colors;
 }
@@ -408,50 +524,86 @@ class _ExampleTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: example.colors,
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  example.imageAsset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: example.colors,
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        example.icon,
+                        size: 54,
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ),
+                ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.55, 1.0],
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.72),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: 12,
+                  child: Text(
+                    example.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(color: Colors.black54, blurRadius: 6),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        child: Stack(
-          children: [
-            Center(
-              child: Icon(
-                example.icon,
-                size: 78,
-                color: Colors.white.withValues(alpha: 0.82),
-              ),
-            ),
-            Positioned(
-              left: 12,
-              right: 12,
-              bottom: 12,
-              child: Text(
-                example.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  shadows: [Shadow(color: Colors.black45, blurRadius: 8)],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _GeneratedImageTile extends StatelessWidget {
@@ -491,6 +643,7 @@ class _GeneratedImageTile extends StatelessWidget {
     } else {
       child = const Center(child: Icon(Lucide.ImageOff));
     }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: ColoredBox(
@@ -501,122 +654,235 @@ class _GeneratedImageTile extends StatelessWidget {
   }
 }
 
-class _Composer extends StatelessWidget {
-  const _Composer({
+class _ImageChatBox extends StatelessWidget {
+  const _ImageChatBox({
     required this.controller,
     required this.focusNode,
+    required this.referenceImage,
     required this.models,
     required this.selectedModel,
     required this.isGenerating,
     required this.error,
+    required this.onPickImage,
+    required this.onClearImage,
     required this.onModelChanged,
     required this.onSubmit,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
+  final XFile? referenceImage;
   final List<_ImageModel> models;
   final _ImageModel? selectedModel;
   final bool isGenerating;
   final String? error;
+  final VoidCallback onPickImage;
+  final VoidCallback onClearImage;
   final ValueChanged<_ImageModel?> onModelChanged;
   final VoidCallback onSubmit;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final boxBg = isDark
+        ? const Color(0xFF1E1E22).withValues(alpha: 0.95)
+        : Colors.white.withValues(alpha: 0.98);
+
     return SafeArea(
       top: false,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-        decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.97),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (models.isNotEmpty)
+            if (error != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: cs.errorContainer.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Lucide.AlertCircle, size: 16, color: cs.error),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        error!,
+                        style: TextStyle(color: cs.error, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (referenceImage != null)
               Align(
                 alignment: Alignment.centerLeft,
-                child: DropdownButton<_ImageModel>(
-                  value: models.contains(selectedModel)
-                      ? selectedModel
-                      : models.first,
-                  isExpanded: true,
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    for (final model in models)
-                      DropdownMenuItem(
-                        value: model,
-                        child: Text(
-                          '${model.config.name} · ${model.id}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: boxBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: cs.outline.withValues(alpha: 0.15),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: kIsWeb
+                            ? Image.network(
+                                referenceImage!.path,
+                                width: 56,
+                                height: 56,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(referenceImage!.path),
+                                width: 56,
+                                height: 56,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: GestureDetector(
+                          onTap: onClearImage,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.black87,
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(3),
+                            child: const Icon(
+                              Lucide.X,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
-                  ],
-                  onChanged: onModelChanged,
-                ),
-              ),
-            if (error != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    error!,
-                    style: TextStyle(color: cs.error, fontSize: 13),
+                    ],
                   ),
                 ),
               ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    minLines: 1,
-                    maxLines: 4,
-                    textInputAction: TextInputAction.newline,
-                    decoration: const InputDecoration(
-                      hintText: 'Describe an image',
-                      border: InputBorder.none,
+            Container(
+              decoration: BoxDecoration(
+                color: boxBg,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.08),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Lucide.Image,
+                      size: 22,
+                      color: cs.onSurface.withValues(alpha: 0.8),
                     ),
-                    onSubmitted: (_) => onSubmit(),
+                    tooltip: 'Add image to edit',
+                    onPressed: onPickImage,
                   ),
-                ),
-                const SizedBox(width: 12),
-                IconButton.filled(
-                  tooltip: models.isEmpty
-                      ? 'Configure an image model'
-                      : 'Generate image',
-                  onPressed: isGenerating ? null : onSubmit,
-                  icon: isGenerating
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Lucide.ArrowUp),
-                ),
-              ],
-            ),
-            if (models.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  'Configure an enabled image-generation model to create images.',
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      minLines: 1,
+                      maxLines: 3,
+                      textInputAction: TextInputAction.send,
+                      decoration: InputDecoration(
+                        hintText: 'Describe an image',
+                        hintStyle: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.45),
+                          fontSize: 15,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 4,
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: cs.onSurface,
+                        fontSize: 15,
+                      ),
+                      onSubmitted: (_) => onSubmit(),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Lucide.Mic,
+                      size: 20,
+                      color: cs.onSurface.withValues(alpha: 0.7),
+                    ),
+                    tooltip: 'Voice input',
+                    onPressed: () {
+                      Haptics.light();
+                    },
+                  ),
+                  const SizedBox(width: 2),
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isDark
+                          ? const Color(0xFF2563EB)
+                          : const Color(0xFF1E293B),
+                    ),
+                    child: Center(
+                      child: isGenerating
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(
+                                Lucide.ArrowUp,
+                                size: 19,
+                                color: Colors.white,
+                              ),
+                              onPressed: onSubmit,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
               ),
+            ),
           ],
         ),
       ),

@@ -10,12 +10,14 @@ class GlassPillButton extends StatefulWidget {
     required this.icon,
     required this.label,
     this.semanticLabel,
+    this.primary = false,
   });
 
   final VoidCallback onTap;
   final IconData icon;
   final String label;
   final String? semanticLabel;
+  final bool primary;
 
   @override
   State<GlassPillButton> createState() => _GlassPillButtonState();
@@ -40,12 +42,20 @@ class _GlassPillButtonState extends State<GlassPillButton> {
     final cs = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = isDark
-        ? cs.surface.withValues(alpha: 0.12)
-        : cs.surfaceContainerHighest.withValues(alpha: 0.85);
+    final backgroundColor = widget.primary
+        ? const Color(0xFF2563EB)
+        : (isDark
+            ? cs.surface.withValues(alpha: 0.12)
+            : cs.surfaceContainerHighest.withValues(alpha: 0.85));
 
-    final borderColor = cs.outline.withValues(alpha: isDark ? 0.15 : 0.12);
-    final shadowColor = Colors.black.withValues(alpha: isDark ? 0.35 : 0.08);
+    final foregroundColor = widget.primary ? Colors.white : cs.onSurface;
+
+    final borderColor = widget.primary
+        ? Colors.white.withValues(alpha: 0.2)
+        : cs.outline.withValues(alpha: isDark ? 0.15 : 0.12);
+    final shadowColor = widget.primary
+        ? const Color(0xFF2563EB).withValues(alpha: 0.45)
+        : Colors.black.withValues(alpha: isDark ? 0.35 : 0.08);
 
     return Semantics(
       button: true,
@@ -88,14 +98,14 @@ class _GlassPillButtonState extends State<GlassPillButton> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(widget.icon, size: 18, color: cs.onSurface),
+                          Icon(widget.icon, size: 18, color: foregroundColor),
                           const SizedBox(width: 8),
                           Text(
                             widget.label,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontSize: 14,
                               fontWeight: AppFontWeights.medium,
-                              color: cs.onSurface,
+                              color: foregroundColor,
                             ),
                           ),
                         ],

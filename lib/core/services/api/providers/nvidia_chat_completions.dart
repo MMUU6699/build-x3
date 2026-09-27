@@ -76,7 +76,7 @@ abstract final class NvidiaChatCompletions {
       'temperature': effectiveTemp,
       'top_p': effectiveTopP,
       'max_tokens': effectiveMaxTokens,
-      if (isGlm) 'reasoning_effort': 'max',
+      if (isGlm) 'reasoning_effort': suppressReasoning ? 'none' : 'low',
       if (isGlm) 'chat_template_kwargs': {'clear_thinking': true},
       if (!isGlm) ...{
         'chat_template_kwargs': {

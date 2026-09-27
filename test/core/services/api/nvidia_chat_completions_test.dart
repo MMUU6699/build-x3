@@ -61,53 +61,44 @@ void main() {
   });
 
   group('BuildXApiException', () {
-    test('maps 401 to Arabic auth error message', () {
+    test('maps 401 to a clear authentication error', () {
       final ex = BuildXApiException.fromHttp(
         statusCode: 401,
         responseBody: '{"detail":"Auth failed"}',
       );
-      expect(
-        ex.userMessage,
-        equals(
-          'فشل التحقق من مفتاح NVIDIA API (Authentication failed). يرجى التحقق من المفتاح في الإعدادات.',
-        ),
-      );
+      expect(ex.userMessage, equals('The AI service could not authenticate.'));
       expect(ex.statusCode, equals(401));
     });
 
-    test('maps 429 to Arabic rate limit error message', () {
+    test('maps 429 to a clear rate limit error', () {
       final ex = BuildXApiException.fromHttp(statusCode: 429);
       expect(
         ex.userMessage,
-        equals(
-          'تم تجاوز حد الاستخدام المسموح مؤقتًا (Rate limit / Quota exceeded). يرجى المحاولة بعد قليل.',
-        ),
+        equals('The AI service is busy (HTTP 429). Please retry shortly.'),
       );
       expect(ex.statusCode, equals(429));
     });
 
-    test('maps 500-504 to Arabic server error message', () {
+    test('maps 500-504 to clear server error messages', () {
       final ex500 = BuildXApiException.fromHttp(statusCode: 500);
       expect(
         ex500.userMessage,
-        equals(
-          'خدمة NVIDIA تواجه خطأ في الخادم (NVIDIA service error 500). يرجى المحاولة لاحقًا.',
-        ),
+        equals('The AI service returned HTTP 500. Please retry later.'),
       );
       final ex503 = BuildXApiException.fromHttp(statusCode: 503);
       expect(
         ex503.userMessage,
-        equals(
-          'خدمة NVIDIA تواجه خطأ في الخادم (NVIDIA service error 503). يرجى المحاولة لاحقًا.',
-        ),
+        equals('The AI service returned HTTP 503. Please retry later.'),
       );
     });
 
-    test('maps network errors to Arabic connection error message', () {
+    test('maps network errors to a clear connection error message', () {
       final ex = BuildXApiException.network('Connection refused');
       expect(
         ex.userMessage,
-        equals('تعذر الاتصال بخدمة NVIDIA: Connection refused'),
+        equals(
+          'Could not connect to the AI service. Check your network and retry.',
+        ),
       );
     });
   });
@@ -163,12 +154,13 @@ void main() {
         final body =
             jsonDecode(await bodyStream.bytesToString())
                 as Map<String, dynamic>;
-        expect(body['model'], equals(BuildXConfig.modelId));
+        expect(body['model'], equals(BuildXConfig.chatModelId));
         expect(body['stream'], isTrue);
-        expect(body['temperature'], equals(BuildXConfig.temperature));
-        expect(body['top_p'], equals(BuildXConfig.topP));
-        expect(body['max_tokens'], equals(BuildXConfig.maxTokens));
-        expect(body['chat_template_kwargs'], equals({'enable_thinking': true}));
+        expect(body['temperature'], equals(BuildXConfig.chatTemperature));
+        expect(body['top_p'], equals(BuildXConfig.chatTopP));
+        expect(body['max_tokens'], equals(BuildXConfig.chatMaxTokens));
+        expect(body['reasoning_effort'], equals('max'));
+        expect(body['chat_template_kwargs'], equals({'clear_thinking': true}));
 
         final sseData = [
           'data: {"choices":[{"delta":{"reasoning_content":"Thinking..."}}]}\n\n',
@@ -194,7 +186,7 @@ void main() {
       expect(chunks.any((c) => c is Finish), isTrue);
     });
 
-    test('throws BuildXApiException with Arabic message on 401', () async {
+    test('throws BuildXApiException with a clear message on 401', () async {
       final mockClient = MockClient.streaming((request, _) async {
         return http.StreamedResponse(
           Stream.value(
@@ -218,7 +210,7 @@ void main() {
           isA<BuildXApiException>().having(
             (e) => e.userMessage,
             'userMessage',
-            'فشل التحقق من مفتاح NVIDIA API (Authentication failed). يرجى التحقق من المفتاح في الإعدادات.',
+            'The AI service could not authenticate.',
           ),
         ),
       );

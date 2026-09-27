@@ -2,12 +2,16 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:http/http.dart' as http;
 
 import '../../models/auto_retry_options.dart';
+import '../../build_x_config.dart';
 import '../../providers/settings_provider.dart';
 import 'chat_api_helpers.dart';
 import 'generation/text_generation_result.dart';
-import 'providers/claude_official.dart' show normalizeClaudeImageMime;
-import 'providers/google_vertex.dart' show shouldAttachVertexMediaAuth;
 import 'providers/nvidia_chat_completions.dart';
+import 'providers/openai_images.dart';
+import 'providers/openai/openai_provider.dart';
+import 'providers/google_gemini.dart';
+import 'providers/google_vertex.dart';
+import 'providers/claude_official.dart';
 import 'providers/openai/openai_vendor_compat.dart'
     show isLongCatHost, shouldIncludeStreamingUsageOptions;
 import 'stream/stream_chunk.dart';
@@ -40,7 +44,7 @@ class ChatApiService {
   static bool supportsOpenAIImagesApiRouting(
     ProviderConfig config,
     String modelId,
-  ) => false;
+  ) => shouldUseOpenAIImagesApi(config, modelId);
 
   static void cancelRequest(String requestId) {
     _activeClients.remove(requestId.trim())?.close();
@@ -77,18 +81,124 @@ class ChatApiService {
       _activeClients[id] = client;
     }
     try {
-      yield* NvidiaChatCompletions.send(
-        client: client,
-        messages: messages,
-        localConversationId: conversationId,
-        persistConversation: persistConversation,
-        apiKeyOverride: config.apiKey.trim().isNotEmpty
-            ? config.apiKey.trim()
-            : null,
-        tools: tools,
-        onToolCall: onToolCall,
-        suppressReasoning: thinkingBudget == 0,
-      );
+      if (allowImagesApiRouting && shouldUseOpenAIImagesApi(config, modelId)) {
+        yield* sendOpenAIImagesStream(
+          client,
+          config,
+          modelId,
+          messages,
+          userImagePaths: userImagePaths,
+          extraHeaders: extraHeaders,
+          extraBody: extraBody,
+        );
+        return;
+      }
+      final isBuildXNvidia =
+          config.id == BuildXConfig.providerKey ||
+          config.id == BuildXConfig.legacyProviderKey;
+      if (isBuildXNvidia) {
+        yield* NvidiaChatCompletions.send(
+          client: client,
+          messages: messages,
+          modelId: modelId,
+          temperature: temperature,
+          topP: topP,
+          maxTokens: maxTokens,
+          stream: stream,
+          extraBody: extraBody,
+          localConversationId: conversationId,
+          persistConversation: persistConversation,
+          apiKeyOverride: config.apiKey.trim().isNotEmpty
+              ? config.apiKey.trim()
+              : null,
+          tools: tools,
+          onToolCall: onToolCall,
+          suppressReasoning: thinkingBudget == 0,
+        );
+      } else {
+        final kind = ProviderConfig.classify(
+          config.id,
+          explicitType: config.providerType,
+        );
+        switch (kind) {
+          case ProviderKind.openai:
+            yield* sendOpenAIStream(
+              client,
+              config,
+              modelId,
+              messages,
+              userImagePaths: userImagePaths,
+              thinkingBudget: thinkingBudget,
+              temperature: temperature,
+              topP: topP,
+              maxTokens: maxTokens,
+              tools: tools,
+              onToolCall: onToolCall,
+              extraHeaders: extraHeaders,
+              extraBody: extraBody,
+              stream: stream,
+              builtInSearchOnly: builtInSearchOnly,
+              skipImageParsing: skipImageParsing,
+            );
+          case ProviderKind.google:
+            if (config.vertexAI == true) {
+              yield* sendGoogleVertexStream(
+                client,
+                config,
+                modelId,
+                messages,
+                userImagePaths: userImagePaths,
+                thinkingBudget: thinkingBudget,
+                temperature: temperature,
+                topP: topP,
+                maxTokens: maxTokens,
+                tools: tools,
+                onToolCall: onToolCall,
+                extraHeaders: extraHeaders,
+                extraBody: extraBody,
+                stream: stream,
+                skipImageParsing: skipImageParsing,
+              );
+            } else {
+              yield* sendGoogleGeminiStream(
+                client,
+                config,
+                modelId,
+                messages,
+                userImagePaths: userImagePaths,
+                thinkingBudget: thinkingBudget,
+                temperature: temperature,
+                topP: topP,
+                maxTokens: maxTokens,
+                tools: tools,
+                onToolCall: onToolCall,
+                extraHeaders: extraHeaders,
+                extraBody: extraBody,
+                stream: stream,
+                skipImageParsing: skipImageParsing,
+              );
+            }
+          case ProviderKind.claude:
+            yield* sendClaudeStream(
+              client,
+              config,
+              modelId,
+              messages,
+              userImagePaths: userImagePaths,
+              thinkingBudget: thinkingBudget,
+              temperature: temperature,
+              topP: topP,
+              maxTokens: maxTokens,
+              tools: tools,
+              onToolCall: onToolCall,
+              extraHeaders: extraHeaders,
+              extraBody: extraBody,
+              stream: stream,
+              builtInSearchOnly: builtInSearchOnly,
+              skipImageParsing: skipImageParsing,
+            );
+        }
+      }
     } finally {
       if (id.isNotEmpty && identical(_activeClients[id], client)) {
         _activeClients.remove(id);
@@ -131,6 +241,7 @@ class ChatApiService {
       temperature: temperature,
       topP: topP,
       maxTokens: maxTokens,
+      stream: false,
       tools: tools,
       onToolCall: onToolCall,
       extraHeaders: extraHeaders,

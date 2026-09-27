@@ -1415,6 +1415,10 @@ class SettingsProvider extends ChangeNotifier {
         if (decoded.isNotEmpty) _searchServices = decoded;
       } catch (_) {}
     }
+    // Ensure Serper is always available in search services for Build X
+    if (!_searchServices.any((s) => s is SerperOptions)) {
+      _searchServices.insert(0, SerperOptions(id: 'serper', apiKey: ''));
+    }
     final searchCommonStr = prefs.getString(_searchCommonKey);
     if (searchCommonStr != null && searchCommonStr.isNotEmpty) {
       try {

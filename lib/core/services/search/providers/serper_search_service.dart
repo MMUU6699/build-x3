@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../build_x_secure_store.dart';
 import '../search_service.dart';
 
 class SerperSearchService extends SearchService<SerperOptions> {
@@ -38,14 +39,19 @@ class SerperSearchService extends SearchService<SerperOptions> {
         if (serviceOptions.page > 1) 'page': serviceOptions.page,
       };
 
+      var apiKey = serviceOptions.effectiveApiKey(
+        serviceOptions.apiKey,
+      );
+      if (apiKey.isEmpty) {
+        apiKey = await BuildXSecureStore.readSerperApiKey();
+      }
+
       final response = await withHttpClient(
         (client) => client
             .post(
               Uri.parse(endpoint),
               headers: {
-                'X-API-KEY': serviceOptions.effectiveApiKey(
-                  serviceOptions.apiKey,
-                ),
+                'X-API-KEY': apiKey,
                 'Content-Type': 'application/json',
               },
               body: jsonEncode(body),
@@ -68,7 +74,16 @@ class SerperSearchService extends SearchService<SerperOptions> {
         );
       }).toList();
 
-      return SearchResult(items: items);
+      String? answer;
+      if (data['answerBox'] is Map) {
+        final ab = data['answerBox'] as Map;
+        answer = (ab['answer'] ?? ab['snippet'] ?? ab['title'])?.toString();
+      } else if (data['knowledgeGraph'] is Map) {
+        final kg = data['knowledgeGraph'] as Map;
+        answer = (kg['description'] ?? kg['title'])?.toString();
+      }
+
+      return SearchResult(answer: answer, items: items);
     } catch (e) {
       throw Exception('Serper search failed: $e');
     }

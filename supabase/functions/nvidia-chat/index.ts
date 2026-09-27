@@ -1,17 +1,22 @@
-import { AuthError, getRequiredSecret, requireUser } from "../_shared/supabase.ts";
+import { AuthError, getRequiredSecret, requireUser } from "./_shared/supabase.ts";
 import {
   corsHeaders,
   handlePreflight,
   isOriginAllowed,
   jsonResponse,
-} from "../_shared/http.ts";
+} from "./_shared/http.ts";
 
 const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
-const DEFAULT_MODEL = "nvidia/nemotron-3-ultra-550b-a55b";
-const ALLOWED_MODELS = new Set([DEFAULT_MODEL]);
-const ABSOLUTE_MAX_TOKENS = 32768;
-const MAX_MESSAGES = 100;
-const MAX_TOTAL_MESSAGE_CHARS = 200000;
+
+const MODEL_NEMOTRON = "nvidia/nemotron-3-ultra-550b-a55b";
+const MODEL_GLM = "z-ai/glm-5.3-flash";
+const ALLOWED_MODELS = new Set([MODEL_NEMOTRON, MODEL_GLM]);
+
+// Both selected NVIDIA model pages advertise up to 1M context. max_tokens is
+// the completion allowance; reasoning_effort remains a separate API field.
+const MODEL_CONTEXT_TOKEN_LIMIT = 1_000_000;
+const MAX_MESSAGES = 10000;
+const MAX_TOTAL_MESSAGE_CHARS = 4_000_000;
 const FORBIDDEN_SECRET_FIELDS = new Set([
   "api_key",
   "apiKey",
@@ -80,6 +85,18 @@ function parseBody(value: unknown): Record<string, unknown> {
   return body;
 }
 
+function resolveNvidiaApiKey(model: string): string {
+  const nemotronKey = Deno.env.get("NVIDIA_NEMOTRON_API_KEY")?.trim();
+  const glmKey = Deno.env.get("NVIDIA_GLM_API_KEY")?.trim();
+  const generalKey = Deno.env.get("NVIDIA_API_KEY")?.trim();
+
+  const key = nemotronKey || glmKey || generalKey;
+  if (!key) {
+    throw new Error("Missing required server configuration: NVIDIA API key");
+  }
+  return key;
+}
+
 Deno.serve(async (req: Request) => {
   const preflight = handlePreflight(req);
   if (preflight) return preflight;
@@ -89,48 +106,140 @@ Deno.serve(async (req: Request) => {
   try {
     await requireUser(req);
     const body = parseBody(await req.json());
-    const model = typeof body.model === "string" ? body.model : DEFAULT_MODEL;
+    const model = typeof body.model === "string" ? body.model : MODEL_GLM;
     if (!ALLOWED_MODELS.has(model)) throw new InputError("Unsupported model");
 
-    const configuredCap = Number(Deno.env.get("NVIDIA_MAX_TOKENS") ?? "16384");
-    const maxTokenCap = Number.isInteger(configuredCap) && configuredCap > 0
-      ? Math.min(configuredCap, ABSOLUTE_MAX_TOKENS)
-      : 16384;
-    const maxTokens = numberInRange(body.max_tokens, "max_tokens", 1, maxTokenCap, maxTokenCap);
+    const isGlm = model === MODEL_GLM;
+    const defaultMaxTokens = 16384;
+    const defaultTemp = isGlm ? 0.5 : 1.0;
+    const defaultTopP = isGlm ? 1.0 : 0.95;
+    const defaultStream = true;
+
+    const maxTokens = numberInRange(
+      body.max_tokens,
+      "max_tokens",
+      1,
+      MODEL_CONTEXT_TOKEN_LIMIT,
+      defaultMaxTokens,
+    );
+
     if (body.stream != null && typeof body.stream !== "boolean") {
       throw new InputError("stream must be a boolean");
     }
-    const stream = body.stream ?? true;
-    const reasoningEffort = body.reasoning_effort ?? "high";
-    if (!new Set(["none", "medium", "high"]).has(String(reasoningEffort))) {
-      throw new InputError("reasoning_effort must be none, medium, or high");
+    const stream = body.stream != null ? Boolean(body.stream) : defaultStream;
+    const reasoningEffort = body.reasoning_effort ?? (isGlm ? "low" : "high");
+    const allowedEfforts = isGlm
+      ? new Set(["none", "low", "medium", "high", "max", "standard"])
+      : new Set(["none", "low", "medium", "high", "standard"]);
+    if (!allowedEfforts.has(String(reasoningEffort))) {
+      throw new InputError(isGlm
+        ? "reasoning_effort must be none, low, medium, high, max, or standard"
+        : "reasoning_effort must be none, low, medium, high, or standard");
     }
 
-    const payload = {
+    let parsedMsgs = parseMessages(body.messages);
+    if (isGlm) {
+      const hasSystem = parsedMsgs.some((m) => m.role === "system");
+      if (!hasSystem) {
+        parsedMsgs = [{ role: "system", content: "You are a helpful assistant." }, ...parsedMsgs];
+      }
+    }
+
+    const payload: Record<string, unknown> = {
       model,
-      messages: parseMessages(body.messages),
-      temperature: numberInRange(body.temperature, "temperature", 0, 1, 1),
-      top_p: numberInRange(body.top_p, "top_p", 0, 1, 0.95),
+      messages: parsedMsgs,
+      temperature: numberInRange(body.temperature, "temperature", 0, 1, defaultTemp),
+      top_p: numberInRange(body.top_p, "top_p", 0, 1, defaultTopP),
       max_tokens: maxTokens,
       stream,
-      reasoning_effort: reasoningEffort,
-      chat_template_kwargs: { enable_thinking: reasoningEffort !== "none" },
     };
 
-    const response = await fetch(NVIDIA_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${getRequiredSecret("NVIDIA_API_KEY")}`,
-        "Accept": stream ? "text/event-stream" : "application/json",
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(120000),
-    });
+    if (isGlm) {
+      if (reasoningEffort !== "none") {
+        payload.chat_template_kwargs = { enable_thinking: true };
+      }
+    } else {
+      payload.chat_template_kwargs = {
+        enable_thinking: reasoningEffort !== "none",
+        ...(reasoningEffort === "low" || reasoningEffort === "medium"
+          ? { medium_effort: true }
+          : {}),
+      };
+    }
+
+    const apiKey = resolveNvidiaApiKey(model);
+    let activeModel = model;
+    let activePayload = { ...payload };
+    let response: Response;
+
+    try {
+      response = await fetch(NVIDIA_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+          "Accept": stream ? "text/event-stream" : "application/json",
+        },
+        body: JSON.stringify(activePayload),
+        signal: AbortSignal.timeout(activeModel === MODEL_GLM ? 10000 : 120000),
+      });
+
+      if (!response.ok && activeModel === MODEL_GLM && (response.status >= 500 || response.status === 404)) {
+        throw new Error(`GLM returned HTTP ${response.status}`);
+      }
+    } catch (err) {
+      if (activeModel === MODEL_GLM) {
+        console.warn("GLM unavailable or timed out; falling back to Nemotron", err);
+        activeModel = MODEL_NEMOTRON;
+        activePayload.model = MODEL_NEMOTRON;
+        activePayload.chat_template_kwargs = {
+          enable_thinking: true,
+          medium_effort: true,
+        };
+        response = await fetch(NVIDIA_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+            "Accept": stream ? "text/event-stream" : "application/json",
+          },
+          body: JSON.stringify(activePayload),
+          signal: AbortSignal.timeout(120000),
+        });
+      } else {
+        throw err;
+      }
+    }
 
     if (!response.ok) {
-      console.error("NVIDIA request failed", { status: response.status });
-      return jsonResponse(req, { error: "Upstream model request failed" }, response.status);
+      const upstreamBody = await response.text();
+      const safeUpstreamBody = upstreamBody
+        .replace(/bearer\s+\S+|nvapi-[\w-]+/gi, "[redacted]")
+        .replace(/\s+/g, " ")
+        .slice(0, 2000);
+      console.error("NVIDIA upstream failed", { status: response.status, model, body: safeUpstreamBody });
+      let upstreamDetail = upstreamBody;
+      try {
+        const parsed = JSON.parse(upstreamBody) as Record<string, unknown>;
+        const error = parsed.error;
+        upstreamDetail = error && typeof error === "object"
+          ? String((error as Record<string, unknown>).message ?? (error as Record<string, unknown>).detail ?? JSON.stringify(error))
+          : String(error ?? parsed.message ?? parsed.detail ?? upstreamBody);
+      } catch {
+        // NVIDIA may return plain text for proxy and routing errors.
+      }
+      upstreamDetail = upstreamDetail.replace(/bearer\s+\S+|nvapi-[\w-]+/gi, "[redacted]").slice(0, 500);
+      let clientMsg = "Connection interrupted. Please try again.";
+      if (response.status === 401 || response.status === 403) {
+        clientMsg = "The AI service could not authenticate.";
+      } else if (response.status === 404) {
+        clientMsg = `NVIDIA returned HTTP 404: ${upstreamDetail}`;
+      } else if (response.status === 429) {
+        clientMsg = `Rate limit reached: ${upstreamDetail}`;
+      } else {
+        clientMsg = `NVIDIA request failed with HTTP ${response.status}: ${upstreamDetail}`;
+      }
+      return jsonResponse(req, { error: clientMsg }, response.status);
     }
 
     return new Response(response.body, {
@@ -143,13 +252,20 @@ Deno.serve(async (req: Request) => {
       },
     });
   } catch (error) {
-    if (error instanceof AuthError) return jsonResponse(req, { error: "Unauthorized" }, 401);
+    if (error instanceof AuthError) {
+      return jsonResponse(req, { error: "The AI service could not authenticate." }, 401);
+    }
     if (error instanceof InputError || error instanceof SyntaxError) {
       return jsonResponse(req, { error: error.message }, 400);
     }
     console.error("nvidia-chat failed", {
       type: error instanceof Error ? error.name : "UnknownError",
     });
-    return jsonResponse(req, { error: "Internal server error" }, 500);
+    if (error instanceof DOMException && error.name === "TimeoutError") {
+      return jsonResponse(req, {
+        error: "The AI response timed out. Please try again.",
+      }, 504);
+    }
+    return jsonResponse(req, { error: "Connection interrupted. Please try again." }, 500);
   }
 });

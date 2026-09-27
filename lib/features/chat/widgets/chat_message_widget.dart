@@ -12,6 +12,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'select_copy_sheet.dart';
+import 'reasoning_trace_sheet.dart';
 // import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'dart:convert';
 import '../../home/widgets/file_processing_indicator.dart';
@@ -6575,11 +6576,7 @@ class _ReasoningSectionState extends State<_ReasoningSection> {
   final ScrollController _scroll = ScrollController();
   bool _hasOverflow = false;
 
-  String _sanitize(String s) {
-    return s.replaceAll('\r', '').trim();
-  }
-
-  String _elapsed() {
+String _elapsed() {
     final start = widget.startAt;
     if (start == null) return '';
     final end = widget.finishedAt ?? (widget.loading ? DateTime.now() : start);
@@ -6644,21 +6641,24 @@ class _ReasoningSectionState extends State<_ReasoningSection> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final fg = chatSurfaceForegroundPalette(context);
     final l10n = AppLocalizations.of(context)!;
-    final enableReasoningMarkdown = context.select<SettingsProvider, bool>(
-      (s) => s.enableReasoningMarkdown,
-    );
     final loading = widget.loading;
 
-    // Android-like surface style
-    final curve = const Cubic(0.2, 0.8, 0.2, 1);
-
-    // Build a compact header with optional scrolling preview when loading
+    // Build a compact header that opens the bottom sheet on tap
     Widget header = IosCardPress(
-      borderRadius: BorderRadius.circular(12),
-      baseColor: Colors.transparent,
-      pressedScale: 1.0,
+      borderRadius: BorderRadius.circular(16),
+      baseColor: cs.primaryContainer.withValues(
+            alpha: isDark ? 0.25 : 0.30,
+          ),
+      pressedScale: 0.98,
       duration: const Duration(milliseconds: 220),
-      onTap: widget.onToggle,
+      onTap: () {
+        Haptics.light();
+        ReasoningTraceSheet.show(
+          context,
+          text: widget.text,
+          loading: widget.loading,
+        );
+      },
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -6706,130 +6706,9 @@ class _ReasoningSectionState extends State<_ReasoningSection> {
       ),
     );
 
-    // 抽公共样式，继承当前 DefaultTextStyle（从而继承正确的颜色）
-    final TextStyle baseStyle = DefaultTextStyle.of(
-      context,
-    ).style.copyWith(fontSize: 12.5, height: 1.32);
-
-    const StrutStyle baseStrut = StrutStyle(
-      forceStrutHeight: true,
-      fontSize: 12.5,
-      height: 1.32,
-      leading: 0,
-    );
-
-    const TextHeightBehavior baseTHB = TextHeightBehavior(
-      applyHeightToFirstAscent: false,
-      applyHeightToLastDescent: false,
-      leadingDistribution: TextLeadingDistribution.proportional,
-    );
-
-    final bool isLoading = loading;
-    final display = _sanitize(widget.text);
-
-    // 未加载：不要再指定 color: fg，让它继承和"加载中"相同的颜色
-    Widget reasoningContent(String text) {
-      if (enableReasoningMarkdown) {
-        return RepaintBoundary(
-          child: MarkdownWithCodeHighlight(
-            text: text.isNotEmpty ? text : '…',
-            baseStyle: baseStyle,
-            streaming: isLoading,
-          ),
-        );
-      }
-      return Text(
-        text.isNotEmpty ? text : '…',
-        style: baseStyle,
-        strutStyle: baseStrut,
-        textHeightBehavior: baseTHB,
-      );
-    }
-
-    Widget body = Padding(
-      padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
-      child: reasoningContent(display),
-    );
-
-    if (isLoading && !widget.expanded) {
-      body = Padding(
-        padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 80),
-          child: _hasOverflow
-              ? ShaderMask(
-                  shaderCallback: (rect) {
-                    final h = rect.height;
-                    const double topFade = 12.0;
-                    const double bottomFade = 28.0;
-                    final double sTop = (topFade / h).clamp(0.0, 1.0);
-                    final double sBot = (1.0 - bottomFade / h).clamp(0.0, 1.0);
-                    return LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: const [
-                        Color(
-                          0x00FFFFFF,
-                        ), // color-gate: ignore (dstIn alpha mask)
-                        Color(
-                          0xFFFFFFFF,
-                        ), // color-gate: ignore (dstIn alpha mask)
-                        Color(
-                          0xFFFFFFFF,
-                        ), // color-gate: ignore (dstIn alpha mask)
-                        Color(
-                          0x00FFFFFF,
-                        ), // color-gate: ignore (dstIn alpha mask)
-                      ],
-                      stops: [0.0, sTop, sBot, 1.0],
-                    ).createShader(rect);
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: NotificationListener<ScrollUpdateNotification>(
-                    onNotification: (_) {
-                      WidgetsBinding.instance.addPostFrameCallback(
-                        (_) => _checkOverflow(),
-                      );
-                      return false;
-                    },
-                    child: SingleChildScrollView(
-                      controller: _scroll,
-                      physics: const BouncingScrollPhysics(),
-                      child: reasoningContent(display),
-                    ),
-                  ),
-                )
-              : SingleChildScrollView(
-                  controller: _scroll,
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: reasoningContent(display),
-                ),
-        ),
-      );
-    }
-
-    // Enable long-press text selection in reasoning body
-    body = SelectionArea(child: body);
-
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: curve,
-      alignment: Alignment.topLeft,
-      child: SizedBox(
-        width: double.infinity,
-        child: buildSharedChatSurface(
-          context,
-          borderRadius: BorderRadius.circular(16),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          defaultColor: cs.primaryContainer.withValues(
-            alpha: isDark ? 0.25 : 0.30,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [header, if (widget.expanded || isLoading) body],
-          ),
-        ),
-      ),
+    return SizedBox(
+      width: double.infinity,
+      child: header,
     );
   }
 }

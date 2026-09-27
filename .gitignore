@@ -69,3 +69,8 @@ internationalization.md
 /skills-lock.json
 /.scratch/
 /.grok/
+.env
+*.env
+supabase/.env
+supabase/.temp/
+config/buildx.secrets.json

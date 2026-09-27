@@ -1,5 +1,6 @@
 import '../utils/prompt_injection_selection.dart';
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,8 +25,6 @@ import '../../model/widgets/ocr_prompt_sheet.dart';
 import '../../workspace/pages/skills_page.dart';
 import '../../workspace/widgets/skills/conversation_skills_sheet.dart';
 import '../utils/ensure_conversation.dart';
-import 'package:Kelivo/theme/app_semantic_colors.dart';
-import '../../../shared/widgets/section_card.dart';
 import '../../../theme/app_font_weights.dart';
 import 'tools_sheet_row.dart';
 
@@ -64,7 +63,8 @@ class BottomToolsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final bg = context.overlaySurface;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final maxHeight = MediaQuery.sizeOf(context).height * 0.8;
 
     Widget roundedAction({
@@ -72,13 +72,15 @@ class BottomToolsSheet extends StatelessWidget {
       required String label,
       VoidCallback? onTap,
     }) {
-      final cardColor = sheetTileColor(context);
+      final cardColor = isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Colors.black.withValues(alpha: 0.04);
       return Expanded(
         child: SizedBox(
           height: 72,
           child: IosCardPress(
             baseColor: cardColor,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
             pressedScale: 0.98,
             duration: const Duration(milliseconds: 260),
             onTap: () {
@@ -95,7 +97,10 @@ class BottomToolsSheet extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   const SizedBox(height: 6),
-                  Text(label, style: const TextStyle(fontSize: 13)),
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  ),
                 ],
               ),
             ),
@@ -106,113 +111,127 @@ class BottomToolsSheet extends StatelessWidget {
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: maxHeight),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(
-                context,
-              ).colorScheme.shadow.withValues(alpha: 0.06),
-              blurRadius: 20,
-              offset: const Offset(0, -6),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Drag handle
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Flexible(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF1C1C20).withValues(alpha: 0.82)
+                      : Colors.white.withValues(alpha: 0.88),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.12)
+                        : Colors.black.withValues(alpha: 0.07),
+                    width: 0.8,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.35 : 0.10,
+                      ),
+                      blurRadius: 28,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        roundedAction(
-                          icon: Lucide.Camera,
-                          label: l10n.bottomToolsSheetCamera,
-                          onTap: onCamera,
-                        ),
-                        const SizedBox(width: 12),
-                        roundedAction(
-                          icon: Lucide.Image,
-                          label: l10n.bottomToolsSheetPhotos,
-                          onTap: onPhotos,
-                        ),
-                        const SizedBox(width: 12),
-                        roundedAction(
-                          icon: Lucide.Paperclip,
-                          label: l10n.bottomToolsSheetUpload,
-                          onTap: onUpload,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 6),
-                        child: Text(
-                          'Plugins',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: AppFontWeights.semibold,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.5),
-                          ),
-                        ),
+                    // Drag handle
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(999),
                       ),
                     ),
-                    ToolsSheetRow(
-                      icon: Lucide.Globe,
-                      label: 'Web Search',
-                      selected: webSearchActive,
-                      onTap: () {
-                        Haptics.light();
-                        Navigator.of(context).maybePop();
-                        onToggleWebSearch?.call();
-                      },
-                      onLongPress: onConfigureSearch != null
-                          ? () {
-                              Haptics.light();
-                              Navigator.of(context).maybePop();
-                              onConfigureSearch?.call();
-                            }
-                          : null,
-                    ),
                     const SizedBox(height: 12),
-                    _LearningAndClearSection(
-                      clearLabel: clearLabel,
-                      onClear: onClear,
-                      assistantId: assistantId,
-                      conversationId: conversationId,
-                      onClose: onClose,
+                    Flexible(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                roundedAction(
+                                  icon: Lucide.Camera,
+                                  label: l10n.bottomToolsSheetCamera,
+                                  onTap: onCamera,
+                                ),
+                                const SizedBox(width: 12),
+                                roundedAction(
+                                  icon: Lucide.Image,
+                                  label: l10n.bottomToolsSheetPhotos,
+                                  onTap: onPhotos,
+                                ),
+                                const SizedBox(width: 12),
+                                roundedAction(
+                                  icon: Lucide.Paperclip,
+                                  label: l10n.bottomToolsSheetUpload,
+                                  onTap: onUpload,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 4, bottom: 6),
+                                child: Text(
+                                  'Tools & Capabilities',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: AppFontWeights.semibold,
+                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            ToolsSheetRow(
+                              icon: Lucide.Globe,
+                              label: 'Search the Web',
+                              subtitle: 'Find real-time answers and sources online',
+                              selected: webSearchActive,
+                              onTap: () {
+                                Haptics.light();
+                                Navigator.of(context).maybePop();
+                                onToggleWebSearch?.call();
+                              },
+                              onLongPress: onConfigureSearch != null
+                                  ? () {
+                                      Haptics.light();
+                                      Navigator.of(context).maybePop();
+                                      onConfigureSearch?.call();
+                                    }
+                                  : null,
+                            ),
+                            const SizedBox(height: 12),
+                            _LearningAndClearSection(
+                              clearLabel: clearLabel,
+                              onClear: onClear,
+                              assistantId: assistantId,
+                              conversationId: conversationId,
+                              onClose: onClose,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

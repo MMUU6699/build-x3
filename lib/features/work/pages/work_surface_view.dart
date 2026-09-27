@@ -4,11 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/providers/work_mode_provider.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../theme/app_font_weights.dart';
-import '../widgets/work_browsing_card.dart';
-import '../widgets/work_coding_card.dart';
 import '../widgets/work_deliverable_card.dart';
-import '../widgets/work_planning_card.dart';
-import '../widgets/work_thinking_card.dart';
+import '../widgets/work_live_computer_view.dart';
 
 /// The active workspace canvas for Build X Work Mode.
 class WorkSurfaceView extends StatelessWidget {
@@ -105,25 +102,16 @@ class WorkSurfaceView extends StatelessWidget {
             ),
           ),
 
-        // 1. Planning State Card
-        if (workProvider.planningEvent != null)
-          WorkPlanningCard(planningEvent: workProvider.planningEvent!),
-
-        // 2. Thinking State Card
-        if (workProvider.thinkingEvent != null)
-          WorkThinkingCard(
-            thinkingEvent: workProvider.thinkingEvent!,
-            isStreaming:
-                workProvider.isExecuting && workProvider.codingEvents.isEmpty,
+        if (workProvider.isExecuting ||
+            workProvider.computerEvent != null ||
+            workProvider.browsingEvent != null ||
+            workProvider.codingEvents.isNotEmpty)
+          _ActivityCard(
+            message: _activityMessage(workProvider),
+            onOpenComputer: workProvider.computerEvent == null
+                ? null
+                : () => WorkLiveComputerView.show(context),
           ),
-
-        // 3. Browsing State Card
-        if (workProvider.browsingEvent != null)
-          WorkBrowsingCard(browsingEvent: workProvider.browsingEvent!),
-
-        // 4. Coding State Cards (File Editor Tool Events)
-        for (final coding in workProvider.codingEvents)
-          WorkCodingCard(codingEvent: coding),
 
         // Conversational / Direct Response text
         if (workProvider.responseText.isNotEmpty &&
@@ -164,6 +152,26 @@ class WorkSurfaceView extends StatelessWidget {
     );
   }
 
+  String _activityMessage(WorkModeProvider provider) {
+    if (provider.isExecuting) {
+      final tool = provider.currentToolEvent;
+      if (tool != null) {
+        return switch (tool.function) {
+          'browser_search' => 'Searching the web for your task…',
+          'shell_execute' => 'Running a command in the workspace…',
+          'file_write' =>
+            'Writing ${tool.arguments['path'] ?? 'a workspace file'}…',
+          'file_read' => 'Reviewing a workspace file…',
+          _ => 'Working in the isolated environment…',
+        };
+      }
+      if (provider.codingEvents.isNotEmpty) return 'Writing project files…';
+      if (provider.browsingEvent != null) return 'Researching your task…';
+      return 'Preparing the workspace…';
+    }
+    return 'The live workspace activity is ready to review.';
+  }
+
   Widget _buildEmptyState(BuildContext context, WorkModeProvider workProvider) {
     final cs = Theme.of(context).colorScheme;
 
@@ -179,6 +187,44 @@ class WorkSurfaceView extends StatelessWidget {
             color: cs.onSurface.withValues(alpha: 0.50),
             letterSpacing: -0.2,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivityCard extends StatelessWidget {
+  const _ActivityCard({required this.message, this.onOpenComputer});
+
+  final String message;
+  final VoidCallback? onOpenComputer;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          children: [
+            Icon(Lucide.Globe, size: 18, color: cs.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(message, style: TextStyle(color: cs.onSurface)),
+            ),
+            if (onOpenComputer != null)
+              TextButton.icon(
+                onPressed: onOpenComputer,
+                icon: const Icon(Lucide.Monitor, size: 16),
+                label: const Text('Live view'),
+              ),
+          ],
         ),
       ),
     );

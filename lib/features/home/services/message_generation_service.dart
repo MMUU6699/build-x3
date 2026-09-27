@@ -212,6 +212,12 @@ class MessageGenerationService {
       assistant,
       hasBuiltInSearch,
     );
+    await messageBuilderService.injectSearchResults(
+      apiMessages,
+      settings,
+      assistant,
+      hasBuiltInSearch,
+    );
     await messageBuilderService.injectInstructionPrompts(
       apiMessages,
       assistantId,

@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../database/business_migration_engine.dart';
 import '../../../build_x_config.dart';
 import '../../build_x_secure_store.dart';
 import '../chat_api_helpers.dart' show ToolCallHandler;
@@ -16,18 +16,19 @@ import '../stream/stream_chunk.dart';
 /// `stream: true` and `Accept: text/event-stream`.
 abstract final class MistralConversations {
   static Future<String?> _remoteId(String localId, String apiKey) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_storageKey(localId, apiKey));
+    return BusinessMigrationEngine.readStringPreference(
+      _storageKey(localId, apiKey),
+    );
   }
 
   static Future<void> _saveRemoteId(
     String localId,
     String apiKey,
     String remoteId,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_storageKey(localId, apiKey), remoteId);
-  }
+  ) => BusinessMigrationEngine.writeStringPreference(
+    _storageKey(localId, apiKey),
+    remoteId,
+  );
 
   static String _storageKey(String localId, String apiKey) {
     final fingerprint = sha256.convert(utf8.encode(apiKey)).toString();

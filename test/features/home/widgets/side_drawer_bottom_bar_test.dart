@@ -13,6 +13,7 @@ import 'package:Kelivo/core/providers/update_provider.dart';
 import 'package:Kelivo/core/providers/user_provider.dart';
 import 'package:Kelivo/core/services/chat/chat_service.dart';
 import 'package:Kelivo/features/home/widgets/side_drawer.dart';
+import 'package:Kelivo/features/settings/pages/settings_page.dart';
 import 'package:Kelivo/icons/lucide_adapter.dart';
 import 'package:Kelivo/l10n/app_localizations.dart';
 import 'package:Kelivo/shared/widgets/glass_pill_button.dart';
@@ -66,7 +67,7 @@ void main() {
   });
 
   testWidgets(
-    'SideDrawer bottom bar displays profile and GlassPillButton, removes gear icon',
+    'SideDrawer bottom bar pairs New Chat with a profile avatar button',
     (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1200, 900);
       tester.view.devicePixelRatio = 1.0;
@@ -128,11 +129,11 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
 
-      // Verify user name is present in bottom bar
-      expect(find.text('Alex Morgan'), findsWidgets);
-
       // Verify GlassPillButton is present
       expect(find.byType(GlassPillButton), findsOneWidget);
+
+      // Profile is represented by the avatar control beside New Chat.
+      expect(find.byTooltip('Settings'), findsOneWidget);
 
       // Verify old settings gear icon is absent
       expect(find.byIcon(Lucide.Settings), findsNothing);
@@ -142,6 +143,10 @@ void main() {
       await tester.pump();
 
       expect(newConversationCalled, isTrue);
+
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+      expect(find.byType(SettingsPage), findsOneWidget);
     },
   );
 }

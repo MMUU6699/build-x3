@@ -37,13 +37,17 @@ class ModelDisplayInfo {
   }
 }
 
-/// All chats use the single Build X model, including older imported chats.
+/// Resolves the model for Build X: GLM 5.3 Flash for Chat, Nemotron for Work.
 ({String? providerKey, String? modelId}) resolveChatModel(
   SettingsProvider settings, {
   Conversation? conversation,
   Assistant? assistant,
+  bool isWorkMode = false,
 }) {
-  return (providerKey: BuildXConfig.providerKey, modelId: BuildXConfig.modelId);
+  return (
+    providerKey: BuildXConfig.providerKey,
+    modelId: isWorkMode ? BuildXConfig.workModelId : BuildXConfig.chatModelId,
+  );
 }
 
 /// Extracts model display information from settings, conversation and assistant.

@@ -43,13 +43,13 @@ create table if not exists public.work_runs (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint work_runs_prompt_length check (
-    char_length(prompt) between 1 and 20000
+    char_length(prompt) between 1 and 4000000
   ),
   constraint work_runs_model_length check (
     char_length(model) between 1 and 200
   ),
   constraint work_runs_reasoning_effort_value check (
-    reasoning_effort in ('none', 'medium', 'high')
+    reasoning_effort in ('none', 'low', 'medium', 'high', 'standard')
   ),
   constraint work_runs_status_value check (
     status in ('queued', 'running', 'completed', 'failed', 'cancelled')

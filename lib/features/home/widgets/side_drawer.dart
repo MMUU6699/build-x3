@@ -20,6 +20,8 @@ import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/update_provider.dart';
 import '../../../core/models/assistant.dart';
 import '../../chat/pages/chat_history_page.dart';
+import '../pages/images_gallery_page.dart';
+import '../pages/sidebar_placeholder_page.dart';
 import '../../../desktop/chat_history_dialog.dart';
 import 'package:flutter/services.dart';
 import 'dart:io' show File;
@@ -54,6 +56,7 @@ import '../utils/model_display_helper.dart';
 import 'assistant_avatar.dart';
 import 'assistant_entry_actions.dart';
 import 'sidebar_selection_bars.dart';
+import 'header_bubble_button.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 import '../../../shared/widgets/section_card.dart';
 
@@ -1394,25 +1397,6 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     return fmt.format(date);
   }
 
-  List<_ChatGroup> _groupByDate(List<ChatItem> source) {
-    final items = [...source];
-    // group by day (truncate time)
-    final map = <DateTime, List<ChatItem>>{};
-    for (final c in items) {
-      final d = DateTime(c.created.year, c.created.month, c.created.day);
-      map.putIfAbsent(d, () => []).add(c);
-    }
-    // sort groups by date desc (recent first)
-    final keys = map.keys.toList()..sort((a, b) => b.compareTo(a));
-    return [
-      for (final k in keys)
-        _ChatGroup(
-          date: k,
-          items: (map[k]!..sort((a, b) => b.created.compareTo(a.created))),
-        ),
-    ];
-  }
-
   /// Memoized flatten of pinned section + date groups into sidebar rows.
   /// Recomputes only when `(revision, initialized, query, assistantId)`
   /// changes.
@@ -1472,7 +1456,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
       }
     }
     pinned.sort((a, b) => b.created.compareTo(a.created));
-    final groups = _groupByDate(rest);
+    rest.sort((a, b) => b.created.compareTo(a.created));
 
     final rows = <_SidebarRow>[];
     if (pinned.isNotEmpty) {
@@ -1487,20 +1471,14 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
         );
       }
     }
-    for (final group in groups) {
-      rows.add(
-        _SidebarHeaderRow(
-          kind: _SidebarHeaderKind.date,
-          dateBucket: group.date,
-        ),
-      );
-      for (var i = 0; i < group.items.length; i++) {
+    if (rest.isNotEmpty || pinned.isEmpty) {
+      rows.add(const _SidebarHeaderRow(kind: _SidebarHeaderKind.recents));
+      for (var i = 0; i < rest.length; i++) {
         rows.add(
           _SidebarTileRow(
-            chat: group.items[i],
+            chat: rest[i],
             indexInSection: i,
-            kind: _SidebarHeaderKind.date,
-            dateBucket: group.date,
+            kind: _SidebarHeaderKind.recents,
           ),
         );
       }
@@ -2676,6 +2654,29 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                 ),
               ),
 
+              if (!_isDesktop &&
+                  !widget.embedded &&
+                  !widget.globalSearchMode &&
+                  !assistOnly &&
+                  !topicsOnly)
+                _SidebarAppEntries(
+                  onSelected: (name) {
+                    if (name == 'Images') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ImagesGalleryPage(),
+                        ),
+                      );
+                    } else {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => SidebarPlaceholderPage(title: name),
+                        ),
+                      );
+                    }
+                  },
+                ),
+
               // Scrollable area below header
               Expanded(
                 child: () {
@@ -2839,86 +2840,6 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                                 children: [
                                   Row(
                                     children: [
-                                      // Account / Profile area (opens SettingsPage)
-                                      Expanded(
-                                        child: IosCardPress(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          baseColor: Colors.transparent,
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (_) =>
-                                                    const SettingsPage(),
-                                              ),
-                                            );
-                                          },
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 4,
-                                            vertical: 4,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              avatarWidget(
-                                                widget.userName,
-                                                context.watch<UserProvider>(),
-                                                size: 40,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      widget.userName,
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontSize: _isDesktop
-                                                            ? 14
-                                                            : 15,
-                                                        fontWeight:
-                                                            AppFontWeights
-                                                                .emphasis,
-                                                        color: textBase,
-                                                      ),
-                                                    ),
-                                                    if (AuthService
-                                                                .currentUser
-                                                                ?.email !=
-                                                            null &&
-                                                        AuthService
-                                                            .currentUser!
-                                                            .email!
-                                                            .isNotEmpty)
-                                                      Text(
-                                                        AuthService
-                                                            .currentUser!
-                                                            .email!,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: TextStyle(
-                                                          fontSize: 11,
-                                                          color: textBase
-                                                              .withValues(
-                                                                alpha: 0.5,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
                                       // New Chat glass pill button
                                       GlassPillButton(
                                         icon: Lucide.SquarePen,
@@ -2937,6 +2858,28 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                                             closeDrawer: !_isDesktop,
                                           );
                                         },
+                                      ),
+                                      const Spacer(),
+                                      Tooltip(
+                                        message: 'Settings',
+                                        child: HeaderBubbleButton(
+                                          size: 44,
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const SettingsPage(),
+                                              ),
+                                            );
+                                          },
+                                          child: ClipOval(
+                                            child: avatarWidget(
+                                              widget.userName,
+                                              context.watch<UserProvider>(),
+                                              size: 34,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -4172,6 +4115,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
               _SidebarHeaderKind.pinned => AppLocalizations.of(
                 context,
               )!.sideDrawerPinnedLabel,
+              _SidebarHeaderKind.recents => 'Recents',
               _SidebarHeaderKind.date => _dateLabel(context, row.dateBucket!),
             };
             return Padding(
@@ -4234,7 +4178,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                     key: ValueKey(
                       isPinnedSection
                           ? 'pin-${tile.chat.id}'
-                          : 'grp-${_sidebarDateBucketKey(tile.dateBucket)}-${tile.chat.id}',
+                          : 'recents-${tile.chat.id}',
                     ),
                   )
                   .fadeIn(duration: 220.ms, delay: staggerDelay)
@@ -4266,21 +4210,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
 /// Indices beyond this share the same delay (~112–140ms).
 const int _kMaxSidebarStaggerIndex = 7;
 
-String _sidebarDateBucketKey(DateTime? date) {
-  if (date == null) return '';
-  final y = date.year.toString().padLeft(4, '0');
-  final m = date.month.toString().padLeft(2, '0');
-  final d = date.day.toString().padLeft(2, '0');
-  return '$y-$m-$d';
-}
-
-class _ChatGroup {
-  final DateTime date;
-  final List<ChatItem> items;
-  _ChatGroup({required this.date, required this.items});
-}
-
-enum _SidebarHeaderKind { pinned, date }
+enum _SidebarHeaderKind { pinned, recents, date }
 
 sealed class _SidebarRow {
   const _SidebarRow();
@@ -4289,9 +4219,9 @@ sealed class _SidebarRow {
 class _SidebarHeaderRow extends _SidebarRow {
   const _SidebarHeaderRow({required this.kind, this.dateBucket})
     : assert(
-        kind == _SidebarHeaderKind.pinned
-            ? dateBucket == null
-            : dateBucket != null,
+        kind == _SidebarHeaderKind.date
+            ? dateBucket != null
+            : dateBucket == null,
       );
 
   final _SidebarHeaderKind kind;
@@ -4301,19 +4231,65 @@ class _SidebarHeaderRow extends _SidebarRow {
   final DateTime? dateBucket;
 }
 
+class _SidebarAppEntries extends StatelessWidget {
+  const _SidebarAppEntries({required this.onSelected});
+
+  final ValueChanged<String> onSelected;
+
+  static const _entries = <(String, IconData)>[
+    ('Images', Lucide.Image),
+    ('Library', Lucide.Library),
+    ('Projects', Lucide.Folder),
+    ('Remote', Lucide.Monitor),
+    ('Scheduled', Lucide.Calendar),
+    ('Plugins', Lucide.Boxes),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurface;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 4, 16, 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final entry in _entries)
+            SizedBox(
+              height: 42,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => onSelected(entry.$1),
+                child: Row(
+                  children: [
+                    Icon(entry.$2, size: 21, color: color),
+                    const SizedBox(width: 18),
+                    Text(
+                      entry.$1,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 15,
+                        fontWeight: AppFontWeights.medium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SidebarTileRow extends _SidebarRow {
   const _SidebarTileRow({
     required this.chat,
     required this.indexInSection,
     required this.kind,
-    this.dateBucket,
   });
   final ChatItem chat;
   final int indexInSection;
   final _SidebarHeaderKind kind;
-
-  /// Stable local-day bucket for date-section animation keys; null when pinned.
-  final DateTime? dateBucket;
 }
 
 class _ChatTile extends StatefulWidget {

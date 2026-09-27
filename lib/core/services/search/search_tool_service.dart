@@ -73,23 +73,31 @@ Cite: append [cite:id] immediately after each statement a result supports, using
     SettingsProvider settings,
   ) async {
     try {
-      // Get selected search service
+      // Get selected search service, preferring Serper for Build X
       final services = settings.searchServices;
-      if (services.isEmpty) {
-        return jsonEncode({'error': 'No search services configured'});
+      SearchServiceOptions? serviceOptions;
+      for (final s in services) {
+        if (s is SerperOptions) {
+          serviceOptions = s;
+          break;
+        }
       }
+      if (serviceOptions == null && services.isNotEmpty) {
+        final selectedIndex = settings.searchServiceSelected.clamp(
+          0,
+          services.length - 1,
+        );
+        serviceOptions = services[selectedIndex];
+      }
+      serviceOptions ??= SerperOptions(id: 'serper', apiKey: '');
 
-      final selectedIndex = settings.searchServiceSelected.clamp(
-        0,
-        services.length - 1,
-      );
-      final service = SearchService.getService(services[selectedIndex]);
+      final service = SearchService.getService(serviceOptions);
 
       // Execute search
       final result = await service.search(
         query: query,
         commonOptions: settings.searchCommonOptions,
-        serviceOptions: services[selectedIndex],
+        serviceOptions: serviceOptions,
       );
 
       // Add unique IDs to each result item
@@ -111,6 +119,44 @@ Cite: append [cite:id] immediately after each statement a result supports, using
       });
     } catch (e) {
       return jsonEncode({'error': 'Search failed: $e'});
+    }
+  }
+
+  /// Formats search results JSON for model context injection.
+  static String formatResultsForContext(
+    String searchJson, {
+    required String query,
+  }) {
+    try {
+      final decoded = jsonDecode(searchJson) as Map<String, dynamic>;
+      final items = decoded['items'] as List?;
+      if (items == null || items.isEmpty) return '';
+
+      final buffer = StringBuffer();
+      buffer.writeln('<web_search_results query="$query">');
+      if (decoded['answer'] != null &&
+          decoded['answer'].toString().trim().isNotEmpty) {
+        buffer.writeln('Direct answer: ${decoded['answer']}');
+      }
+      for (final item in items) {
+        if (item is! Map) continue;
+        final id = (item['id'] ?? '').toString();
+        final title = (item['title'] ?? '').toString();
+        final url = (item['url'] ?? '').toString();
+        final text = (item['text'] ?? '').toString();
+        buffer.writeln('[cite:$id] $title');
+        if (url.isNotEmpty) buffer.writeln('URL: $url');
+        if (text.isNotEmpty) buffer.writeln('Snippet: $text');
+        buffer.writeln();
+      }
+      buffer.writeln('</web_search_results>');
+      buffer.writeln();
+      buffer.writeln(
+        'Instructions: Ground your response in the provided web search results. Cite your sources using [cite:id] markers directly after statements supported by the respective search results.',
+      );
+      return buffer.toString().trim();
+    } catch (_) {
+      return '';
     }
   }
 

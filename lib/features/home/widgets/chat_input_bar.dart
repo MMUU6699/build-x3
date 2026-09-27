@@ -559,22 +559,15 @@ class _ChatInputBarState extends State<ChatInputBar>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    // When app resumes from background, suppress context menu briefly to avoid flickering
     if (state == AppLifecycleState.resumed) {
       _suppressContextMenu = true;
-      // Also unfocus to reset any stuck toolbar state
-      widget.focusNode?.unfocus();
-      // Re-enable context menu after a short delay
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
           setState(() => _suppressContextMenu = false);
         }
       });
-    } else if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
-      // When going to background, hide any open toolbar
+    } else if (state == AppLifecycleState.paused) {
       _suppressContextMenu = true;
-      widget.focusNode?.unfocus();
       if (_ownsVoiceSession) unawaited(_cancelVoiceInput());
     }
   }
@@ -960,7 +953,9 @@ class _ChatInputBarState extends State<ChatInputBar>
         _CompactSendButton(
           enabled: canFinish,
           onSend: () => unawaited(_finishVoiceInput(sendAfter: true)),
-          color: theme.colorScheme.primary,
+          color: theme.brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
           icon: Lucide.Check,
           tooltip: l10n.chatInputBarVoiceSendTooltip,
         ),
@@ -2349,13 +2344,15 @@ class _ChatInputBarState extends State<ChatInputBar>
               width: 16,
               height: 16,
               decoration: BoxDecoration(
-                color: theme.colorScheme.tertiary,
+                color: theme.brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.priority_high,
                 size: 12,
-                color: theme.colorScheme.onTertiary,
+                color: isDark ? Colors.black : Colors.white,
               ),
             ),
           ),
@@ -2449,14 +2446,14 @@ class _ChatInputBarState extends State<ChatInputBar>
         child: Container(
           decoration: BoxDecoration(
             color: isDark
-                ? theme.colorScheme.onSurface.withValues(alpha: 0.08)
-                : theme.colorScheme.onSurface.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(16),
+                ? Colors.white.withValues(alpha: 0.10)
+                : Colors.black.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark
-                  ? theme.colorScheme.outline.withValues(alpha: 0.18)
-                  : theme.colorScheme.outline.withValues(alpha: 0.14),
-              width: 1,
+                  ? Colors.white.withValues(alpha: 0.14)
+                  : Colors.black.withValues(alpha: 0.08),
+              width: 0.8,
             ),
           ),
           padding: const EdgeInsetsDirectional.only(
@@ -2554,6 +2551,7 @@ class _ChatInputBarState extends State<ChatInputBar>
         asr.canUse(selectedAsrService) &&
         !asr.isActive;
     final isDark = theme.brightness == Brightness.dark;
+    final isExpanded = _isInputExpanded;
     final hasText = _controller.text.trim().isNotEmpty;
     final hasImages = _images.isNotEmpty;
     final hasDocs = _docs.isNotEmpty;
@@ -2618,33 +2616,35 @@ class _ChatInputBarState extends State<ChatInputBar>
                 // Main input container with iOS-like frosted glass effect
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(isExpanded ? 22 : 32),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(
-                          alpha: isDark ? 0.28 : 0.09,
+                          alpha: isDark ? 0.16 : 0.05,
                         ),
-                        blurRadius: 26,
-                        offset: const Offset(0, 6),
+                        blurRadius: 24,
+                        offset: const Offset(0, 5),
                         spreadRadius: 0,
                       ),
                     ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(isExpanded ? 22 : 32),
                     child: BackdropFilter(
                       filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                       child: Container(
                         decoration: BoxDecoration(
                           color: isDark
-                              ? Colors.black.withValues(alpha: 0.60)
-                              : Colors.white.withValues(alpha: 0.72),
-                          borderRadius: BorderRadius.circular(26),
+                              ? const Color(0xFF1E1E22).withValues(alpha: 0.58)
+                              : Colors.white.withValues(alpha: 0.70),
+                          borderRadius: BorderRadius.circular(
+                            isExpanded ? 22 : 32,
+                          ),
                           border: Border.all(
                             color: isDark
-                                ? Colors.white.withValues(alpha: 0.10)
-                                : Colors.black.withValues(alpha: 0.10),
-                            width: 1,
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : Colors.black.withValues(alpha: 0.07),
+                            width: 0.8,
                           ),
                         ),
                         child: AnimatedSize(
@@ -2786,7 +2786,9 @@ class _ChatInputBarState extends State<ChatInputBar>
               ? 14
               : 15,
         ),
-        cursorColor: isDark ? Colors.white : Colors.black,
+        cursorColor: theme.brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black,
       ),
     );
   }
@@ -2863,7 +2865,9 @@ class _ChatInputBarState extends State<ChatInputBar>
                                   l10n.incomingShareMoveTo,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isDark ? Colors.white : Colors.black,
+                                    color: theme.brightness == Brightness.dark
+                                        ? Colors.white
+                                        : Colors.black,
                                     fontWeight: AppFontWeights.medium,
                                   ),
                                 ),
@@ -2871,7 +2875,9 @@ class _ChatInputBarState extends State<ChatInputBar>
                                 Icon(
                                   Lucide.ArrowRight,
                                   size: 14,
-                                  color: isDark ? Colors.white : Colors.black,
+                                  color: theme.brightness == Brightness.dark
+                                      ? Colors.white
+                                      : Colors.black,
                                 ),
                               ],
                             ),
@@ -2894,8 +2900,9 @@ class _ChatInputBarState extends State<ChatInputBar>
         ),
         // Persistent TextField row
         Row(
-          crossAxisAlignment:
-              isExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+          crossAxisAlignment: isExpanded
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
             if (!isExpanded) ...[
               const SizedBox(width: 8),
@@ -2948,8 +2955,9 @@ class _ChatInputBarState extends State<ChatInputBar>
                               ? Lucide.ChevronsDownUp
                               : Lucide.ChevronsUpDown,
                           size: 16,
-                          color:
-                              theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.45,
+                          ),
                         ),
                       ),
                     ),
@@ -2976,7 +2984,9 @@ class _ChatInputBarState extends State<ChatInputBar>
                 loading: widget.loading,
                 onSend: _handleSend,
                 onStop: widget.loading ? widget.onStop : null,
-                color: isDark ? Colors.white : Colors.black,
+                color: theme.brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
                 icon: Lucide.ArrowUp,
                 tooltip: widget.sendButtonTooltip,
               ),
@@ -3057,7 +3067,9 @@ class _ChatInputBarState extends State<ChatInputBar>
                               loading: widget.loading,
                               onSend: _handleSend,
                               onStop: widget.loading ? widget.onStop : null,
-                              color: isDark ? Colors.white : Colors.black,
+                              color: theme.brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black,
                               icon: Lucide.ArrowUp,
                               tooltip: widget.sendButtonTooltip,
                             ),
@@ -3114,7 +3126,9 @@ class _QueuedInputBanner extends StatelessWidget {
             child: Icon(
               Icons.schedule_rounded,
               size: 16,
-              color: theme.colorScheme.primary,
+              color: theme.brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
@@ -3158,7 +3172,9 @@ class _QueuedInputBanner extends StatelessWidget {
             child: Text(
               cancelLabel,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.primary,
+                color: theme.brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
                 fontWeight: AppFontWeights.semibold,
               ),
             ),
@@ -3326,11 +3342,11 @@ class _ReasoningEffortChipState extends State<_ReasoningEffortChip> {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOutCubic,
         child: Container(
-          height: 28,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          height: 26,
+          padding: const EdgeInsets.symmetric(horizontal: 9),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(13),
             border: Border.all(color: borderColor, width: 0.8),
           ),
           child: Row(
@@ -3338,14 +3354,14 @@ class _ReasoningEffortChipState extends State<_ReasoningEffortChip> {
             children: [
               ReasoningIcons.budgetIcon(
                 widget.budget,
-                size: 15,
+                size: 13,
                 color: fgColor,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 5),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11.5,
+                  fontSize: 12,
                   fontWeight: AppFontWeights.medium,
                   color: fgColor,
                   letterSpacing: -0.1,
@@ -3397,17 +3413,31 @@ class _CompactIconButton extends StatelessWidget {
     final bool isDesktop =
         Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
-    final button = IosIconButton(
-      size: 20,
-      padding: const EdgeInsets.all(6),
-      onTap: onTap,
-      // Disable long press on desktop platforms
-      onLongPress: isDesktop ? null : onLongPress,
-      color: fgColor,
-      builder: childBuilder != null
-          ? (c) => SizedBox(width: 20, height: 20, child: childBuilder!(c))
-          : null,
-      icon: childBuilder == null ? icon : null,
+    final button = Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isDark
+            ? Colors.white.withValues(alpha: active ? 0.16 : 0.08)
+            : Colors.black.withValues(alpha: active ? 0.10 : 0.04),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.10)
+              : Colors.black.withValues(alpha: 0.06),
+          width: 0.6,
+        ),
+      ),
+      child: IosIconButton(
+        size: 19,
+        padding: const EdgeInsets.all(6),
+        onTap: onTap,
+        // Disable long press on desktop platforms
+        onLongPress: isDesktop ? null : onLongPress,
+        color: fgColor,
+        builder: childBuilder != null
+            ? (c) => SizedBox(width: 19, height: 19, child: childBuilder!(c))
+            : null,
+        icon: childBuilder == null ? icon : null,
+      ),
     );
 
     if (tooltip == null) {
@@ -3422,8 +3452,8 @@ class _CompactIconButton extends StatelessWidget {
   }
 }
 
-// New compact send button for the integrated input bar
-class _CompactSendButton extends StatelessWidget {
+// Compact send button with clear disabled, active, pressed, and loading states
+class _CompactSendButton extends StatefulWidget {
   const _CompactSendButton({
     required this.enabled,
     required this.onSend,
@@ -3443,6 +3473,13 @@ class _CompactSendButton extends StatelessWidget {
   final String? tooltip;
 
   @override
+  State<_CompactSendButton> createState() => _CompactSendButtonState();
+}
+
+class _CompactSendButtonState extends State<_CompactSendButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -3450,47 +3487,90 @@ class _CompactSendButton extends StatelessWidget {
     final enabledBg = isDark ? Colors.white : Colors.black;
     final enabledFg = isDark ? Colors.black : Colors.white;
     final disabledBg = isDark
-        ? Colors.white.withValues(alpha: 0.12)
-        : Colors.black.withValues(alpha: 0.08);
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.06);
     final disabledFg = isDark
-        ? Colors.white.withValues(alpha: 0.35)
-        : Colors.black.withValues(alpha: 0.30);
+        ? Colors.white.withValues(alpha: 0.30)
+        : Colors.black.withValues(alpha: 0.25);
 
-    final bg = (enabled || loading) ? enabledBg : disabledBg;
-    final fg = (enabled || loading) ? enabledFg : disabledFg;
+    final bg = (widget.enabled || widget.loading) ? enabledBg : disabledBg;
+    final fg = (widget.enabled || widget.loading) ? enabledFg : disabledFg;
 
-    final button = Material(
-      color: bg,
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: loading ? onStop : (enabled ? onSend : null),
-        child: Padding(
-          padding: const EdgeInsets.all(7),
+    final button = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (widget.enabled || widget.loading)
+          ? (_) => setState(() => _pressed = true)
+          : null,
+      onTapUp: (widget.enabled || widget.loading)
+          ? (_) => setState(() => _pressed = false)
+          : null,
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.loading
+          ? () {
+              Haptics.light();
+              widget.onStop?.call();
+            }
+          : (widget.enabled
+                ? () {
+                    Haptics.light();
+                    widget.onSend();
+                  }
+                : null),
+      child: AnimatedScale(
+        scale: _pressed ? 0.90 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeInOutCubic,
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: bg,
+            shape: BoxShape.circle,
+            boxShadow: (widget.enabled || widget.loading)
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.25 : 0.08,
+                      ),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1.5),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
             transitionBuilder: (child, anim) => ScaleTransition(
               scale: anim,
               child: FadeTransition(opacity: anim, child: child),
             ),
-            child: loading
+            child: widget.loading
                 ? SvgPicture.asset(
                     key: const ValueKey('stop'),
                     'assets/icons/stop.svg',
-                    width: 18,
-                    height: 18,
+                    width: 14,
+                    height: 14,
                     colorFilter: ColorFilter.mode(fg, BlendMode.srcIn),
                   )
-                : Icon(icon, key: const ValueKey('send'), size: 18, color: fg),
+                : Icon(
+                    widget.icon,
+                    key: const ValueKey('send'),
+                    size: 16,
+                    color: fg,
+                  ),
           ),
         ),
       ),
     );
-    if (tooltip == null) return button;
+
+    if (widget.tooltip == null) return button;
     return Tooltip(
-      message: tooltip!,
+      message: widget.tooltip!,
       waitDuration: const Duration(milliseconds: 350),
-      child: Semantics(tooltip: tooltip!, child: button),
+      child: Semantics(tooltip: widget.tooltip!, child: button),
     );
   }
 }

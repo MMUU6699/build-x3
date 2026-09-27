@@ -8,8 +8,25 @@
 <button id="run">Run real integration tests</button>
 <pre id="result">READY</pre>
 <script>
-const SUPABASE_URL = 'https://mmlxqlhbwcvqstrsxlrx.supabase.co';
-const PUBLISHABLE_KEY = 'sb_publishable_J-0Nlm1VB_QKsU26RyWYQg_r7T4glY0';
+let supabaseUrl = '';
+let publishableKey = '';
+const runButton = document.querySelector('#run');
+runButton.disabled = true;
+fetch('../config/buildx.public.json')
+  .then((response) => {
+    if (!response.ok) throw new Error('Serve the repository root over HTTP to load config/buildx.public.json.');
+    return response.json();
+  })
+  .then((config) => {
+    supabaseUrl = config.SUPABASE_URL;
+    publishableKey = config.SUPABASE_PUBLISHABLE_KEY || config.SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !publishableKey) throw new Error('Supabase public config is incomplete.');
+    result.textContent = 'READY';
+    runButton.disabled = false;
+  })
+  .catch((error) => {
+    result.textContent = `CONFIGURATION ERROR — ${error.message}`;
+  });
 const result = document.querySelector('#result');
 const state = {};
 
@@ -21,10 +38,10 @@ function show(name, ok, detail='') {
 }
 
 async function request(path, options = {}, token = null) {
-  const response = await fetch(`${SUPABASE_URL}${path}`, {
+  const response = await fetch(`${supabaseUrl}${path}`, {
     ...options,
     headers: {
-      apikey: PUBLISHABLE_KEY,
+      apikey: publishableKey,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },

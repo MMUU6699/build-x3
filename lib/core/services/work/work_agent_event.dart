@@ -91,11 +91,39 @@ class WorkBrowsingEvent extends WorkAgentEvent {
     required this.title,
     this.snapshot = '',
     this.status = 'browsing',
+    this.screenshotBase64 = '',
   });
   final String url;
   final String title;
   final String snapshot;
   final String status;
+  final String screenshotBase64;
+}
+
+/// Snapshot of the actual Daytona desktop, emitted after a computer action.
+class WorkComputerEvent extends WorkAgentEvent {
+  const WorkComputerEvent({required this.action, this.screenshotBase64 = ''});
+  final String action;
+  final String screenshotBase64;
+}
+
+/// Manus-style tool lifecycle entry used to render each agent tool call.
+class WorkToolEvent extends WorkAgentEvent {
+  const WorkToolEvent({
+    required this.callId,
+    required this.name,
+    required this.function,
+    required this.status,
+    this.arguments = const {},
+    this.result = '',
+  });
+
+  final String callId;
+  final String name;
+  final String function;
+  final String status;
+  final Map<String, dynamic> arguments;
+  final String result;
 }
 
 /// 4. Coding Event: code panel / file modification / diff.
@@ -178,6 +206,25 @@ abstract final class WorkAgentEventParser {
             title: json['title'] as String? ?? '',
             snapshot: json['snapshot'] as String? ?? '',
             status: json['status'] as String? ?? 'browsing',
+            screenshotBase64: json['screenshot_base64'] as String? ?? '',
+          );
+
+        case 'computer':
+          return WorkComputerEvent(
+            action: json['action'] as String? ?? 'Computer activity',
+            screenshotBase64: json['screenshot_base64'] as String? ?? '',
+          );
+
+        case 'tool':
+          return WorkToolEvent(
+            callId: json['tool_call_id'] as String? ?? '',
+            name: json['name'] as String? ?? 'tool',
+            function: json['function'] as String? ?? '',
+            status: json['status'] as String? ?? 'completed',
+            arguments: json['arguments'] is Map
+                ? Map<String, dynamic>.from(json['arguments'] as Map)
+                : const {},
+            result: json['result'] as String? ?? '',
           );
 
         case 'coding':

@@ -12,6 +12,7 @@ import '../../../core/providers/user_provider.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../chat/widgets/frosted/chat_frosted_backdrop.dart';
 import '../../chat/widgets/chat_assistant_background.dart';
+import '../../../theme/header_tokens.dart';
 import '../widgets/header_bubble_button.dart';
 import '../widgets/mode_segmented_toggle.dart';
 import '../../../core/providers/work_mode_provider.dart';
@@ -132,7 +133,7 @@ class HomeMobileScaffold extends StatelessWidget {
     final isWorkMode = workProvider?.isWorkMode ?? false;
 
     return AppBar(
-      toolbarHeight: 46.0,
+      toolbarHeight: 66.0,
       systemOverlayStyle: (Theme.of(context).brightness == Brightness.dark)
           ? const SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
@@ -148,12 +149,14 @@ class HomeMobileScaffold extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leadingWidth: 62,
+      forceMaterialTransparency: true,
+      shadowColor: Colors.transparent,
+      leadingWidth: 72,
       leading: Padding(
-        padding: const EdgeInsetsDirectional.only(start: 10),
+        padding: const EdgeInsetsDirectional.only(start: 12),
         child: Center(
           child: HeaderBubbleButton(
-            size: 42.0,
+            size: AppHeaderTokens.buttonDiameter,
             tooltip: AppLocalizations.of(context)!.sideDrawerHistory,
             onTap: () {
               onDismissKeyboard();
@@ -161,9 +164,12 @@ class HomeMobileScaffold extends StatelessWidget {
             },
             child: SvgPicture.asset(
               'assets/icons/list.svg',
-              width: 20,
-              height: 20,
-              colorFilter: ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
+              width: 22,
+              height: 17,
+              colorFilter: const ColorFilter.mode(
+                Color(0xFF18181B),
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),
@@ -173,11 +179,11 @@ class HomeMobileScaffold extends StatelessWidget {
       title: const ModeSegmentedToggle(),
       actions: [
         Container(
-          width: 62,
-          padding: const EdgeInsetsDirectional.only(end: 10),
+          width: 72,
+          padding: const EdgeInsetsDirectional.only(end: 12),
           child: Center(
             child: HeaderBubbleButton(
-              size: 42.0,
+              size: AppHeaderTokens.buttonDiameter,
               isDashed: false,
               tooltip: isWorkMode
                   ? 'New Task'
@@ -188,7 +194,11 @@ class HomeMobileScaffold extends StatelessWidget {
                 }
                 await onCreateNewConversation();
               },
-              child: Icon(Lucide.SquarePen, size: 21, color: cs.onSurface),
+              child: const Icon(
+                Lucide.SquarePen,
+                size: 22,
+                color: Color(0xFF18181B),
+              ),
             ),
           ),
         ),

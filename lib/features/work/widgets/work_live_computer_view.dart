@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:provider/provider.dart';
 
 import '../../../core/providers/work_mode_provider.dart';
@@ -526,6 +527,16 @@ class _WorkLiveComputerViewState extends State<WorkLiveComputerView> {
     if (workProvider.codingEvents.isNotEmpty && currentStepIndex >= 2) {
       return (Lucide.Code, 'code_editor', 'file.write');
     }
+    final activeTool = workProvider.currentToolEvent;
+    if (activeTool != null && activeTool.status == 'running') {
+      final icon = switch (activeTool.name) {
+        'browser' => Lucide.Globe,
+        'shell' => Lucide.Terminal,
+        'file' => Lucide.Code,
+        _ => Lucide.Cpu,
+      };
+      return (icon, activeTool.name, activeTool.function);
+    }
     if (workProvider.browsingEvent != null || currentStepIndex == 1) {
       return (Lucide.Search, 'web_search', 'search.query');
     }
@@ -587,7 +598,8 @@ class _WorkLiveComputerViewState extends State<WorkLiveComputerView> {
     int currentStepIndex,
     List<WorkPlanStep> steps,
   ) {
-    final allDone = steps.isNotEmpty &&
+    final allDone =
+        steps.isNotEmpty &&
         steps.every((s) => s.status == WorkPlanStepStatus.completed);
 
     if (workProvider.hasActiveArtifact &&
@@ -637,6 +649,65 @@ class _WorkLiveComputerViewState extends State<WorkLiveComputerView> {
     final cs = Theme.of(context).colorScheme;
     final borderColor = cs.outline.withValues(alpha: isDark ? 0.25 : 0.15);
     final effectiveTab = _getEffectiveTab(workProvider, currentStepIndex);
+
+    final desktopImage =
+        workProvider.computerEvent?.screenshotBase64 ??
+        workProvider.browsingEvent?.screenshotBase64 ??
+        '';
+    final currentTool = workProvider.currentToolEvent;
+    final computerAction = workProvider.computerEvent?.action ?? '';
+    if (desktopImage.isNotEmpty &&
+        workProvider.isExecuting &&
+        (effectiveTab == null || effectiveTab == 'preview')) {
+      try {
+        return ColoredBox(
+          color: Colors.black,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Center(
+                child: Image.memory(
+                  base64Decode(desktopImage),
+                  fit: BoxFit.contain,
+                  gaplessPlayback: true,
+                ),
+              ),
+              if (computerAction.isNotEmpty || currentTool != null)
+                Positioned(
+                  left: 12,
+                  bottom: 12,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.82),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
+                      ),
+                      child: Text(
+                        [
+                          if (currentTool != null)
+                            '${currentTool.name}.${currentTool.function} ${currentTool.status}',
+                          if (computerAction.isNotEmpty) computerAction,
+                        ].join(' · '),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      } on FormatException {
+        // Ignore a malformed or truncated historical screenshot.
+      }
+    }
 
     // Tab-directed or step-directed resolution:
     if (effectiveTab == 'preview' &&
@@ -719,11 +790,18 @@ class _WorkLiveComputerViewState extends State<WorkLiveComputerView> {
 
     // 5. Search view during early analysis or when executing
     if (workProvider.isExecuting) {
-      return _buildSearchVisualView(
-        context,
-        workProvider: workProvider,
-        isDark: isDark,
-        borderColor: borderColor,
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 14),
+            Text(
+              'Waiting for live Daytona activity…',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+            ),
+          ],
+        ),
       );
     }
 
@@ -1409,126 +1487,6 @@ class _WorkLiveComputerViewState extends State<WorkLiveComputerView> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSearchVisualView(
-    BuildContext context, {
-    required WorkModeProvider workProvider,
-    required bool isDark,
-    required Color borderColor,
-  }) {
-    final cs = Theme.of(context).colorScheme;
-    final taskTitle = workProvider.currentTask.isNotEmpty
-        ? workProvider.currentTask
-        : 'Web Development Components & Runtime';
-
-    final searchResults = [
-      (
-        'https://docs.webcontainers.io/reference/runtime',
-        'WebContainers Runtime Specifications & In-Browser Node.js',
-        'Official architecture and performance guide for executing client-side containerized applications, POSIX file system APIs, and live server loops.',
-      ),
-      (
-        'https://developer.mozilla.org/en-US/docs/Web/API',
-        'Modern Web APIs and Component Architecture Standards',
-        'Comprehensive documentation for HTML5, Web Components, Service Workers, Canvas rendering, and modern ES module dynamic loading.',
-      ),
-      (
-        'https://github.com/stackblitz/webcontainer-core',
-        'Autonomous Agent Tool Execution & Sandbox Containers',
-        'Sandboxed virtualized process environment for running code generation agents securely within modern browser runtimes.',
-      ),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Search bar header
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF18181C) : const Color(0xFFF3F4F6),
-            border: Border(bottom: BorderSide(color: borderColor)),
-          ),
-          child: Container(
-            height: 34,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF111113) : Colors.white,
-              borderRadius: BorderRadius.circular(17),
-              border: Border.all(color: borderColor),
-            ),
-            child: Row(
-              children: [
-                Icon(Lucide.Search, size: 14, color: cs.primary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    taskTitle,
-                    style: TextStyle(fontSize: 12, color: cs.onSurface),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(Lucide.X, size: 14, color: cs.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-        // Search Results List
-        Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: searchResults.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final item = searchResults[index];
-              return Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF18181C) : Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.$1,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF10B981),
-                        fontFamily: 'monospace',
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item.$2,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: AppFontWeights.semiBold,
-                        color: const Color(0xFF3B82F6),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      item.$3,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: cs.onSurfaceVariant,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
     );
   }
 

@@ -55,6 +55,30 @@ final class BusinessMigrationEngine {
   final LegacyBusinessPreferences legacyPreferences;
   final Future<bool> Function()? _checkpoint;
 
+  /// Reads and erases a legacy plaintext string setting during secure-store
+  /// migration. SharedPreferences access stays centralized in this adapter.
+  static Future<String?> takeLegacyStringPreference(String key) async {
+    final preferences = await SharedPreferences.getInstance();
+    final value = preferences.getString(key);
+    if (value != null) await preferences.remove(key);
+    return value;
+  }
+
+  static Future<void> removeLegacyPreference(String key) async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(key);
+  }
+
+  static Future<String?> readStringPreference(String key) async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.getString(key);
+  }
+
+  static Future<void> writeStringPreference(String key, String value) async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(key, value);
+  }
+
   Future<BusinessMigrationResult> run() async {
     final legacy = await legacyPreferences.snapshot();
     final cleanupKeys = _cleanupKeys(legacy.keys);

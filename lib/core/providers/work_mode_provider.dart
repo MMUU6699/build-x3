@@ -24,6 +24,8 @@ class WorkModeProvider extends ChangeNotifier {
   WorkPlanningEvent? _planningEvent;
   WorkThinkingEvent? _thinkingEvent;
   WorkBrowsingEvent? _browsingEvent;
+  WorkComputerEvent? _computerEvent;
+  final List<WorkToolEvent> _toolEvents = [];
   final List<WorkCodingEvent> _codingEvents = [];
   final List<WorkTerminalEvent> _terminalEvents = [];
   WorkDeliverableEvent? _deliverableEvent;
@@ -44,6 +46,10 @@ class WorkModeProvider extends ChangeNotifier {
   WorkPlanningEvent? get planningEvent => _planningEvent;
   WorkThinkingEvent? get thinkingEvent => _thinkingEvent;
   WorkBrowsingEvent? get browsingEvent => _browsingEvent;
+  WorkComputerEvent? get computerEvent => _computerEvent;
+  List<WorkToolEvent> get toolEvents => List.unmodifiable(_toolEvents);
+  WorkToolEvent? get currentToolEvent =>
+      _toolEvents.isEmpty ? null : _toolEvents.last;
   List<WorkCodingEvent> get codingEvents => List.unmodifiable(_codingEvents);
   List<WorkTerminalEvent> get terminalEvents =>
       List.unmodifiable(_terminalEvents);
@@ -93,6 +99,8 @@ class WorkModeProvider extends ChangeNotifier {
     _planningEvent = null;
     _thinkingEvent = null;
     _browsingEvent = null;
+    _computerEvent = null;
+    _toolEvents.clear();
     _codingEvents.clear();
     _terminalEvents.clear();
     _deliverableEvent = null;
@@ -211,6 +219,17 @@ class WorkModeProvider extends ChangeNotifier {
           _responseText = event.content;
         } else if (event is WorkBrowsingEvent) {
           _browsingEvent = event;
+        } else if (event is WorkComputerEvent) {
+          _computerEvent = event;
+        } else if (event is WorkToolEvent) {
+          final existingIndex = _toolEvents.indexWhere(
+            (item) => item.callId == event.callId,
+          );
+          if (existingIndex < 0) {
+            _toolEvents.add(event);
+          } else {
+            _toolEvents[existingIndex] = event;
+          }
         } else if (event is WorkCodingEvent) {
           _codingEvents.add(event);
         } else if (event is WorkTerminalEvent) {

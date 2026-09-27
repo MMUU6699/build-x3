@@ -5,10 +5,11 @@ abstract final class WorkModeConfig {
   static const apiBase = BuildXConfig.apiBase;
   static const chatCompletionsEndpoint = BuildXConfig.chatCompletionsEndpoint;
 
-  /// The single consolidated model powering Work Mode and Chat Mode.
-  static const modelNemotron = BuildXConfig.modelId;
+  /// The consolidated models powering Work Mode and Chat Mode.
+  static const modelNemotron = BuildXConfig.workModelId;
+  static const modelGlm = BuildXConfig.chatModelId;
 
-  static const List<String> availableModels = [modelNemotron];
+  static const List<String> availableModels = [modelNemotron, modelGlm];
 
   static const defaultModel = modelNemotron;
 
@@ -16,12 +17,18 @@ abstract final class WorkModeConfig {
     if (modelId == modelNemotron) {
       return 'Nemotron 3 Ultra 550B';
     }
+    if (modelId == modelGlm) {
+      return 'GLM 5.3 Flash';
+    }
     return modelId;
   }
 
   static String modelSubtitle(String modelId) {
     if (modelId == modelNemotron) {
       return '550B Reasoning & Code (NVIDIA NIM)';
+    }
+    if (modelId == modelGlm) {
+      return 'Fast Conversational AI (NVIDIA NIM)';
     }
     return 'NVIDIA NIM';
   }

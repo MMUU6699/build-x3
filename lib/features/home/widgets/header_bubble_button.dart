@@ -1,19 +1,16 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../../../core/services/haptics.dart';
+import '../../../theme/header_tokens.dart';
 
-/// Clean circular bubble button for header actions in Build X.
-///
-/// Designed with standard 44x44 touch-target dimensions, subtle border,
-/// soft drop shadow, and tactile feedback. Supports a dashed border variant
-/// for temporary/incognito mode.
 class HeaderBubbleButton extends StatefulWidget {
   const HeaderBubbleButton({
     super.key,
     required this.child,
     this.onTap,
     this.tooltip,
-    this.size = 44.0,
+    this.size = AppHeaderTokens.baseSize,
     this.isDashed = false,
   });
 
@@ -32,16 +29,9 @@ class _HeaderBubbleButtonState extends State<HeaderBubbleButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    final bg = isDark
-        ? cs.surface.withValues(alpha: 0.90)
-        : cs.surface.withValues(alpha: 0.98);
-    final border = isDark
-        ? cs.outline.withValues(alpha: 0.30)
-        : cs.outline.withValues(alpha: 0.20);
+    final idleBg = Colors.white;
+    const pressBg = Color(0xFFF4F4F5);
+    final border = Colors.black.withValues(alpha: 0.06);
 
     final button = GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -52,38 +42,49 @@ class _HeaderBubbleButtonState extends State<HeaderBubbleButton> {
         Haptics.light();
         widget.onTap?.call();
       },
-      child: AnimatedScale(
-        scale: _pressed ? 0.94 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOutCubic,
-        child: Container(
-          width: widget.size,
-          height: widget.size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: bg,
-            border: widget.isDashed
-                ? null
-                : Border.all(color: border, width: 0.8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+      child: Container(
+        // Keep a minimum 44x44 tap target area for mobile accessibility
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+        alignment: Alignment.center,
+        child: AnimatedScale(
+          scale: _pressed ? 0.92 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOutCubic,
+          child: ClipOval(
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: widget.size,
+                height: widget.size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _pressed ? pressBg : idleBg,
+                  border: widget.isDashed
+                      ? null
+                      : Border.all(color: border, width: 0.8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.10),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: widget.isDashed
+                    ? CustomPaint(
+                        foregroundPainter: _DashedCirclePainter(
+                          color: border,
+                          strokeWidth: 1.2,
+                          dashLength: 4.5,
+                          gapLength: 3.5,
+                        ),
+                        child: Center(child: widget.child),
+                      )
+                    : Center(child: widget.child),
               ),
-            ],
+            ),
           ),
-          child: widget.isDashed
-              ? CustomPaint(
-                  foregroundPainter: _DashedCirclePainter(
-                    color: border,
-                    strokeWidth: 1.2,
-                    dashLength: 4.5,
-                    gapLength: 3.5,
-                  ),
-                  child: Center(child: widget.child),
-                )
-              : Center(child: widget.child),
         ),
       ),
     );

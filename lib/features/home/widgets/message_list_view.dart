@@ -1796,26 +1796,46 @@ class _MessageListViewState extends State<MessageListView> {
                 if (_effectiveRenderModels.isEmpty && !widget.isLoadingWindow)
                   Positioned.fill(
                     child: IgnorePointer(
-                      child: Center(
+                      child: Align(
+                        alignment: const Alignment(0, 0.20),
                         child: Padding(
                           padding: EdgeInsets.fromLTRB(
                             32,
                             widget.topContentPadding,
                             32,
-                            widget.bottomContentPadding + 40,
+                            widget.bottomContentPadding + 24,
                           ),
-                          child: Text(
-                            'What can I help with today?',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.45),
-                              letterSpacing: -0.3,
-                            ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'What can I help with today?',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.85),
+                                  letterSpacing: -0.4,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Ask anything, brainstorm ideas, or analyze data',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.45),
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

@@ -1,5 +1,5 @@
-import { AuthError, getRequiredSecret, requireUser } from "../_shared/supabase.ts";
-import { handlePreflight, isOriginAllowed, jsonResponse } from "../_shared/http.ts";
+import { AuthError, getRequiredSecret, requireUser } from "./_shared/supabase.ts";
+import { handlePreflight, isOriginAllowed, jsonResponse } from "./_shared/http.ts";
 
 const OWNER_LABEL = "build-x-user";
 const PURPOSE_LABEL = "build-x-purpose";

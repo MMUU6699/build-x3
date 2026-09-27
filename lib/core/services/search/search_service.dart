@@ -273,8 +273,9 @@ abstract class SearchServiceOptions {
     }
   }
 
-  static final SearchServiceOptions defaultOption = BingLocalOptions(
-    id: 'default',
+  static final SearchServiceOptions defaultOption = SerperOptions(
+    id: 'serper',
+    apiKey: '',
   );
 }
 

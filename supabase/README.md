@@ -15,11 +15,12 @@ secrets and are never accepted from app request bodies.
 
 ```sh
 supabase link --project-ref YOUR_PROJECT_REF
-supabase secrets set NVIDIA_API_KEY=YOUR_NVIDIA_KEY DAYTONA_API_KEY=YOUR_DAYTONA_KEY
+supabase secrets set NVIDIA_GLM_API_KEY=YOUR_GLM_KEY NVIDIA_NEMOTRON_API_KEY=YOUR_NEMOTRON_KEY DAYTONA_API_KEY=YOUR_DAYTONA_KEY
 supabase secrets set CORS_ALLOWED_ORIGINS=https://app.example.com
 supabase db push
 supabase functions deploy nvidia-chat
 supabase functions deploy work-run
+supabase functions deploy daytona-sandbox
 ```
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are supplied

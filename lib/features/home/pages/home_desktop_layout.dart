@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/header_tokens.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
@@ -361,19 +362,24 @@ class HomeDesktopScaffold extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
+      forceMaterialTransparency: true,
+      shadowColor: Colors.transparent,
       leadingWidth: 62,
       leading: Padding(
         padding: const EdgeInsetsDirectional.only(start: 10),
         child: Center(
           child: HeaderBubbleButton(
-            size: 42.0,
+            size: AppHeaderTokens.baseSize,
             tooltip: AppLocalizations.of(context)!.sideDrawerHistory,
             onTap: onToggleSidebar,
             child: SvgPicture.asset(
               'assets/icons/list.svg',
               width: 20,
               height: 20,
-              colorFilter: ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                Color(0xFF18181B),
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),
@@ -395,7 +401,6 @@ class HomeDesktopScaffold extends StatelessWidget {
     required bool workspaceBound,
   }) {
     final l10n = AppLocalizations.of(context)!;
-    final cs = Theme.of(context).colorScheme;
     return [
       if (_isDesktop && workspaceBound)
         Tooltip(
@@ -430,12 +435,12 @@ class HomeDesktopScaffold extends StatelessWidget {
         padding: const EdgeInsetsDirectional.only(end: 10),
         child: Center(
           child: HeaderBubbleButton(
-            size: 42.0,
+            size: AppHeaderTokens.baseSize,
             tooltip: AppLocalizations.of(context)!.titleForLocale,
             onTap: () async {
               await onCreateNewConversation();
             },
-            child: Icon(Lucide.SquarePen, size: 21, color: cs.onSurface),
+            child: const Icon(Lucide.SquarePen, size: 21, color: Color(0xFF18181B)),
           ),
         ),
       ),

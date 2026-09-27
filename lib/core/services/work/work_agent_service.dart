@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../build_x_config.dart';
 import '../../work_mode_config.dart';
@@ -144,87 +145,119 @@ class WorkAgentService {
     required String modelId,
     required WorkReasoningEffort reasoningEffort,
   }) async* {
-    yield const WorkPlanningEvent(
-      steps: [
-        WorkPlanStep(
-          id: 1,
-          title: 'Create secure sandbox',
-          status: WorkPlanStepStatus.inProgress,
-        ),
-        WorkPlanStep(id: 2, title: 'Execute and verify the task'),
-        WorkPlanStep(id: 3, title: 'Prepare the preview and deliverable'),
-      ],
-    );
-    yield WorkThinkingEvent(
-      content: 'Starting the authenticated Build X workspace…',
-      effort: reasoningEffort.displayName,
-    );
+    final runId = const Uuid().v4();
+    final client = Supabase.instance.client;
+    final events = StreamController<WorkAgentEvent>.broadcast();
+    final ready = Completer<void>();
+    var gotTerminalEvent = false;
+    final channel = client
+        .channel('work-run-$runId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'work_events',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'run_id',
+            value: runId,
+          ),
+          callback: (payload) {
+            final row = payload.newRecord;
+            final type = row['event_type']?.toString() ?? '';
+            final body = row['payload'];
+            if (body is Map) {
+              final event = WorkAgentEventParser.parseEvent(
+                type,
+                jsonEncode(Map<String, dynamic>.from(body)),
+              );
+              if (event != null && !events.isClosed) events.add(event);
+              if (event is WorkDoneEvent) gotTerminalEvent = true;
+            }
+          },
+        )
+        .subscribe((status, error) {
+          if (status == RealtimeSubscribeStatus.subscribed &&
+              !ready.isCompleted) {
+            ready.complete();
+          } else if (status == RealtimeSubscribeStatus.channelError &&
+              !ready.isCompleted) {
+            ready.completeError(
+              StateError('Unable to subscribe to live Work events.'),
+            );
+          }
+        });
 
-    final response = await Supabase.instance.client.functions.invoke(
-      'work-run',
-      body: {
-        'prompt': prompt,
-        'model': modelId,
-        'reasoning_effort': reasoningEffort.apiValue,
-      },
-    );
-    if (_cancelled) return;
-
-    final payload = response.data;
-    if (payload is! Map) {
-      throw StateError('Invalid work-run response.');
+    try {
+      await ready.future.timeout(const Duration(seconds: 12));
+    } catch (_) {
+      await client.removeChannel(channel);
+      await events.close();
+      rethrow;
     }
-    final resultValue = payload['result'];
-    final result = resultValue is Map
-        ? Map<String, dynamic>.from(resultValue)
-        : <String, dynamic>{};
-    final previewHtml = result['previewHtml']?.toString() ?? '';
-    final files = (result['files'] is List)
-        ? (result['files'] as List).map((value) => value.toString()).toList()
-        : const <String>['index.html'];
 
-    if (previewHtml.isNotEmpty) {
-      yield WorkCodingEvent(
-        filePath: result['entrypoint']?.toString() ?? 'index.html',
-        newContent: previewHtml,
+    try {
+      final invocation = client.functions.invoke(
+        'work-run',
+        body: {
+          'run_id': runId,
+          'prompt': prompt,
+          'model': modelId,
+          'reasoning_effort': reasoningEffort.apiValue,
+        },
       );
-      yield WorkTerminalEvent(
-        command:
-            'daytona exec --run-id ${payload['run_id'] ?? 'auto'} "test -s workspace/index.html && wc -c < workspace/index.html"',
-        output:
-            'Daytona sandbox verified: ${result['entrypoint'] ?? 'index.html'} (${previewHtml.length} bytes ready).',
+      unawaited(
+        invocation.then<void>(
+          (response) {
+            if (gotTerminalEvent || events.isClosed) return;
+            final payload = response.data;
+            if (payload is Map && payload['status'] == 'conversation') {
+              final message = payload['message']?.toString().trim() ?? '';
+              if (message.isNotEmpty) {
+                events.add(WorkMessageEvent(content: message));
+              }
+              events.add(const WorkDoneEvent());
+              return;
+            }
+            if (payload is Map && payload['status'] == 'completed') {
+              final value = payload['result'];
+              if (value is Map) {
+                final result = Map<String, dynamic>.from(value);
+                events.add(
+                  WorkDeliverableEvent(
+                    title: result['title']?.toString() ?? 'Build X workspace',
+                    type: result['type']?.toString() ?? 'web_app',
+                    entrypoint:
+                        result['entrypoint']?.toString() ?? 'index.html',
+                    files:
+                        (result['files'] as List<dynamic>?)
+                            ?.map((item) => item.toString())
+                            .toList() ??
+                        const ['index.html'],
+                    previewHtml: result['previewHtml']?.toString() ?? '',
+                    summary: 'Completed in an isolated Daytona sandbox.',
+                  ),
+                );
+                events.add(const WorkDoneEvent());
+              }
+            }
+          },
+          onError: (Object error, StackTrace _) {
+            if (!events.isClosed) {
+              events.add(WorkDoneEvent(error: _safeFunctionError(error)));
+            }
+          },
+        ),
       );
+      await for (final event in events.stream) {
+        if (_cancelled) break;
+        yield event;
+        if (event is WorkDoneEvent) break;
+      }
+      await invocation;
+    } finally {
+      await client.removeChannel(channel);
+      await events.close();
     }
-    yield WorkDeliverableEvent(
-      title: result['title']?.toString() ?? 'Build X workspace',
-      type: result['type']?.toString() ?? 'web_app',
-      entrypoint: result['entrypoint']?.toString() ?? 'index.html',
-      files: files,
-      previewHtml: previewHtml,
-      summary:
-          result['summary']?.toString() ??
-          'Completed in an isolated Daytona sandbox.',
-    );
-    yield const WorkPlanningEvent(
-      steps: [
-        WorkPlanStep(
-          id: 1,
-          title: 'Create secure sandbox',
-          status: WorkPlanStepStatus.completed,
-        ),
-        WorkPlanStep(
-          id: 2,
-          title: 'Execute and verify the task',
-          status: WorkPlanStepStatus.completed,
-        ),
-        WorkPlanStep(
-          id: 3,
-          title: 'Prepare the preview and deliverable',
-          status: WorkPlanStepStatus.completed,
-        ),
-      ],
-    );
-    yield const WorkDoneEvent();
   }
 
   static String _safeFunctionError(Object error) {
@@ -341,7 +374,7 @@ class WorkAgentService {
           if (reasoningDelta != null && reasoningDelta.toString().isNotEmpty) {
             reasoningBuffer.write(reasoningDelta);
             yield WorkThinkingEvent(
-              content: reasoningBuffer.toString(),
+              content: 'Thinking...',
               elapsedSeconds: secondsCount++,
               effort: reasoningEffort.displayName,
             );
@@ -355,7 +388,7 @@ class WorkAgentService {
               if (chunk.type == ThinkTagChunkType.reasoningDelta) {
                 reasoningBuffer.write(chunk.text);
                 yield WorkThinkingEvent(
-                  content: reasoningBuffer.toString(),
+                  content: 'Thinking...',
                   elapsedSeconds: secondsCount++,
                   effort: reasoningEffort.displayName,
                 );
@@ -508,7 +541,7 @@ class WorkAgentService {
         if (reasoningDelta != null && reasoningDelta.toString().isNotEmpty) {
           reasoningBuffer.write(reasoningDelta);
           yield WorkThinkingEvent(
-            content: reasoningBuffer.toString(),
+            content: 'Thinking...',
             elapsedSeconds: secondsCount++,
             effort: reasoningEffort.displayName,
           );
@@ -522,7 +555,7 @@ class WorkAgentService {
             if (chunk.type == ThinkTagChunkType.reasoningDelta) {
               reasoningBuffer.write(chunk.text);
               yield WorkThinkingEvent(
-                content: reasoningBuffer.toString(),
+                content: 'Thinking...',
                 elapsedSeconds: secondsCount++,
                 effort: reasoningEffort.displayName,
               );

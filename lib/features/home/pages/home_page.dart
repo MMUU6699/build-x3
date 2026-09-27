@@ -1957,10 +1957,8 @@ class _HomePageState extends State<HomePage>
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: context.overlaySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       builder: (ctx) {
         return ListenableBuilder(
           listenable: _controller,

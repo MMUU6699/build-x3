@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:path/path.dart' as p;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../database/app_database.dart';
 import '../../database/business_data.dart';
@@ -25,6 +26,7 @@ import '../api/providers/claude/claude_history.dart';
 import '../api/providers/google_gemini.dart';
 import '../../models/message_part.dart';
 import '../../models/conversation.dart';
+import 'supabase_chat_sync_service.dart';
 import '../../models/workspace_binding.dart';
 import '../../../utils/sandbox_path_resolver.dart';
 import '../../../utils/app_directories.dart';
@@ -99,6 +101,9 @@ class ChatService extends ChangeNotifier {
   ChatDatabaseLease? _databaseLease;
   Future<void>? _assetReferenceMaintenanceFuture;
   Future<void>? _postStartupAssetMaintenanceFuture;
+  StreamSubscription<AuthState>? _cloudAuthSubscription;
+  Future<void>? _cloudSyncFuture;
+  Future<void> _pendingCloudWrites = Future<void>.value();
   // Per-conversation full message-ID skeleton backfill kicked off by
   // loadTimelinePage so first paint is not blocked on getMessageIds.
   // Futures cover idle wait + query and are awaitable before idle fires.
@@ -306,6 +311,7 @@ class ChatService extends ChangeNotifier {
       await _resetStaleStreamingFlags();
 
       _initialized = true;
+      _startCloudSyncOnAuthChange();
       notifyListeners();
       late final Future<void> postStartupMaintenance;
       postStartupMaintenance = _runAssetReferenceMaintenance(appDataDir)
@@ -330,6 +336,119 @@ class ChatService extends ChangeNotifier {
     }
   }
 
+  void _startCloudSyncOnAuthChange() {
+    if (_cloudAuthSubscription != null) return;
+    try {
+      final auth = Supabase.instance.client.auth;
+      _cloudAuthSubscription = auth.onAuthStateChange.listen((state) {
+        if (state.event == AuthChangeEvent.signedIn ||
+            (state.event == AuthChangeEvent.initialSession &&
+                state.session != null)) {
+          unawaited(
+            syncCloudChats().catchError((Object error) {
+              debugPrint('Supabase chat restore failed: $error');
+            }),
+          );
+        }
+      });
+      if (auth.currentSession != null) {
+        unawaited(
+          syncCloudChats().catchError((Object error) {
+            debugPrint('Supabase chat restore failed: $error');
+          }),
+        );
+      }
+    } catch (_) {
+      // Supabase is optional for local and offline chat.
+    }
+  }
+
+  /// Merges the signed-in user's cloud chat into local SQLite. Conversations
+  /// created or changed while signed in are pushed by the normal write path;
+  /// this restore pass does not bulk-publish local-only records to a newly
+  /// signed-in account.
+  Future<void> syncCloudChats() {
+    final running = _cloudSyncFuture;
+    if (running != null) {
+      return running.then((_) => _pendingCloudWrites);
+    }
+    final sync = _syncCloudChats();
+    _cloudSyncFuture = sync;
+    return sync.whenComplete(() {
+      if (identical(_cloudSyncFuture, sync)) _cloudSyncFuture = null;
+    });
+  }
+
+  Future<void> _syncCloudChats() async {
+    if (!_initialized) await init();
+    await _pendingCloudWrites;
+    try {
+      if (Supabase.instance.client.auth.currentUser == null) return;
+    } catch (_) {
+      return;
+    }
+
+    final localConversations = await _repo.getAllConversations();
+    final localById = {for (final item in localConversations) item.id: item};
+    final cloudRows = await SupabaseChatSyncService.fetchConversations();
+
+    for (final row in cloudRows) {
+      try {
+        final raw = row['data'];
+        if (raw is! Map) continue;
+        final conversation = Conversation.fromJson(
+          Map<String, dynamic>.from(raw),
+        );
+        if (conversation.id != row['id']) continue;
+
+        final local = localById[conversation.id];
+        if (local == null || conversation.updatedAt.isAfter(local.updatedAt)) {
+          await _repo.putConversation(conversation);
+        }
+
+        final cloudMessages = await SupabaseChatSyncService.fetchMessages(
+          conversation.id,
+        );
+        final localIds = (await _repo.getMessageIds(conversation.id)).toSet();
+        var nextOrder = localIds.length;
+        for (final messageRow in cloudMessages) {
+          final messageData = messageRow['data'];
+          if (messageData is! Map) continue;
+          final message = ChatMessage.fromJson(
+            Map<String, dynamic>.from(messageData),
+          );
+          if (message.conversationId != conversation.id ||
+              localIds.contains(message.id)) {
+            continue;
+          }
+          await _repo.putMessage(message, messageOrder: nextOrder++);
+          localIds.add(message.id);
+        }
+
+        // Upload local-only messages (and refresh the conversation envelope)
+        // so the merge also carries data created while offline.
+        final merged = await _repo.getConversation(conversation.id);
+        if (merged != null) {
+          await SupabaseChatSyncService.syncConversation(merged);
+          for (final messageId in await _repo.getMessageIds(conversation.id)) {
+            final message = await _repo.getMessage(messageId);
+            if (message != null) {
+              await SupabaseChatSyncService.syncMessage(message);
+            }
+          }
+        }
+      } on FormatException catch (error) {
+        debugPrint('Skipping malformed cloud conversation: $error');
+      } on TypeError catch (error) {
+        debugPrint('Skipping malformed cloud conversation: $error');
+      }
+    }
+
+    await _loadConversationsCache();
+    _clearPersistedMessageCache();
+    notifyListeners();
+  }
+
   Future<void> close() async {
     final initialization = _initFuture;
     if (initialization != null) {
@@ -340,6 +459,15 @@ class ChatService extends ChangeNotifier {
       }
     }
     if (!_initialized) return;
+    final cloudSync = _cloudSyncFuture;
+    if (cloudSync != null) {
+      try {
+        await cloudSync;
+      } catch (_) {}
+    }
+    try {
+      await _pendingCloudWrites;
+    } catch (_) {}
     final postStartupMaintenance = _postStartupAssetMaintenanceFuture;
     if (postStartupMaintenance != null) {
       try {
@@ -374,6 +502,8 @@ class ChatService extends ChangeNotifier {
 
   @override
   void dispose() {
+    unawaited(_cloudAuthSubscription?.cancel());
+    _cloudAuthSubscription = null;
     if (_initialized || _initFuture != null) {
       unawaited(close());
     }
@@ -1893,6 +2023,28 @@ class ChatService extends ChangeNotifier {
     }
     await _repo.putConversation(conversation);
     _conversationsCache[conversation.id] = conversation;
+    _queueCloudChatSync(conversation);
+  }
+
+  void _queueCloudChatSync(
+    Conversation conversation, {
+    Iterable<ChatMessage> messages = const <ChatMessage>[],
+  }) {
+    final pending = _pendingCloudWrites.then((_) async {
+      try {
+        final synced = await SupabaseChatSyncService.syncConversation(
+          conversation,
+        );
+        if (!synced) return;
+        for (final message in messages) {
+          await SupabaseChatSyncService.syncMessage(message);
+        }
+      } catch (_) {
+        // Keep offline/local chat usable when the cloud is unavailable.
+      }
+    });
+    _pendingCloudWrites = pending;
+    unawaited(pending);
   }
 
   Future<void> _refreshConversation(String conversationId) async {
@@ -2004,6 +2156,11 @@ class ChatService extends ChangeNotifier {
     if (conversation == null) return false;
 
     await _repo.deleteConversation(id);
+    unawaited(() async {
+      try {
+        await SupabaseChatSyncService.deleteConversation(id);
+      } catch (_) {}
+    }());
     _conversationsCache.remove(id);
     // Stop any deferred/in-flight order backfill before clearing caches so a
     // late getMessageIds cannot resurrect order/count for a deleted id.
@@ -2595,6 +2752,7 @@ class ChatService extends ChangeNotifier {
     if (_messageCanOwnAssets(message)) {
       await _synchronizeMessageAssetsBestEffort(message);
     }
+    _queueCloudChatSync(persisted, messages: [message]);
     _conversationsCache[conversationId] = persisted;
     order.add(message.id);
     _messageCounts[conversationId] = order.length;
@@ -2956,6 +3114,7 @@ class ChatService extends ChangeNotifier {
       // Persisted append touches updatedAt (list order) and may promote a
       // draft into the persisted list.
       _bumpConversationListRevision();
+      _queueCloudChatSync(conversation, messages: [message]);
     }
 
     // Update cache
@@ -3099,6 +3258,7 @@ class ChatService extends ChangeNotifier {
       if (result.userMessage case final userMessage?) userMessage,
       result.assistantMessage,
     ];
+    _queueCloudChatSync(result.conversation, messages: messages);
     if (result.userMessage case final userMessage?
         when _messageCanOwnAssets(userMessage)) {
       await _synchronizeMessageAssetsBestEffort(userMessage);
@@ -3281,6 +3441,13 @@ class ChatService extends ChangeNotifier {
     );
     if (updatedMessage == null) return;
 
+    if (updatedMessage.isStreaming != true) {
+      final conversation = _conversationsCache[updatedMessage.conversationId];
+      if (conversation != null) {
+        _queueCloudChatSync(conversation, messages: [updatedMessage]);
+      }
+    }
+
     if (content != null || parts != null) {
       await _synchronizeMessageAssetsBestEffort(updatedMessage);
     }
@@ -3317,6 +3484,12 @@ class ChatService extends ChangeNotifier {
     );
     _replaceCachedMessage(message);
     _toolEventsCache[message.id] = List<Map<String, dynamic>>.of(toolEvents);
+    if (!message.isStreaming) {
+      final conversation = _conversationsCache[message.conversationId];
+      if (conversation != null) {
+        _queueCloudChatSync(conversation, messages: [message]);
+      }
+    }
   }
 
   Future<GenerationRun> transitionGenerationRun({
@@ -3368,6 +3541,10 @@ class ChatService extends ChangeNotifier {
       checkpointSeq: checkpointSeq,
       errorCode: errorCode,
     );
+    final conversation = _conversationsCache[message.conversationId];
+    if (conversation != null) {
+      _queueCloudChatSync(conversation, messages: [message]);
+    }
     if (_messageCanOwnAssets(message)) {
       await _synchronizeMessageAssetsBestEffort(message);
     }
@@ -4179,6 +4356,11 @@ class ChatService extends ChangeNotifier {
       deletedIds.add(message.id);
       _evictMessageCaches(message.id);
     }
+    unawaited(
+      SupabaseChatSyncService.deleteMessages(
+        deletedIds,
+      ).catchError((Object _) {}),
+    );
     _messagesCache.remove(conversationId);
     _messageOrderIds.remove(conversationId);
     _firstGroupIndicesCache.remove(conversationId);
@@ -4201,7 +4383,15 @@ class ChatService extends ChangeNotifier {
   Future<void> clearAllData({bool deleteUploads = true}) async {
     if (!_initialized) await init();
 
+    final persistedConversationIds = _conversationsCache.keys.toList();
     await _repo.clearAllData();
+    for (final id in persistedConversationIds) {
+      unawaited(
+        SupabaseChatSyncService.deleteConversation(
+          id,
+        ).catchError((Object _) {}),
+      );
+    }
     for (final id in _temporaryConversationIds) {
       _rememberDiscardedTemporaryConversation(id);
     }

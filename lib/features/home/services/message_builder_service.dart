@@ -1823,6 +1823,49 @@ class MessageBuilderService {
     }
   }
 
+  /// Inject grounded search results into apiMessages when web search is enabled.
+  Future<void> injectSearchResults(
+    List<Map<String, dynamic>> apiMessages,
+    SettingsProvider settings,
+    Assistant? assistant,
+    bool hasBuiltInSearch,
+  ) async {
+    if (assistant?.searchEnabled != true || hasBuiltInSearch) return;
+
+    // Find the latest user query from apiMessages
+    String? userQuery;
+    for (int i = apiMessages.length - 1; i >= 0; i--) {
+      if (apiMessages[i]['role'] == 'user') {
+        final c = apiMessages[i]['content'];
+        if (c is String && c.trim().isNotEmpty) {
+          userQuery = c.trim();
+          break;
+        }
+      }
+    }
+    if (userQuery == null || userQuery.isEmpty) return;
+
+    try {
+      final searchJson = await SearchToolService.executeSearch(
+        userQuery,
+        settings,
+      );
+      final formatted = SearchToolService.formatResultsForContext(
+        searchJson,
+        query: userQuery,
+      );
+      if (formatted.isNotEmpty) {
+        _appendToSystemMessage(
+          apiMessages,
+          formatted,
+          source: ContextSource.searchPrompt,
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to inject web search results: $e');
+    }
+  }
+
   /// Inject instruction injection prompts into apiMessages.
   Future<void> injectInstructionPrompts(
     List<Map<String, dynamic>> apiMessages,

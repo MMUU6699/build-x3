@@ -126,5 +126,38 @@ void main() {
         ),
       );
     });
+
+    test('falls back to BuildXSecureStore when apiKey is empty', () async {
+      http.Request? captured;
+      final service = SerperSearchService(
+        client: MockClient((request) async {
+          captured = request;
+          return http.Response(
+            jsonEncode({
+              'organic': [
+                {
+                  'title': 'Test Result',
+                  'link': 'https://example.com',
+                  'snippet': 'snippet text',
+                },
+              ],
+              'answerBox': {'answer': 'Direct Answer'},
+            }),
+            200,
+          );
+        }),
+      );
+
+      final result = await service.search(
+        query: 'apple',
+        commonOptions: const SearchCommonOptions(timeout: 1000),
+        serviceOptions: SerperOptions(id: 'serper-1', apiKey: ''),
+      );
+
+      expect(captured?.headers['X-API-KEY'], isNotEmpty);
+      expect(result.items, hasLength(1));
+      expect(result.items.single.title, 'Test Result');
+      expect(result.answer, 'Direct Answer');
+    });
   });
 }

@@ -36,7 +36,7 @@ class ReasoningIcons {
     if (budget <= mediumBudget) return 'Medium';
     if (budget <= heavyBudget) return 'High';
     if (budget <= xhighBudget) return '64k';
-    if (budget <= maxBudget) return '128k';
+    if (budget <= maxBudget) return 'Max';
     if (budget >= 1000) return '${(budget / 1000).round()}k';
     return '$budget';
   }

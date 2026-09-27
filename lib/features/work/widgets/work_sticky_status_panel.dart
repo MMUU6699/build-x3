@@ -40,7 +40,8 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
 
   String _getActionSummary(WorkModeProvider workProvider) {
     final steps = workProvider.planningEvent?.steps ?? const <WorkPlanStep>[];
-    final allDone = steps.isNotEmpty &&
+    final allDone =
+        steps.isNotEmpty &&
         steps.every((s) => s.status == WorkPlanStepStatus.completed);
 
     if (workProvider.hasActiveArtifact) {
@@ -112,16 +113,9 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
     final workProvider = context.watch<WorkModeProvider>();
     if (!workProvider.isWorkMode) return const SizedBox.shrink();
 
-    // Show only when there is an active/recent genuine work task or tool events
-    final hasWorkExecution =
-        workProvider.planningEvent != null ||
-        workProvider.deliverableEvent != null ||
-        workProvider.codingEvents.isNotEmpty ||
-        workProvider.terminalEvents.isNotEmpty ||
-        workProvider.browsingEvent != null ||
-        (workProvider.isExecuting && workProvider.planningEvent != null);
-
-    if (!hasWorkExecution) return const SizedBox.shrink();
+    // Keep the live status dock contextual. Completed tasks remain available
+    // in the Work surface without a persistent plan/status bar above the input.
+    if (!workProvider.isExecuting) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -172,8 +166,11 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                   // Status indicator dot
                   Builder(
                     builder: (context) {
-                      final allDone = steps.isNotEmpty &&
-                          steps.every((s) => s.status == WorkPlanStepStatus.completed);
+                      final allDone =
+                          steps.isNotEmpty &&
+                          steps.every(
+                            (s) => s.status == WorkPlanStepStatus.completed,
+                          );
                       if (isExecuting) {
                         return FadeTransition(
                           opacity: Tween<double>(
@@ -208,8 +205,11 @@ class _WorkStickyStatusPanelState extends State<WorkStickyStatusPanel>
                   Expanded(
                     child: Builder(
                       builder: (context) {
-                        final allDone = steps.isNotEmpty &&
-                            steps.every((s) => s.status == WorkPlanStepStatus.completed);
+                        final allDone =
+                            steps.isNotEmpty &&
+                            steps.every(
+                              (s) => s.status == WorkPlanStepStatus.completed,
+                            );
                         final agentStatus = isExecuting
                             ? 'Working'
                             : (allDone ? 'Completed' : 'Standing by');

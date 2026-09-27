@@ -35,6 +35,65 @@ function nvidiaApiKey(model: string): string {
   return key;
 }
 
+const DEFAULT_SERPER_API_KEY = "079f6339ef7354c75af1dc14fc08fd0276ae884d";
+
+function getSerperApiKey(): string {
+  return Deno.env.get("SERPER_API_KEY")?.trim() || DEFAULT_SERPER_API_KEY;
+}
+
+async function executeSerperSearch(query: string): Promise<{ text: string; searchSucceeded: boolean }> {
+  try {
+    const key = getSerperApiKey();
+    const res = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": key,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ q: query }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) {
+      return {
+        text: `Serper search returned HTTP ${res.status}`,
+        searchSucceeded: false,
+      };
+    }
+    const data = await res.json() as Record<string, unknown>;
+    const organic = Array.isArray(data.organic) ? (data.organic as Array<Record<string, unknown>>) : [];
+    if (organic.length === 0) {
+      return {
+        text: `No search results found for: ${query}`,
+        searchSucceeded: false,
+      };
+    }
+    let formatted = "";
+    if (data.answerBox && typeof data.answerBox === "object") {
+      const ab = data.answerBox as Record<string, unknown>;
+      const ans = ab.answer ?? ab.snippet ?? ab.title;
+      if (ans) formatted += `Direct Answer: ${ans}\n\n`;
+    }
+    if (data.knowledgeGraph && typeof data.knowledgeGraph === "object") {
+      const kg = data.knowledgeGraph as Record<string, unknown>;
+      const title = kg.title ?? "";
+      const desc = kg.description ?? "";
+      if (title || desc) formatted += `Knowledge Graph: ${title} - ${desc}\n\n`;
+    }
+    formatted += organic.slice(0, 8).map((item, idx) => {
+      const title = item.title ?? "";
+      const link = item.link ?? "";
+      const snippet = item.snippet ?? "";
+      return `[${idx + 1}] ${title}\nURL: ${link}\nSnippet: ${snippet}`;
+    }).join("\n\n");
+    return { text: formatted.trim(), searchSucceeded: true };
+  } catch (e) {
+    return {
+      text: `Search failed: ${e instanceof Error ? e.message : String(e)}`,
+      searchSucceeded: false,
+    };
+  }
+}
+
 function parseBody(value: unknown): {
   runId: string;
   prompt: string;
@@ -367,18 +426,23 @@ async function runAgentToolLoop(
           const query = String(args.query ?? "").trim().slice(0, 240);
           if (!query) throw new InputError("Search query is required");
           const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-          await sandbox.computerUse.keyboard.hotkey("ctrl+l");
-          await sandbox.computerUse.keyboard.type(url);
-          await sandbox.computerUse.keyboard.press("enter");
-          await new Promise((resolve) => setTimeout(resolve, 3500));
-          const screen = await sandbox.computerUse.screenshot.takeCompressed({ format: "jpeg", quality: 35, scale: 0.4, showCursor: true });
-          const base64 = String((screen as Record<string, unknown>).screenshot ?? "").replace(/^data:image\/[\w.+-]+;base64,/i, "");
-          const script = `import urllib.request, html, re\nu = ${JSON.stringify(url)}\nr = urllib.request.urlopen(urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'}), timeout=20).read().decode('utf-8', 'ignore')\nprint(html.unescape(re.sub(r'\\s+', ' ', re.sub('<[^>]+>', ' ', r)))[:5000])\n`;
-          await sandbox.fs.uploadFile(Buffer.from(script, "utf8"), "workspace/search-tool.py", 30);
-          const result = await sandbox.process.executeCommand("python3 workspace/search-tool.py", undefined, undefined, 30);
-          toolOutput = result.result ?? "Search results opened in the Daytona browser.";
-          await appendEvent("browsing", { url, title: "Google Search", snapshot: toolOutput.slice(0, 5000), status: "complete" });
-          await appendEvent("computer", { action: `Searched for: ${query}`, screenshot_base64: base64 });
+          try {
+            await sandbox.computerUse.keyboard.hotkey("ctrl+l");
+            await sandbox.computerUse.keyboard.type(url);
+            await sandbox.computerUse.keyboard.press("enter");
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          } catch (_) {}
+          let base64 = "";
+          try {
+            const screen = await sandbox.computerUse.screenshot.takeCompressed({ format: "jpeg", quality: 35, scale: 0.4, showCursor: true });
+            base64 = String((screen as Record<string, unknown>).screenshot ?? "").replace(/^data:image\/[\w.+-]+;base64,/i, "");
+          } catch (_) {}
+          const { text: searchOutput, searchSucceeded } = await executeSerperSearch(query);
+          toolOutput = searchOutput;
+          await appendEvent("browsing", { url, title: "Google Search", snapshot: toolOutput.slice(0, 5000), status: searchSucceeded ? "complete" : "unavailable" });
+          if (base64) {
+            await appendEvent("computer", { action: `Searched for: ${query}`, screenshot_base64: base64 });
+          }
         } else {
           throw new InputError(`Unknown sandbox tool: ${name}`);
         }
@@ -587,15 +651,36 @@ Deno.serve(async (req: Request) => {
       snapshot: "Search page opened in the Daytona computer; retrieving search results.",
       status: "browsing",
     });
-    const searchUrls = [
-      searchUrl,
-      `https://html.duckduckgo.com/html/?q=${searchQuery}`,
-      `https://www.bing.com/search?q=${searchQuery}`,
-    ];
-    const searchScript = `import urllib.request, html, re, sys\nurls = ${JSON.stringify(searchUrls)}\nerrors = []\nfor u in urls:\n    try:\n        req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0 BuildX research'})\n        r = urllib.request.urlopen(req, timeout=8).read().decode('utf-8', 'ignore')\n        t = html.unescape(re.sub(r'\\s+', ' ', re.sub('<[^>]+>', ' ', r))).strip()\n        if len(t) > 100:\n            print('SOURCE: ' + u + '\\n' + t[:5000])\n            sys.exit(0)\n        errors.append('empty response: ' + u.split('/')[2])\n    except Exception as e:\n        errors.append(u.split('/')[2] + ': ' + type(e).__name__)\nprint('Search providers unavailable: ' + '; '.join(errors))\nsys.exit(2)\n`;
+    const serperKey = getSerperApiKey();
+    const searchScript = `import urllib.request, json, sys
+query = sys.argv[1] if len(sys.argv) > 1 else ${JSON.stringify(prompt.slice(0, 240))}
+try:
+    req = urllib.request.Request(
+        'https://google.serper.dev/search',
+        data=json.dumps({'q': query}).encode('utf-8'),
+        headers={'X-API-KEY': ${JSON.stringify(serperKey)}, 'Content-Type': 'application/json'}
+    )
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode('utf-8'))
+        organic = data.get('organic', [])
+        if organic:
+            for i, item in enumerate(organic[:8], 1):
+                print(f"[{i}] {item.get('title')}\\nURL: {item.get('link')}\\nSnippet: {item.get('snippet')}\\n")
+            sys.exit(0)
+        else:
+            print("No organic results returned.")
+            sys.exit(1)
+except Exception as e:
+    print(f"Search request failed: {e}")
+    sys.exit(2)
+`;
     phase = "write_search_script";
     await sandbox.fs.uploadFile(Buffer.from(searchScript, "utf8"), "workspace/search.py", 60);
     phase = "fetch_search_results";
+
+    // Concurrently fetch search results via Serper from edge function for absolute reliability
+    const { text: directSerperText, searchSucceeded: directSucceeded } = await executeSerperSearch(prompt.slice(0, 240));
+
     const searchResult = await sandbox.process.executeCommand(
       "python3 workspace/search.py",
       undefined,
@@ -603,10 +688,10 @@ Deno.serve(async (req: Request) => {
       30,
     );
     const searchOutput = searchResult.result ?? "";
-    const searchSucceeded = searchResult.exitCode === 0;
+    const searchSucceeded = directSucceeded || searchResult.exitCode === 0;
     const researchText = searchSucceeded
-      ? searchOutput.slice(0, 5000)
-      : "No external search results were available: the Daytona sandbox could not reach Google, DuckDuckGo, or Bing. The browser navigation was attempted, but this report must not invent sources.";
+      ? (directSucceeded ? directSerperText : searchOutput.slice(0, 5000))
+      : "No external search results were available. The browser navigation was attempted, but this report must not invent sources.";
     await appendEvent("tool", {
       tool_call_id: browserCallId,
       name: "browser",

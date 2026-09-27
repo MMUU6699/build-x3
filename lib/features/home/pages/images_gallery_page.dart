@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/models/message_part.dart';
 import '../../../core/providers/settings_provider.dart';
@@ -16,6 +17,7 @@ import '../../../icons/lucide_adapter.dart';
 import '../../../shared/widgets/snackbar.dart';
 import '../../../theme/app_font_weights.dart';
 import '../../../utils/sandbox_path_resolver.dart';
+import '../../chat/pages/image_viewer_page.dart';
 import '../widgets/header_bubble_button.dart';
 
 class ImagesGalleryPage extends StatefulWidget {
@@ -26,60 +28,10 @@ class ImagesGalleryPage extends StatefulWidget {
 }
 
 class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
-  static const _examples = <_ImageExample>[
-    _ImageExample(
-      title: 'Stickers',
-      prompt:
-          'A cheerful set of six hand drawn stickers: a black cat, a potted plant, a friendly bearded person, tiny stars and flowers. Bold clean outlines, bright warm colors, white background.',
-      imageAsset: 'assets/images/examples/stickers.png',
-      icon: Lucide.Sparkles,
-      colors: [Color(0xFFFFCF45), Color(0xFFFF8A58)],
-    ),
-    _ImageExample(
-      title: 'Photosynthesis as a diagram',
-      prompt:
-          'A clear, colorful educational infographic diagram explaining photosynthesis in a green plant, labeled sunlight, water, carbon dioxide, glucose, and oxygen. Clean textbook illustration.',
-      imageAsset: 'assets/images/examples/photosynthesis.png',
-      icon: Lucide.Shapes,
-      colors: [Color(0xFF9BD77A), Color(0xFF287B61)],
-    ),
-    _ImageExample(
-      title: 'Map of ancient Rome',
-      prompt:
-          'An illustrated antique parchment map of ancient Rome, showing the Tiber river, major hills, the Forum, and city walls, with small readable labels and a historical atlas style.',
-      imageAsset: 'assets/images/examples/rome_map.png',
-      icon: Lucide.Map,
-      colors: [Color(0xFFD9B477), Color(0xFF946A45)],
-    ),
-    _ImageExample(
-      title: 'Timeline of the Civil War',
-      prompt:
-          'A polished classroom infographic timeline of the American Civil War from 1861 to 1865, with major events, dates, simple historical illustrations, and a clear horizontal layout.',
-      imageAsset: 'assets/images/examples/civil_war.png',
-      icon: Lucide.Timer,
-      colors: [Color(0xFF9CB7CE), Color(0xFF455C79)],
-    ),
-    _ImageExample(
-      title: 'Plant cell',
-      prompt:
-          'A detailed but approachable labeled scientific cross section of a plant cell, showing cell wall, membrane, nucleus, chloroplasts, vacuole, and mitochondria in a clean textbook style.',
-      imageAsset: 'assets/images/examples/plant_cell.png',
-      icon: Lucide.circleDot,
-      colors: [Color(0xFFB6D58C), Color(0xFF60815A)],
-    ),
-    _ImageExample(
-      title: 'Cozy bedroom',
-      prompt:
-          'A photorealistic cozy bedroom at sunset with a large window, warm string lights, a leafy plant, soft cream bedding, and a calm lived-in atmosphere.',
-      imageAsset: 'assets/images/examples/cozy_bedroom.png',
-      icon: Lucide.Bed,
-      colors: [Color(0xFFE7A36B), Color(0xFF755B76)],
-    ),
-  ];
-
   final _promptController = TextEditingController();
   final _promptFocus = FocusNode();
-  final List<ImagePart> _generated = [];
+  final ScrollController _scrollController = ScrollController();
+  final List<_GeneratedItem> _items = [];
   XFile? _referenceImage;
   _ImageModel? _selectedModel;
   String? _error;
@@ -89,6 +41,7 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
   void dispose() {
     _promptController.dispose();
     _promptFocus.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -143,6 +96,7 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
     final prompt = _promptController.text.trim();
     if ((prompt.isEmpty && _referenceImage == null) || _generating) return;
 
+    final refPath = _referenceImage?.path;
     setState(() {
       _error = null;
       _generating = true;
@@ -176,10 +130,21 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
         if (images.isNotEmpty) {
           if (!mounted) return;
           setState(() {
-            _generated.insertAll(0, images);
+            for (final img in images) {
+              _items.insert(
+                0,
+                _GeneratedItem(
+                  prompt: effectivePrompt,
+                  image: img,
+                  timestamp: DateTime.now(),
+                  referenceImagePath: refPath,
+                ),
+              );
+            }
             _referenceImage = null;
           });
           _promptController.clear();
+          _scrollToTop();
           return;
         }
       } catch (_) {
@@ -193,10 +158,19 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
           'https://image.pollinations.ai/prompt/${Uri.encodeComponent(effectivePrompt)}?width=1024&height=1024&nologo=true&seed=$seed';
       if (!mounted) return;
       setState(() {
-        _generated.insert(0, ImagePart(uri: uri));
+        _items.insert(
+          0,
+          _GeneratedItem(
+            prompt: effectivePrompt,
+            image: ImagePart(uri: uri),
+            timestamp: DateTime.now(),
+            referenceImagePath: refPath,
+          ),
+        );
         _referenceImage = null;
       });
       _promptController.clear();
+      _scrollToTop();
     } catch (error) {
       if (mounted) setState(() => _error = _friendlyError(error));
     } finally {
@@ -204,166 +178,37 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
     }
   }
 
-  void _showExamplePromptSheet(
-    BuildContext context,
-    _ImageExample example,
-    List<_ImageModel> models,
-  ) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        final cs = Theme.of(ctx).colorScheme;
-        final isDark = Theme.of(ctx).brightness == Brightness.dark;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: cs.onSurface.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: SizedBox(
-                      width: 44,
-                      height: 44,
-                      child: Image.asset(
-                        example.imageAsset,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: example.colors),
-                          ),
-                          child: Icon(example.icon, color: Colors.white, size: 22),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          example.title,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          'Prompt inspiration',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: cs.onSurface.withValues(alpha: 0.55),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: cs.outline.withValues(alpha: 0.12),
-                  ),
-                ),
-                child: SelectableText(
-                  example.prompt,
-                  style: TextStyle(
-                    fontSize: 14.5,
-                    height: 1.45,
-                    color: cs.onSurface,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: example.prompt));
-                        Navigator.of(ctx).pop();
-                        setState(() {
-                          _promptController.text = example.prompt;
-                          _error = null;
-                        });
-                        _promptFocus.requestFocus();
-                      },
-                      icon: const Icon(Lucide.Copy, size: 18),
-                      label: const Text('Use Prompt'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563EB),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        setState(() {
-                          _promptController.text = example.prompt;
-                          _error = null;
-                        });
-                        _generate(models);
-                      },
-                      icon: const Icon(Lucide.Sparkles, size: 18),
-                      label: const Text('Generate Now'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+  void _scrollToTop() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
         );
-      },
-    );
+      }
+    });
   }
 
   String _friendlyError(Object error) {
     final raw = error.toString().replaceFirst('Exception: ', '').trim();
     if (raw.isEmpty) {
-      return 'Image generation failed. Check the selected model and try again.';
+      return 'Image generation failed. Please try again.';
     }
     return raw.length > 240 ? '${raw.substring(0, 237)}…' : raw;
+  }
+
+  void _openImageViewer(String uri) {
+    Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        opaque: false,
+        pageBuilder: (_, __, ___) => ImageViewerPage(images: [uri]),
+        transitionDuration: const Duration(milliseconds: 300),
+        reverseTransitionDuration: const Duration(milliseconds: 250),
+        transitionsBuilder: (context, anim, sec, child) =>
+            FadeTransition(opacity: anim, child: child),
+      ),
+    );
   }
 
   @override
@@ -374,16 +219,19 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121214) : Colors.white,
+      backgroundColor: isDark ? const Color(0xFF101012) : const Color(0xFFF9FAFB),
       appBar: AppBar(
+        toolbarHeight: 66,
+        leadingWidth: 72,
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: Center(
           child: HeaderBubbleButton(
-            size: 40,
+            // 40% larger back button (56px touch target, 26px icon)
+            size: 56,
             onTap: () => Navigator.of(context).maybePop(),
-            child: Icon(Lucide.ArrowLeft, size: 19, color: cs.onSurface),
+            child: Icon(Lucide.ArrowLeft, size: 26, color: cs.onSurface),
           ),
         ),
         title: Text(
@@ -392,82 +240,31 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
             fontSize: 18,
             fontWeight: AppFontWeights.semibold,
             color: cs.onSurface,
+            letterSpacing: -0.2,
           ),
         ),
       ),
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                  child: Text(
-                    'Create an image',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                      color: cs.onSurface,
-                    ),
+          // Content Area
+          Positioned.fill(
+            child: _items.isEmpty
+                ? _buildEmptyState(cs, isDark)
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 130),
+                    itemCount: _items.length,
+                    itemBuilder: (context, index) {
+                      final item = _items[index];
+                      return _GeneratedItemCard(
+                        item: item,
+                        onTapImage: () => _openImageViewer(item.image.uri),
+                      );
+                    },
                   ),
-                ),
-              ),
-              if (_generated.isNotEmpty) ...[
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  sliver: SliverToBoxAdapter(
-                    child: Text(
-                      'Generated',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: AppFontWeights.semibold,
-                        color: cs.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  sliver: SliverGrid.builder(
-                    itemCount: _generated.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.82,
-                        ),
-                    itemBuilder: (context, index) =>
-                        _GeneratedImageTile(image: _generated[index]),
-                  ),
-                ),
-              ],
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
-                sliver: SliverGrid.builder(
-                  itemCount: _examples.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.82,
-                  ),
-                  itemBuilder: (context, index) {
-                    final example = _examples[index];
-                    return _ExampleTile(
-                      example: example,
-                      onTap: () => _showExamplePromptSheet(
-                        context,
-                        example,
-                        models,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
           ),
+
+          // ChatBox (Replicating main chat input bar, only image attachment on left)
           Align(
             alignment: Alignment.bottomCenter,
             child: _ImageChatBox(
@@ -488,169 +285,278 @@ class _ImagesGalleryPageState extends State<ImagesGalleryPage> {
       ),
     );
   }
-}
 
-class _ImageModel {
-  const _ImageModel({required this.config, required this.id});
-  final ProviderConfig config;
-  final String id;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _ImageModel && config.id == other.config.id && id == other.id;
-
-  @override
-  int get hashCode => Object.hash(config.id, id);
-}
-
-class _ImageExample {
-  const _ImageExample({
-    required this.title,
-    required this.prompt,
-    required this.imageAsset,
-    required this.icon,
-    required this.colors,
-  });
-  final String title;
-  final String prompt;
-  final String imageAsset;
-  final IconData icon;
-  final List<Color> colors;
-}
-
-class _ExampleTile extends StatelessWidget {
-  const _ExampleTile({required this.example, required this.onTap});
-  final _ImageExample example;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+  Widget _buildEmptyState(ColorScheme cs, bool isDark) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [
+                          const Color(0xFF2563EB).withValues(alpha: 0.35),
+                          const Color(0xFF1E1B4B).withValues(alpha: 0.5),
+                        ]
+                      : [
+                          const Color(0xFFDBEAFE),
+                          const Color(0xFFEFF6FF),
+                        ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2563EB).withValues(alpha: isDark ? 0.3 : 0.15),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  example.imageAsset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: example.colors,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        example.icon,
-                        size: 54,
-                        color: Colors.white.withValues(alpha: 0.85),
-                      ),
-                    ),
-                  ),
+              child: const Center(
+                child: Icon(
+                  Lucide.Image,
+                  size: 36,
+                  color: Color(0xFF3B82F6),
                 ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0.55, 1.0],
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.72),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 12,
-                  right: 12,
-                  bottom: 12,
-                  child: Text(
-                    example.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      shadows: [
-                        Shadow(color: Colors.black54, blurRadius: 6),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(height: 22),
+            Text(
+              'AI Image Studio',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: cs.onSurface,
+                letterSpacing: -0.4,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Type a prompt below to create any image, or attach a photo to edit and enhance.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.5,
+                height: 1.45,
+                color: cs.onSurface.withValues(alpha: 0.55),
+              ),
+            ),
+            const SizedBox(height: 60),
+          ],
         ),
       ),
     );
   }
 }
 
-class _GeneratedImageTile extends StatelessWidget {
-  const _GeneratedImageTile({required this.image});
+class _GeneratedItem {
+  const _GeneratedItem({
+    required this.prompt,
+    required this.image,
+    required this.timestamp,
+    this.referenceImagePath,
+  });
+
+  final String prompt;
   final ImagePart image;
+  final DateTime timestamp;
+  final String? referenceImagePath;
+}
+
+class _GeneratedItemCard extends StatelessWidget {
+  const _GeneratedItemCard({
+    required this.item,
+    required this.onTapImage,
+  });
+
+  final _GeneratedItem item;
+  final VoidCallback onTapImage;
 
   @override
   Widget build(BuildContext context) {
-    final uri = image.uri;
-    late final Widget child;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: isDark
+            ? const Color(0xFF19191D)
+            : Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.06),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Prompt Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (item.referenceImagePath != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: kIsWeb
+                          ? Image.network(
+                              item.referenceImagePath!,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.file(
+                              File(item.referenceImagePath!),
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Text(
+                    item.prompt,
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Lucide.Copy,
+                    size: 17,
+                    color: cs.onSurface.withValues(alpha: 0.5),
+                  ),
+                  tooltip: 'Copy prompt',
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: item.prompt));
+                    showAppSnackBar(
+                      context,
+                      message: 'Prompt copied',
+                      type: NotificationType.success,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // Main Image Display
+          GestureDetector(
+            onTap: onTapImage,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: _buildImageWidget(context, item.image.uri),
+              ),
+            ),
+          ),
+
+          // Actions Footer (Share / Fullscreen)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  onPressed: onTapImage,
+                  icon: const Icon(Lucide.Maximize2, size: 16),
+                  label: const Text('View Fullscreen'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: cs.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Lucide.Share2,
+                    size: 18,
+                    color: cs.onSurface.withValues(alpha: 0.65),
+                  ),
+                  tooltip: 'Share',
+                  onPressed: () {
+                    // ignore: deprecated_member_use
+                    Share.share(item.image.uri);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(BuildContext context, String uri) {
     if (uri.startsWith('data:') && uri.contains(',')) {
       try {
-        child = Image.memory(
+        return Image.memory(
           base64Decode(uri.substring(uri.indexOf(',') + 1)),
           fit: BoxFit.cover,
         );
       } catch (_) {
-        child = const Center(child: Icon(Lucide.ImageOff));
+        return const Center(child: Icon(Lucide.ImageOff));
       }
     } else if (uri.startsWith('http://') || uri.startsWith('https://')) {
-      child = Image.network(
+      return Image.network(
         uri,
         fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => const Center(child: Icon(Lucide.ImageOff)),
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: progress.expectedTotalBytes != null
+                  ? progress.cumulativeBytesLoaded /
+                      progress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (_, __, ___) =>
+            const Center(child: Icon(Lucide.ImageOff)),
       );
     } else if (!kIsWeb &&
         (uri.startsWith('file:') || uri.startsWith('kelivo-file:'))) {
       try {
-        child = Image.file(
+        return Image.file(
           File(SandboxPathResolver.fix(uri)),
           fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => const Center(child: Icon(Lucide.ImageOff)),
+          errorBuilder: (_, __, ___) =>
+              const Center(child: Icon(Lucide.ImageOff)),
         );
       } catch (_) {
-        child = const Center(child: Icon(Lucide.ImageOff));
+        return const Center(child: Icon(Lucide.ImageOff));
       }
     } else {
-      child = const Center(child: Icon(Lucide.ImageOff));
+      return const Center(child: Icon(Lucide.ImageOff));
     }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: ColoredBox(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: child,
-      ),
-    );
   }
 }
 
@@ -800,13 +706,14 @@ class _ImageChatBox extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Row(
                 children: [
+                  // ONLY Image attachment button on the left (replacing '+')
                   IconButton(
                     icon: Icon(
                       Lucide.Image,
                       size: 22,
                       color: cs.onSurface.withValues(alpha: 0.8),
                     ),
-                    tooltip: 'Add image to edit',
+                    tooltip: 'Attach image to edit',
                     onPressed: onPickImage,
                   ),
                   const SizedBox(width: 4),
@@ -818,7 +725,7 @@ class _ImageChatBox extends StatelessWidget {
                       maxLines: 3,
                       textInputAction: TextInputAction.send,
                       decoration: InputDecoration(
-                        hintText: 'Describe an image',
+                        hintText: 'Describe an image to create...',
                         hintStyle: TextStyle(
                           color: cs.onSurface.withValues(alpha: 0.45),
                           fontSize: 15,
@@ -888,4 +795,17 @@ class _ImageChatBox extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ImageModel {
+  const _ImageModel({required this.config, required this.id});
+  final ProviderConfig config;
+  final String id;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _ImageModel && config.id == other.config.id && id == other.id;
+
+  @override
+  int get hashCode => Object.hash(config.id, id);
 }

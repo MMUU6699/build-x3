@@ -89,12 +89,11 @@ function resolveNvidiaApiKey(model: string): string {
   const nemotronKey = Deno.env.get("NVIDIA_NEMOTRON_API_KEY")?.trim();
   const glmKey = Deno.env.get("NVIDIA_GLM_API_KEY")?.trim();
   const generalKey = Deno.env.get("NVIDIA_API_KEY")?.trim();
+  const isGlm = model.includes("glm");
 
-  const key = nemotronKey || glmKey || generalKey;
-  if (!key) {
-    throw new Error("Missing required server configuration: NVIDIA API key");
-  }
-  return key;
+  if (isGlm && glmKey) return glmKey;
+  if (!isGlm && nemotronKey) return nemotronKey;
+  return nemotronKey || glmKey || generalKey || "";
 }
 
 Deno.serve(async (req: Request) => {
@@ -106,7 +105,7 @@ Deno.serve(async (req: Request) => {
   try {
     await requireUser(req);
     const body = parseBody(await req.json());
-    const model = typeof body.model === "string" ? body.model : MODEL_GLM;
+    const model = typeof body.model === "string" ? body.model : MODEL_NEMOTRON;
     if (!ALLOWED_MODELS.has(model)) throw new InputError("Unsupported model");
 
     const isGlm = model === MODEL_GLM;
@@ -127,7 +126,7 @@ Deno.serve(async (req: Request) => {
       throw new InputError("stream must be a boolean");
     }
     const stream = body.stream != null ? Boolean(body.stream) : defaultStream;
-    const reasoningEffort = body.reasoning_effort ?? (isGlm ? "low" : "high");
+    const reasoningEffort = body.reasoning_effort ?? (isGlm ? "none" : "low");
     const allowedEfforts = isGlm
       ? new Set(["none", "low", "medium", "high", "max", "standard"])
       : new Set(["none", "low", "medium", "high", "standard"]);
@@ -157,6 +156,8 @@ Deno.serve(async (req: Request) => {
     if (isGlm) {
       if (reasoningEffort !== "none") {
         payload.chat_template_kwargs = { enable_thinking: true };
+      } else {
+        payload.chat_template_kwargs = { clear_thinking: true };
       }
     } else {
       payload.chat_template_kwargs = {
@@ -167,8 +168,8 @@ Deno.serve(async (req: Request) => {
       };
     }
 
-    const apiKey = resolveNvidiaApiKey(model);
     let activeModel = model;
+    let activeKey = resolveNvidiaApiKey(activeModel);
     let activePayload = { ...payload };
     let response: Response;
 
@@ -177,11 +178,11 @@ Deno.serve(async (req: Request) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
+          "Authorization": `Bearer ${activeKey}`,
           "Accept": stream ? "text/event-stream" : "application/json",
         },
         body: JSON.stringify(activePayload),
-        signal: AbortSignal.timeout(activeModel === MODEL_GLM ? 30000 : 120000),
+        signal: AbortSignal.timeout(activeModel === MODEL_GLM ? 3500 : 120000),
       });
 
       if (!response.ok && activeModel === MODEL_GLM && (response.status >= 500 || response.status === 404)) {
@@ -191,16 +192,19 @@ Deno.serve(async (req: Request) => {
       if (activeModel === MODEL_GLM) {
         console.warn("GLM unavailable or timed out; falling back to Nemotron", err);
         activeModel = MODEL_NEMOTRON;
+        activeKey = resolveNvidiaApiKey(MODEL_NEMOTRON);
         activePayload.model = MODEL_NEMOTRON;
         activePayload.chat_template_kwargs = {
-          enable_thinking: true,
-          medium_effort: true,
+          enable_thinking: reasoningEffort !== "none",
+          ...(reasoningEffort === "low" || reasoningEffort === "medium"
+            ? { medium_effort: true }
+            : {}),
         };
         response = await fetch(NVIDIA_API_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`,
+            "Authorization": `Bearer ${activeKey}`,
             "Accept": stream ? "text/event-stream" : "application/json",
           },
           body: JSON.stringify(activePayload),

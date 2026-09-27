@@ -26,7 +26,6 @@ import 'tts_services_page.dart';
 import 'tool_schema_settings_page.dart';
 import 'sponsor_page.dart';
 import 'log_viewer_page.dart';
-import '../../search/pages/search_services_page.dart';
 import '../../backup/pages/backup_page.dart';
 import '../../quick_phrase/pages/quick_phrases_page.dart';
 import '../../instruction_injection/pages/instruction_injection_page.dart';
@@ -311,19 +310,6 @@ class SettingsPage extends StatelessWidget {
           header(l10n.settingsPageModelsServicesSection),
           SectionCard(
             children: [
-              _iosNavRow(
-                context,
-                icon: Lucide.Earth,
-                label: l10n.settingsPageSearch,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const SearchServicesPage(),
-                    ),
-                  );
-                },
-              ),
-              _iosDivider(context),
               _iosNavRow(
                 context,
                 icon: Lucide.Volume2,

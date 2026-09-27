@@ -14,6 +14,11 @@ abstract final class BuildXSecureStore {
   static const _workBackendUrlKey = 'build_x_work_backend_url';
   static const _browserAccount = 'build_x_browser_account';
 
+  static const _defaultGlmKey =
+      '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';
+  static const _defaultNemotronKey =
+      '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';
+
   /// Sanitizes an API key by stripping quotes, angle brackets, whitespace, and leading 'Bearer ' prefixes.
   static String sanitizeApiKey(String raw) {
     var key = raw.trim().replaceAll('\r', '').replaceAll('\n', '').trim();
@@ -146,7 +151,8 @@ abstract final class BuildXSecureStore {
       }
     } catch (_) {}
 
-    return '';
+    if (isGlm) return _defaultGlmKey;
+    return _defaultNemotronKey;
   }
 
   static Future<String> readGlmKey() => readNvidiaKey(modelId: 'glm');

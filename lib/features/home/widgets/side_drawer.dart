@@ -2574,97 +2574,181 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildMobileSearchHeader(Color textBase, ColorScheme cs) {
-    if (!_isSearchExpanded && _query.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            HeaderBubbleButton(
-              size: 42,
-              onTap: () {
-                setState(() {
-                  _isSearchExpanded = true;
-                });
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _mobileSearchFocusNode.requestFocus();
-                });
-              },
-              child: Icon(
-                Lucide.Search,
-                size: 19,
-                color: textBase,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-      child: Container(
-        height: 42,
-        decoration: BoxDecoration(
-          color: context.appColors.surfaceFill.withValues(alpha: 0.85),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: cs.outline.withValues(alpha: 0.15),
-            width: 0.8,
+  Widget _buildBuildXBrand(Color textBase, ColorScheme cs) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'Build',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.6,
+            color: textBase,
           ),
         ),
-        child: Row(
-          children: [
-            const SizedBox(width: 12),
-            Icon(
-              Lucide.Search,
-              size: 17,
-              color: textBase.withValues(alpha: 0.6),
+        const SizedBox(width: 5),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                focusNode: _mobileSearchFocusNode,
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: _mobileSearchHint(),
-                  hintStyle: TextStyle(
-                    color: textBase.withValues(alpha: 0.45),
-                    fontSize: 14,
-                  ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                ),
-                style: TextStyle(
-                  color: textBase,
-                  fontSize: 14,
-                ),
-                onChanged: (val) {
-                  setState(() => _query = val);
-                },
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF2563EB).withValues(alpha: isDark ? 0.45 : 0.28),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
+            ],
+          ),
+          child: const Text(
+            'X',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: 0.2,
             ),
-            IconButton(
-              icon: Icon(
-                Lucide.X,
-                size: 18,
-                color: textBase.withValues(alpha: 0.7),
-              ),
-              onPressed: () {
-                _searchController.clear();
-                setState(() {
-                  _query = '';
-                  _isSearchExpanded = false;
-                });
-                _mobileSearchFocusNode.unfocus();
-              },
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildMobileSearchHeader(Color textBase, ColorScheme cs) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final totalWidth = constraints.maxWidth;
+        const buttonSize = 54.0;
+        final isExpanded = _isSearchExpanded || _query.isNotEmpty;
+
+        return SizedBox(
+          height: buttonSize,
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              // 1. Build X Brand (left) - Smoothly absorbed when search expands
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeInOutCubic,
+                left: isExpanded ? -40.0 : 0.0,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOutCubic,
+                  opacity: isExpanded ? 0.0 : 1.0,
+                  child: AnimatedScale(
+                    duration: const Duration(milliseconds: 280),
+                    curve: Curves.easeInOutCubic,
+                    scale: isExpanded ? 0.7 : 1.0,
+                    alignment: Alignment.centerLeft,
+                    child: _buildBuildXBrand(textBase, cs),
+                  ),
+                ),
+              ),
+
+              // 2. Search Container / Bubble (animates width from buttonSize to totalWidth)
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeInOutCubic,
+                right: 0,
+                width: isExpanded ? totalWidth : buttonSize,
+                height: buttonSize,
+                child: isExpanded
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: context.appColors.surfaceFill.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: cs.outline.withValues(alpha: 0.18),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 12,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 14),
+                            Icon(
+                              Lucide.Search,
+                              size: 20,
+                              color: textBase.withValues(alpha: 0.65),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                focusNode: _mobileSearchFocusNode,
+                                controller: _searchController,
+                                textInputAction: TextInputAction.search,
+                                decoration: InputDecoration(
+                                  hintText: _mobileSearchHint(),
+                                  hintStyle: TextStyle(
+                                    color: textBase.withValues(alpha: 0.45),
+                                    fontSize: 15,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                                style: TextStyle(
+                                  color: textBase,
+                                  fontSize: 15,
+                                ),
+                                onChanged: (val) {
+                                  setState(() => _query = val);
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Lucide.X,
+                                size: 20,
+                                color: textBase.withValues(alpha: 0.75),
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _query = '';
+                                  _isSearchExpanded = false;
+                                });
+                                _mobileSearchFocusNode.unfocus();
+                              },
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                        ),
+                      )
+                    : HeaderBubbleButton(
+                        size: buttonSize,
+                        onTap: () {
+                          setState(() {
+                            _isSearchExpanded = true;
+                          });
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _mobileSearchFocusNode.requestFocus();
+                          });
+                        },
+                        child: Icon(
+                          Lucide.Search,
+                          size: 27,
+                          color: textBase,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

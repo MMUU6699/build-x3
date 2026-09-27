@@ -80,7 +80,7 @@ abstract final class NvidiaChatCompletions {
       if (isGlm) 'chat_template_kwargs': {'clear_thinking': true},
       if (!isGlm) ...{
         'chat_template_kwargs': {
-          'enable_thinking': true,
+          'enable_thinking': !suppressReasoning,
           if (tools != null && tools.isNotEmpty) 'force_nonempty_content': true,
         },
       },
@@ -174,7 +174,7 @@ abstract final class NvidiaChatCompletions {
     yield const TextStart('nvidia-text');
     var emittedText = false;
     final thinkFilter = ThinkTagStreamFilter(
-      assumedThinking: !isGlm,
+      assumedThinking: !isGlm && !suppressReasoning,
       suppressReasoning: true, // Never expose raw chain-of-thought to the user
     );
 

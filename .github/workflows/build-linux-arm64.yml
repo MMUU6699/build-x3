@@ -1,0 +1,306 @@
+name: Build Linux ARM64
+
+env:
+  FLUTTER_VERSION: '3.38.4'
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: '发布到 Release'
+        required: false
+        default: false
+        type: boolean
+
+      release_tag:
+        description: 'Release 标签（如 v1.0.0）'
+        required: false
+        default: ''
+        type: string
+
+      prerelease:
+        description: '是否为预发布版本 (Pre-release)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  linux-arm64:
+    name: 构建 Linux ARM64
+    # 使用 GitHub 提供的 ARM64 runner（仅公开仓库可用）
+    runs-on: ubuntu-22.04-arm
+    permissions: write-all
+
+    steps:
+      - name: 📦 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config libgtk-3-dev \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
+            rpm patchelf libfuse2 file \
+            libkeybinder-3.0-dev libayatana-appindicator3-dev
+
+      - name: 🐦 安装 Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 📝 获取版本号
+        run: |
+          RAW_VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          VERSION=$RAW_VERSION
+          if [ "${{ github.event.inputs.publish_release }}" != "true" ]; then
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            VERSION="${VERSION}_${SHORT_SHA}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION_NUMBER=$(echo $RAW_VERSION | cut -d'+' -f1)" >> $GITHUB_ENV
+          echo "版本号: $VERSION"
+
+      - name: 🏗️ 构建 Linux ARM64
+        run: flutter build linux --release --dart-define-from-file=config/buildx.public.json
+
+      - name: 📦 打包 tar.gz
+        run: |
+          cd build/linux/arm64/release/bundle
+          tar -czf ../../../../../Build-X_linux_${VERSION}_arm64.tar.gz .
+
+      - name: 📦 创建 AppImage
+        run: |
+          # 下载 ARM64 版本的 appimagetool
+          wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage"
+          chmod +x appimagetool
+
+          # 创建 AppDir 结构
+          mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/lib
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+          cp -r build/linux/arm64/release/bundle/* AppDir/usr/bin/
+
+          # 创建 AppRun 脚本
+          cat > AppDir/AppRun << 'EOF'
+          #!/bin/bash
+          SELF=$(readlink -f "$0")
+          HERE=${SELF%/*}
+          export PATH="${HERE}/usr/bin:${PATH}"
+          export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
+          exec "${HERE}/usr/bin/Build-X" "$@"
+          EOF
+          chmod +x AppDir/AppRun
+
+          # 创建 desktop 文件
+          cat > AppDir/Build-X.desktop << EOF
+          [Desktop Entry]
+          Name=Build-X
+          Exec=Build-X
+          Icon=Build-X
+          Type=Application
+          Categories=Utility;
+          EOF
+
+          ICON_SOURCE="linux/Build-X.png"
+          if [ ! -f "$ICON_SOURCE" ]; then
+            ICON_SOURCE="assets/app_icon.png"
+          fi
+          if [ ! -f "$ICON_SOURCE" ]; then
+            echo "❌ Icon source not found"
+            exit 1
+          fi
+          install -Dm644 "$ICON_SOURCE" AppDir/Build-X.png
+          install -Dm644 "$ICON_SOURCE" "AppDir/usr/share/icons/hicolor/256x256/apps/Build-X.png"
+
+          # 构建 AppImage
+          ARCH=aarch64 ./appimagetool AppDir Build-X_linux_${VERSION}_arm64.AppImage
+
+      - name: 📦 创建 DEB 包
+        run: |
+          # 创建 DEB 目录结构
+          mkdir -p deb/DEBIAN
+          mkdir -p deb/opt/Build-X
+          mkdir -p deb/usr/share/applications
+          mkdir -p deb/usr/share/icons/hicolor/256x256/apps
+
+          # 复制文件
+          cp -r build/linux/arm64/release/bundle/* deb/opt/Build-X/
+
+          # 创建 control 文件
+          cat > deb/DEBIAN/control << EOF
+          Package: Build-X
+          Version: ${VERSION_NUMBER}
+          Section: utils
+          Priority: optional
+          Architecture: arm64
+          Maintainer: Psyche <your@email.com>
+          Depends: libgtk-3-0, libstdc++6, libglu1-mesa, libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libglib2.0-0, libc6
+          Description: Build-X Application
+           A Flutter application for Linux
+          EOF
+
+          # 创建 desktop 文件
+          cat > deb/usr/share/applications/Build-X.desktop << EOF
+          [Desktop Entry]
+          Name=Build-X
+          Exec=/opt/Build-X/Build-X
+          Icon=Build-X
+          Type=Application
+          Categories=Utility;
+          EOF
+
+          ICON_SOURCE="linux/Build-X.png"
+          if [ ! -f "$ICON_SOURCE" ]; then
+            ICON_SOURCE="assets/app_icon.png"
+          fi
+          if [ ! -f "$ICON_SOURCE" ]; then
+            echo "❌ Icon source not found"
+            exit 1
+          fi
+          install -Dm644 "$ICON_SOURCE" deb/usr/share/icons/hicolor/256x256/apps/Build-X.png
+
+          # 创建启动脚本
+          cat > deb/opt/Build-X/Build-X.sh << 'EOF'
+          #!/bin/bash
+          cd "$(dirname "$0")"
+          ./Build-X "$@"
+          EOF
+          chmod +x deb/opt/Build-X/Build-X.sh
+
+          # 构建 DEB 包
+          dpkg-deb --build deb Build-X_linux_${VERSION}_arm64.deb
+
+      - name: 📦 创建 RPM 包
+        run: |
+          # 创建 RPM 构建目录
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+          # 创建源码目录
+          mkdir -p Build-X-${VERSION_NUMBER}
+          cp -r build/linux/arm64/release/bundle/* Build-X-${VERSION_NUMBER}/
+          ICON_SOURCE="linux/Build-X.png"
+          if [ ! -f "$ICON_SOURCE" ]; then
+            ICON_SOURCE="assets/app_icon.png"
+          fi
+          if [ ! -f "$ICON_SOURCE" ]; then
+            echo "❌ Icon source not found"
+            exit 1
+          fi
+          cp "$ICON_SOURCE" Build-X-${VERSION_NUMBER}/Build-X.png
+          tar -czf ~/rpmbuild/SOURCES/Build-X-${VERSION_NUMBER}.tar.gz Build-X-${VERSION_NUMBER}
+
+          # 创建 spec 文件
+          cat > ~/rpmbuild/SPECS/Build-X.spec << EOF
+          Name:           Build-X
+          Version:        ${VERSION_NUMBER}
+          Release:        1%{?dist}
+          Summary:        Build-X Application
+          License:        MIT
+          Source0:        %{name}-%{version}.tar.gz
+          BuildArch:      aarch64
+          Requires:       gtk3, libstdc++ >= 6, mesa-libGLU, gstreamer1, gstreamer1-plugins-base, glib2, glibc
+
+          %description
+          A Flutter application for Linux
+
+          %prep
+          %setup -q
+
+          %install
+          mkdir -p %{buildroot}/opt/Build-X
+          cp -r * %{buildroot}/opt/Build-X/
+
+          mkdir -p %{buildroot}/usr/share/applications
+          cat > %{buildroot}/usr/share/applications/Build-X.desktop << 'DESKTOPEOF'
+          [Desktop Entry]
+          Name=Build-X
+          Exec=/opt/Build-X/Build-X
+          Icon=Build-X
+          Type=Application
+          Categories=Utility;
+          DESKTOPEOF
+
+          mkdir -p %{buildroot}/usr/share/icons/hicolor/256x256/apps
+          cp Build-X.png %{buildroot}/usr/share/icons/hicolor/256x256/apps/Build-X.png
+
+          %files
+          /opt/Build-X/*
+          /usr/share/applications/Build-X.desktop
+          /usr/share/icons/hicolor/256x256/apps/Build-X.png
+
+          %changelog
+          * $(date "+%a %b %d %Y") Psyche <your@email.com> - ${VERSION_NUMBER}-1
+          - Initial RPM release
+          EOF
+
+          # 构建 RPM
+          rpmbuild -bb ~/rpmbuild/SPECS/Build-X.spec
+          cp ~/rpmbuild/RPMS/aarch64/Build-X-${VERSION_NUMBER}-1.*.rpm Build-X_linux_${VERSION}_arm64.rpm
+      - name: 🔍 RPM 元数据（调试）
+        shell: bash
+        run: |
+          set -euxo pipefail
+          RPM_FILE="Build-X_linux_${VERSION}_arm64.rpm"
+          echo "RPM file: ${RPM_FILE}"
+          cp -f ~/rpmbuild/SPECS/Build-X.spec rpm-spec.spec
+          rpm -qp --info "${RPM_FILE}" | tee rpm-info.txt
+          rpm -qp --requires "${RPM_FILE}" | tee rpm-requires.txt
+          rpm -qp --provides "${RPM_FILE}" | tee rpm-provides.txt
+      - name: 📤 上传 RPM 元数据（调试）
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-ARM64-RPM-Metadata
+          path: |
+            rpm-spec.spec
+            rpm-info.txt
+            rpm-requires.txt
+            rpm-provides.txt
+      - name: 🧪 Fedora 43 安装测试
+        shell: bash
+        run: |
+          set -euxo pipefail
+          RPM_FILE="Build-X_linux_${VERSION}_arm64.rpm"
+          docker run --rm -v "${PWD}:/work" -w /work fedora:43 bash -lc "dnf -y install ./${RPM_FILE}"
+
+      - name: 🚀 发布到 Release
+        if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.release_tag }}
+          name: ${{ github.event.inputs.release_tag }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+          files: |
+            Build-X_linux_*_arm64.tar.gz
+            Build-X_linux_*_arm64.AppImage
+            Build-X_linux_*_arm64.deb
+            Build-X_linux_*_arm64.rpm
+
+      - name: 📤 上传构建产物 (tar.gz)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-ARM64-tar.gz
+          path: Build-X_linux_*_arm64.tar.gz
+
+      - name: 📤 上传构建产物 (AppImage)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-ARM64-AppImage
+          path: Build-X_linux_*_arm64.AppImage
+
+      - name: 📤 上传构建产物 (DEB)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-ARM64-DEB
+          path: Build-X_linux_*_arm64.deb
+
+      - name: 📤 上传构建产物 (RPM)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-ARM64-RPM
+          path: Build-X_linux_*_arm64.rpm

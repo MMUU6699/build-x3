@@ -1,0 +1,10 @@
+project_id = "build-x"
+
+[functions.nvidia-chat]
+verify_jwt = true
+
+[functions.daytona-sandbox]
+verify_jwt = true
+
+[functions.work-run]
+verify_jwt = true

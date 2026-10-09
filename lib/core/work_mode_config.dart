@@ -1,0 +1,73 @@
+import 'build_x_config.dart';
+
+/// Configuration and constants for Build X Work Mode.
+abstract final class WorkModeConfig {
+  static const apiBase = BuildXConfig.apiBase;
+  static const chatCompletionsEndpoint = BuildXConfig.chatCompletionsEndpoint;
+
+  /// The consolidated models powering Work Mode and Chat Mode.
+  static const modelNemotron = BuildXConfig.workModelId;
+  static const modelGlm = BuildXConfig.chatModelId;
+
+  static const List<String> availableModels = [modelNemotron, modelGlm];
+
+  static const defaultModel = modelNemotron;
+
+  static String modelDisplayName(String modelId) {
+    if (modelId == modelNemotron) {
+      return 'Nemotron 3 Ultra 550B';
+    }
+    if (modelId == modelGlm) {
+      return 'GLM 5.3 Flash';
+    }
+    return modelId;
+  }
+
+  static String modelSubtitle(String modelId) {
+    if (modelId == modelNemotron) {
+      return '550B Reasoning & Code (NVIDIA NIM)';
+    }
+    if (modelId == modelGlm) {
+      return 'Fast Conversational AI (NVIDIA NIM)';
+    }
+    return 'NVIDIA NIM';
+  }
+
+  /// Provider prefix for OpenAI-compatible model endpoints.
+  static String liteLlmModel(String modelId) => 'openai/$modelId';
+}
+
+enum WorkReasoningEffort {
+  low('low', 'Low', 'Fast reasoning'),
+  medium('medium', 'Medium', 'Balanced thinking'),
+  high('high', 'High', 'Deep reasoning'),
+  standard('standard', 'Thinking', 'Reasoning enabled');
+
+  const WorkReasoningEffort(this.apiValue, this.displayName, this.description);
+
+  final String apiValue;
+  final String displayName;
+  final String description;
+
+  static WorkReasoningEffort fromString(String? value) {
+    switch (value?.toLowerCase().trim()) {
+      case 'low':
+        return WorkReasoningEffort.low;
+      case 'high':
+        return WorkReasoningEffort.high;
+      case 'medium':
+      default:
+        return WorkReasoningEffort.medium;
+    }
+  }
+}
+
+enum AppWorkMode {
+  chat,
+  work,
+  image;
+
+  bool get isChat => this == AppWorkMode.chat;
+  bool get isWork => this == AppWorkMode.work;
+  bool get isImage => this == AppWorkMode.image;
+}

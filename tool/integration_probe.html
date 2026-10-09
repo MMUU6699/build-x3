@@ -1,0 +1,127 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Build X Integration Probe</title>
+<style>body{font-family:system-ui;max-width:760px;margin:2rem auto}input,button{display:block;width:100%;margin:.6rem 0;padding:.7rem;box-sizing:border-box}pre{white-space:pre-wrap;background:#111;color:#d7ffd7;padding:1rem;border-radius:.5rem}</style>
+<h1>Build X Integration Probe</h1>
+<input id="email" type="email" autocomplete="off" placeholder="Email">
+<input id="password" type="password" autocomplete="off" placeholder="Password">
+<button id="run">Run real integration tests</button>
+<pre id="result">READY</pre>
+<script>
+let supabaseUrl = '';
+let publishableKey = '';
+const runButton = document.querySelector('#run');
+runButton.disabled = true;
+fetch('../config/buildx.public.json')
+  .then((response) => {
+    if (!response.ok) throw new Error('Serve the repository root over HTTP to load config/buildx.public.json.');
+    return response.json();
+  })
+  .then((config) => {
+    supabaseUrl = config.SUPABASE_URL;
+    publishableKey = config.SUPABASE_PUBLISHABLE_KEY || config.SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !publishableKey) throw new Error('Supabase public config is incomplete.');
+    result.textContent = 'READY';
+    runButton.disabled = false;
+  })
+  .catch((error) => {
+    result.textContent = `CONFIGURATION ERROR — ${error.message}`;
+  });
+const result = document.querySelector('#result');
+const state = {};
+
+function show(name, ok, detail='') {
+  state[name] = { ok, detail };
+  result.textContent = Object.entries(state)
+    .map(([key, value]) => `${key}: ${value.ok ? 'PASS' : 'FAIL'}${value.detail ? ' — ' + value.detail : ''}`)
+    .join('\n');
+}
+
+async function request(path, options = {}, token = null) {
+  const response = await fetch(`${supabaseUrl}${path}`, {
+    ...options,
+    headers: {
+      apikey: publishableKey,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  });
+  const text = await response.text();
+  let body = null;
+  try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+  if (!response.ok) throw new Error(`${response.status}: ${typeof body === 'string' ? body : JSON.stringify(body)}`);
+  return { response, body };
+}
+
+async function functionCall(name, payload, token) {
+  return request(`/functions/v1/${name}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }, token);
+}
+
+document.querySelector('#run').addEventListener('click', async () => {
+  result.textContent = 'RUNNING';
+  for (const key of Object.keys(state)) delete state[key];
+  const email = document.querySelector('#email').value;
+  const password = document.querySelector('#password').value;
+  let accessToken, refreshToken, userId, sandboxId;
+  try {
+    const login = await request('/auth/v1/token?grant_type=password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    accessToken = login.body.access_token;
+    refreshToken = login.body.refresh_token;
+    userId = login.body.user?.id;
+    if (!accessToken || !refreshToken || !userId) throw new Error('Missing real session fields');
+    show('SUPABASE_AUTH_LOGIN', true);
+
+    const restored = await request('/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    accessToken = restored.body.access_token;
+    if (!accessToken || restored.body.user?.id !== userId) throw new Error('Refresh did not restore the same user');
+    show('SUPABASE_SESSION_RESTORE', true);
+
+    const me = await request('/auth/v1/user', { method: 'GET' }, accessToken);
+    if (me.body.id !== userId) throw new Error('Authenticated user mismatch');
+    show('SUPABASE_AUTH_USER', true);
+
+    const marker = `qa-${Date.now()}`;
+    await request(`/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' },
+      body: JSON.stringify({ display_name: marker }),
+    }, accessToken);
+    const profile = await request(`/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=id,display_name`, { method: 'GET' }, accessToken);
+    if (!Array.isArray(profile.body) || profile.body.length !== 1 || profile.body[0].display_name !== marker) {
+      throw new Error('Profile read/write verification failed');
+    }
+    show('SUPABASE_DATABASE', true);
+
+    const created = await functionCall('daytona-sandbox', { action: 'create' }, accessToken);
+    sandboxId = created.body.sandbox_id;
+    if (!sandboxId || created.body.action !== 'created') throw new Error('Daytona create response invalid');
+    show('DAYTONA_CREATE', true);
+
+    const fetched = await functionCall('daytona-sandbox', { action: 'get', sandbox_id: sandboxId }, accessToken);
+    if (fetched.body.sandbox_id !== sandboxId || fetched.body.action !== 'fetched') throw new Error('Daytona get response invalid');
+    show('DAYTONA_GET', true);
+
+    const deleted = await functionCall('daytona-sandbox', { action: 'delete', sandbox_id: sandboxId }, accessToken);
+    if (deleted.body.sandbox_id !== sandboxId || deleted.body.action !== 'deleted') throw new Error('Daytona delete response invalid');
+    sandboxId = null;
+    show('DAYTONA_DELETE', true);
+    show('COMPLETE', true);
+  } catch (error) {
+    show('COMPLETE', false, String(error));
+    if (sandboxId && accessToken) {
+      try { await functionCall('daytona-sandbox', { action: 'delete', sandbox_id: sandboxId }, accessToken); }
+      catch (_) {}
+    }
+  }
+});
+</script>

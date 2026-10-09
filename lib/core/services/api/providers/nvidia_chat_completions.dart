@@ -59,9 +59,10 @@ abstract final class NvidiaChatCompletions {
             : BuildXConfig.chatModelId);
     final isGlm = effectiveModel.contains('glm');
 
-    final effectiveTemp =
-        temperature ??
-        (isGlm ? BuildXConfig.chatTemperature : BuildXConfig.workTemperature);
+    final effectiveTemp = hasImages
+        ? 0.2
+        : (temperature ??
+            (isGlm ? BuildXConfig.chatTemperature : BuildXConfig.workTemperature));
     final effectiveTopP =
         topP ?? (isGlm ? BuildXConfig.chatTopP : BuildXConfig.workTopP);
     final effectiveMaxTokens =
@@ -82,7 +83,12 @@ abstract final class NvidiaChatCompletions {
     final hasSystem = formattedMessages.any((m) => m['role'] == 'system');
     if (!hasSystem) {
       formattedMessages = [
-        {'role': 'system', 'content': BuildXConfig.chatSystemPrompt},
+        {
+          'role': 'system',
+          'content': hasImages
+              ? 'You are Build X. You have full multimodal vision capabilities. Analyze the provided image and explain what is shown clearly, accurately, and concisely in natural Arabic. Do not repeat phrases. Be direct.'
+              : BuildXConfig.chatSystemPrompt,
+        },
         ...formattedMessages,
       ];
     }
@@ -112,6 +118,7 @@ abstract final class NvidiaChatCompletions {
       'temperature': effectiveTemp,
       'top_p': effectiveTopP,
       'max_tokens': effectiveMaxTokens,
+      'reasoning_effort': effectiveEffort,
       if (!hasImages && isGlm)
         'chat_template_kwargs': isThinkingEnabled
             ? {
@@ -162,51 +169,45 @@ abstract final class NvidiaChatCompletions {
       }
       eventStream = response.stream;
     } else {
-      // Production path: authenticated Supabase Edge Function owns secrets.
+      // Production path: authenticated Supabase Edge Function streams real-time SSE.
       try {
         final supabase = Supabase.instance.client;
-        if (supabase.auth.currentSession == null) {
-          throw const BuildXApiException(
-            userMessage: 'The AI service could not authenticate.',
-            statusCode: 401,
-          );
-        }
-        final response = await supabase.functions
-            .invoke(
-              'nvidia-chat',
-              headers: {
-                'Accept': effectiveStream
-                    ? 'text/event-stream'
-                    : 'application/json',
-              },
-              body: requestBody,
-            )
-            .timeout(const Duration(seconds: 135));
-        if (response.status < 200 || response.status >= 300) {
+        final session = supabase.auth.currentSession;
+        final token = session?.accessToken;
+        const envUrl = String.fromEnvironment('SUPABASE_URL');
+        const envKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+        const envAnon = String.fromEnvironment('SUPABASE_ANON_KEY');
+        final resolvedUrl = envUrl.isNotEmpty ? envUrl : 'https://wwiognlfiqruvcfrbler.supabase.co';
+        final resolvedKey = envKey.isNotEmpty
+            ? envKey
+            : (envAnon.isNotEmpty
+                ? envAnon
+                : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3aW9nbmxmaXFydXZjZnJibGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyNzAxMzQsImV4cCI6MjEwNTg0NjEzNH0.L42PZmBQOg0YYAmcu9VCAyE7Q1LLnJb3VSI5TjDSpew');
+        final functionUrl = '$resolvedUrl/functions/v1/nvidia-chat';
+
+        final request = http.Request('POST', Uri.parse(functionUrl))
+          ..headers.addAll({
+            'Authorization': 'Bearer ${token ?? resolvedKey}',
+            'apikey': resolvedKey,
+            'Content-Type': 'application/json',
+            'Accept': effectiveStream ? 'text/event-stream' : 'application/json',
+          })
+          ..body = jsonEncode(requestBody);
+
+        final response = await client
+            .send(request)
+            .timeout(const Duration(seconds: 120));
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          final errorBody = await response.stream.bytesToString();
           throw BuildXApiException.fromHttp(
-            statusCode: response.status,
-            responseBody: jsonEncode(response.data),
+            statusCode: response.statusCode,
+            responseBody: errorBody,
           );
         }
-        final data = response.data;
-        if (data is Stream<List<int>>) {
-          eventStream = data;
-        } else if (data is Map<String, dynamic> || data is String) {
-          final encoded = data is String ? data : jsonEncode(data);
-          eventStream = Stream.value(utf8.encode(encoded));
-        } else {
-          throw const BuildXApiException(
-            userMessage: 'Connection interrupted. Please try again.',
-            statusCode: 502,
-          );
-        }
+        eventStream = response.stream;
       } on BuildXApiException {
         rethrow;
-      } on FunctionException catch (error) {
-        throw BuildXApiException.fromHttp(
-          statusCode: error.status,
-          responseBody: error.details?.toString() ?? error.reasonPhrase ?? '',
-        );
       } catch (error) {
         throw BuildXApiException.network(error);
       }

@@ -183,19 +183,22 @@ class ChatInputSection extends StatelessWidget {
       mediaController: mediaController,
       asrProvider: asr,
       onConfigureReasoning: onConfigureReasoning,
-      reasoningActive: isReasoningEnabled(
-        (context.watch<AssistantProvider>().currentAssistant?.thinkingBudget) ??
-            settings.thinkingBudget,
-      ),
-      reasoningBudget:
-          (context
-              .watch<AssistantProvider>()
-              .currentAssistant
-              ?.thinkingBudget) ??
-          settings.thinkingBudget,
-      supportsReasoning: (pk != null && mid != null)
-          ? isReasoningModel(pk, mid)
-          : false,
+      reasoningActive: () {
+        final ab = context.watch<AssistantProvider>().currentAssistant?.thinkingBudget;
+        final sb = settings.thinkingBudget;
+        if (ab != null && ab > 0) return true;
+        if (sb != null && sb > 0) return true;
+        if (ab == 0 || sb == 0) return false;
+        return isReasoningEnabled(ab ?? sb);
+      }(),
+      reasoningBudget: () {
+        final ab = context.watch<AssistantProvider>().currentAssistant?.thinkingBudget;
+        final sb = settings.thinkingBudget;
+        if (ab != null && ab > 0) return ab;
+        if (sb != null && sb > 0) return sb;
+        return (ab ?? sb);
+      }(),
+      supportsReasoning: true,
       onOpenSearch: onOpenSearch,
       onSend: onSend,
       loading: isLoading,
@@ -338,20 +341,6 @@ class ChatInputSection extends StatelessWidget {
       });
     }
 
-    final supportsReasoning = isReasoningModel(pk, mid);
-    if (!supportsReasoning && a != null) {
-      final enabledNow = isReasoningEnabled(
-        a.thinkingBudget ?? settings.thinkingBudget,
-      );
-      if (enabledNow) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final aa = ap.currentAssistant;
-          if (aa != null) {
-            await ap.updateAssistant(aa.copyWith(thinkingBudget: 0));
-          }
-        });
-      }
-    }
   }
 
 

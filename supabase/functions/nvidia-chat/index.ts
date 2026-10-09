@@ -131,9 +131,15 @@ Deno.serve(async (req: Request) => {
     const model = typeof body.model === "string" ? body.model : MODEL_NEMOTRON;
     if (!ALLOWED_MODELS.has(model)) throw new InputError("Unsupported model");
 
-    const isGlm = model.includes("glm");
+    let parsedMsgs = parseMessages(body.messages);
+    const hasImages = parsedMsgs.some((m) => {
+      const c = m.content;
+      return Array.isArray(c) && c.some((p) => p && typeof p === "object" && (p as Record<string, unknown>).type === "image_url");
+    });
+
+    const isGlm = !hasImages && model.includes("glm");
     const defaultMaxTokens = 16384;
-    const defaultTemp = isGlm ? 0.5 : 1.0;
+    const defaultTemp = hasImages ? 0.2 : (isGlm ? 0.5 : 1.0);
     const defaultTopP = isGlm ? 1.0 : 0.95;
     const defaultStream = true;
 
@@ -159,20 +165,23 @@ Deno.serve(async (req: Request) => {
         : "reasoning_effort must be none, low, medium, high, or standard");
     }
 
-    let parsedMsgs = parseMessages(body.messages);
     const hasSystem = parsedMsgs.some((m) => m.role === "system");
     if (!hasSystem) {
       parsedMsgs = [{
         role: "system",
-        content: "You are Build X, an advanced AI assistant. You converse naturally, fluently, and directly with the user.\n" +
-          "- When addressed in Arabic, respond in clear, natural, grammatically correct Arabic with proper RTL sentence structure.\n" +
-          "- When addressed in English, respond in natural English.\n" +
-          "- Always provide direct, helpful, and non-empty responses."
+        content: hasImages
+          ? "You are Build X. You have full multimodal vision capabilities. Analyze the provided image and explain what is shown clearly, accurately, and concisely in natural Arabic. Do not repeat phrases. Be direct."
+          : "You are Build X, an advanced AI assistant. You converse naturally, fluently, and directly with the user.\n" +
+            "- When addressed in Arabic, respond in clear, natural, grammatically correct Arabic with proper RTL sentence structure.\n" +
+            "- When addressed in English, respond in natural English.\n" +
+            "- Always provide direct, helpful, and non-empty responses."
       }, ...parsedMsgs];
     }
 
+    const effectiveModel = hasImages ? MODEL_VISION : model;
+
     const payload: Record<string, unknown> = {
-      model,
+      model: effectiveModel,
       messages: parsedMsgs,
       temperature: numberInRange(body.temperature, "temperature", 0, 1, defaultTemp),
       top_p: numberInRange(body.top_p, "top_p", 0, 1, defaultTopP),
@@ -180,13 +189,15 @@ Deno.serve(async (req: Request) => {
       stream,
     };
 
-    if (isGlm) {
+    if (body.chat_template_kwargs && typeof body.chat_template_kwargs === "object") {
+      payload.chat_template_kwargs = body.chat_template_kwargs;
+    } else if (isGlm) {
       if (reasoningEffort !== "none") {
         payload.chat_template_kwargs = { enable_thinking: true };
       } else {
         payload.chat_template_kwargs = { clear_thinking: true };
       }
-    } else {
+    } else if (!hasImages) {
       payload.chat_template_kwargs = {
         enable_thinking: reasoningEffort !== "none",
         force_nonempty_content: true,
@@ -196,7 +207,7 @@ Deno.serve(async (req: Request) => {
       };
     }
 
-    let activeModel = model;
+    let activeModel = effectiveModel;
     let activeKey = resolveNvidiaApiKey(activeModel);
     let activePayload = { ...payload };
     let response: Response;

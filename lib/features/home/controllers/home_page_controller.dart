@@ -2875,8 +2875,11 @@ class HomePageController extends ChangeNotifier {
     final lastUserIndex = msgList.lastIndexWhere((m) => m.role == 'user');
     if (lastUserIndex >= 0) {
       final userMsg = msgList[lastUserIndex];
+      final collapsed = _chatController.collapsedMessages;
+      final collapsedIndex = collapsed.indexWhere((m) => m.id == userMsg.id);
+      final targetIndex = collapsedIndex >= 0 ? collapsedIndex : lastUserIndex;
       _scrollCtrl.scrollToNewUserMessageTop(
-        index: lastUserIndex,
+        index: targetIndex,
         messageId: userMsg.id,
         animate: animate,
       );

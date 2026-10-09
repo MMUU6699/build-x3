@@ -2874,12 +2874,17 @@ class _ChatInputBarState extends State<ChatInputBar>
                           isDark: isDark,
                           onTap: _composerLocked
                               ? null
-                              : widget.onConfigureReasoning,
-                          onLongPress: () async {
-                            Haptics.light();
-                            await settings.setThinkingBudget(0);
-                            if (mounted) setState(() {});
-                          },
+                              : () async {
+                                  Haptics.light();
+                                  final ap = context.read<AssistantProvider>();
+                                  await settings.setThinkingBudget(0);
+                                  final a = ap.currentAssistant;
+                                  if (a != null) {
+                                    await ap.updateAssistant(a.copyWith(thinkingBudget: 0));
+                                  }
+                                  if (mounted) setState(() {});
+                                },
+                          onLongPress: widget.onConfigureReasoning,
                         ),
                       ],
                       // Middle: Spacer on mobile, desktop tools on desktop

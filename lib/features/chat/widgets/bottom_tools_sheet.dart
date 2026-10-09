@@ -238,11 +238,13 @@ class BottomToolsSheet extends StatelessWidget {
                                   selected: isThinkingActive,
                                   onTap: () async {
                                     Haptics.light();
+                                    final ap = context.read<AssistantProvider>();
                                     Navigator.of(context).maybePop();
-                                    if (isThinkingActive) {
-                                      await sp.setThinkingBudget(0);
-                                    } else {
-                                      await sp.setThinkingBudget(4096);
+                                    final newBudget = isThinkingActive ? 0 : 4096;
+                                    await sp.setThinkingBudget(newBudget);
+                                    final a = ap.currentAssistant;
+                                    if (a != null) {
+                                      await ap.updateAssistant(a.copyWith(thinkingBudget: newBudget));
                                     }
                                   },
                                   onLongPress: () async {

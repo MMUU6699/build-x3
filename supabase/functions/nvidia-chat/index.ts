@@ -9,8 +9,10 @@ import {
 const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 
 const MODEL_NEMOTRON = "nvidia/nemotron-3-ultra-550b-a55b";
-const MODEL_GLM = "z-ai/glm-5.3-flash";
-const ALLOWED_MODELS = new Set([MODEL_NEMOTRON, MODEL_GLM]);
+const MODEL_GLM = "z-ai/glm-5.3";
+const MODEL_GLM_FLASH = "z-ai/glm-5.3-flash";
+const MODEL_VISION = "meta/llama-3.2-11b-vision-instruct";
+const ALLOWED_MODELS = new Set([MODEL_NEMOTRON, MODEL_GLM, MODEL_GLM_FLASH, MODEL_VISION]);
 
 // Both selected NVIDIA model pages advertise up to 1M context. max_tokens is
 // the completion allowance; reasoning_effort remains a separate API field.
@@ -129,7 +131,7 @@ Deno.serve(async (req: Request) => {
     const model = typeof body.model === "string" ? body.model : MODEL_NEMOTRON;
     if (!ALLOWED_MODELS.has(model)) throw new InputError("Unsupported model");
 
-    const isGlm = model === MODEL_GLM;
+    const isGlm = model.includes("glm");
     const defaultMaxTokens = 16384;
     const defaultTemp = isGlm ? 0.5 : 1.0;
     const defaultTopP = isGlm ? 1.0 : 0.95;
@@ -211,11 +213,11 @@ Deno.serve(async (req: Request) => {
         signal: AbortSignal.timeout(120000),
       });
 
-      if (!response.ok && activeModel === MODEL_GLM && (response.status >= 500 || response.status === 404)) {
+      if (!response.ok && activeModel.includes("glm") && (response.status >= 500 || response.status === 404)) {
         throw new Error(`GLM returned HTTP ${response.status}`);
       }
     } catch (err) {
-      if (activeModel === MODEL_GLM) {
+      if (activeModel.includes("glm")) {
         console.warn("GLM unavailable or timed out; falling back to Nemotron", err);
         activeModel = MODEL_NEMOTRON;
         activeKey = resolveNvidiaApiKey(MODEL_NEMOTRON);

@@ -159,10 +159,14 @@ Future<void> main() async {
       const envUrl = String.fromEnvironment('SUPABASE_URL');
       const envPublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
       const envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
-      final supabaseUrl = envUrl;
+      final supabaseUrl = envUrl.isNotEmpty
+          ? envUrl
+          : 'https://wwiognlfiqruvcfrbler.supabase.co';
       final supabasePublishableKey = envPublishableKey.isNotEmpty
           ? envPublishableKey
-          : envAnonKey;
+          : envAnonKey.isNotEmpty
+              ? envAnonKey
+              : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3aW9nbmxmaXFydXZjZnJibGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyNzAxMzQsImV4cCI6MjEwNTg0NjEzNH0.L42PZmBQOg0YYAmcu9VCAyE7Q1LLnJb3VSI5TjDSpew';
       if (supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty) {
         try {
           await Supabase.initialize(
